@@ -2,6 +2,8 @@ import {TwingError} from "./error";
 import {TwingSource} from "./source";
 import {TwingNode} from "./node";
 
+export type TwingCallable = (...args: any[]) => Promise<any>;
+
 export type TwingCallableArgument = {
   name: string,
   defaultValue?: any
@@ -21,13 +23,13 @@ export type TwingCallableWrapperOptions = {
 
 export abstract class TwingCallableWrapper {
     readonly name: string;
-    readonly callable: Function;
+    readonly callable: TwingCallable;
     readonly acceptedArguments: TwingCallableArgument[];
     readonly options: TwingCallableWrapperOptions;
 
     private arguments: Array<any> = [];
 
-    protected constructor(name: string, callable: Function, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
+    protected constructor(name: string, callable: TwingCallable, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         this.name = name;
         this.callable = callable;
         this.acceptedArguments = acceptedArguments;
@@ -67,14 +69,14 @@ export abstract class TwingCallableWrapper {
      *
      * @param {number} lineno
      * @param {TwingSource} source
-     * @return {Function}
+     * @return {TwingCallable}
      */
     traceableCallable(lineno: number, source: TwingSource) {
         let callable = this.callable;
 
-        return function () {
+        return async function () {
             try {
-                return callable.apply(null, arguments);
+                return await callable.apply(null, arguments);
             } catch (e) {
                 if (e instanceof TwingError) {
                     if (e.getTemplateLine() === -1) {

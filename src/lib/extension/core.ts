@@ -314,37 +314,37 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'fill', defaultValue: null},
                 {name: 'preserve_keys', defaultValue: true}
             ]),
-            new TwingFilter('capitalize', capitalize, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('column', column, [
-                {name: 'name'}
-            ]),
-            new TwingFilter('convert_encoding', convertEncoding, [
-                {name: 'to'},
-                {name: 'from'}
-            ], {
-                pre_escape: 'html',
-                is_safe: ['html']
-            }),
-            new TwingFilter('date', date, [
-                {name: 'format', defaultValue: null},
-                {name: 'timezone', defaultValue: null}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('date_modify', dateModify, [
-                {name: 'modifier'}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('default', defaultFilter, [
-                {name: 'default'}
-            ], {
-                expression_factory: function (node: TwingNode, filterName: TwingNodeExpressionConstant, methodArguments: TwingNode, lineno: number, columnno: number, tag: string) {
-                    return new TwingNodeExpressionFilterDefault(node, filterName, methodArguments, lineno, columnno, tag);
-                }
-            }),
+            // new TwingFilter('capitalize', capitalize, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('column', column, [
+            //     {name: 'name'}
+            // ]),
+            // new TwingFilter('convert_encoding', convertEncoding, [
+            //     {name: 'to'},
+            //     {name: 'from'}
+            // ], {
+            //     pre_escape: 'html',
+            //     is_safe: ['html']
+            // }),
+            // new TwingFilter('date', date, [
+            //     {name: 'format', defaultValue: null},
+            //     {name: 'timezone', defaultValue: null}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('date_modify', dateModify, [
+            //     {name: 'modifier'}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('default', defaultFilter, [
+            //     {name: 'default'}
+            // ], {
+            //     expression_factory: function (node: TwingNode, filterName: TwingNodeExpressionConstant, methodArguments: TwingNode, lineno: number, columnno: number, tag: string) {
+            //         return new TwingNodeExpressionFilterDefault(node, filterName, methodArguments, lineno, columnno, tag);
+            //     }
+            // }),
             new TwingFilter('e', escape, [
                 {name: 'strategy'},
                 {name: 'charset'}
@@ -359,185 +359,185 @@ export class TwingExtensionCore extends TwingExtension {
                 needs_environment: true,
                 is_safe_callback: this.escapeFilterIsSafe
             }),
-            new TwingFilter('filter', filter, [
-                {name: 'array'},
-                {name: 'arrow'}
-            ]),
-            new TwingFilter('first', firstFilter, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('format', format, []),
-            new TwingFilter('join', join, [
-                {name: 'glue', defaultValue: ''},
-                {name: 'and', defaultValue: null}
-            ]),
-            new TwingFilter('json_encode', jsonEncode, [
-                {name: 'options', defaultValue: null}
-            ]),
-            new TwingFilter('keys', arrayKeys, []),
-            new TwingFilter('last', last, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('length', length, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('lower', lower, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('map', map, [
-                {name: 'arrow'}
-            ]),
-            new TwingFilter('merge', mergeFilter, []),
-            new TwingFilter('nl2br', nl2br, [], {
-                pre_escape: 'html',
-                is_safe: ['html']
-            }),
-            new TwingFilter('number_format', numberFormat, [
-                {name: 'decimal'},
-                {name: 'decimal_point'},
-                {name: 'thousand_sep'}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('raw', raw, [], {
-                is_safe: ['all']
-            }),
-            new TwingFilter('reduce', reduce, [
-                {name: 'arrow'},
-                {name: 'initial', defaultValue: null}
-            ]),
-            new TwingFilter('replace', replace, [
-                {name: 'from'}
-            ]),
-            new TwingFilter('reverse', reverseFilter, [
-                {name: 'preserve_keys', defaultValue: false}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('round', round, [
-                {name: 'precision', defaultValue: 0},
-                {name: 'method', defaultValue: 'common'}
-            ]),
-            new TwingFilter('slice', sliceFilter, [
-                {name: 'start'},
-                {name: 'length', defaultValue: null},
-                {name: 'preserve_keys', defaultValue: false}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('sort', sort, []),
-            new TwingFilter('spaceless', spaceless, [], {
-                is_safe: ['html']
-            }),
-            new TwingFilter('split', split, [
-                {name: 'delimiter'},
-                {name: 'limit'}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFilter('striptags', striptags, [
-                {name: 'allowable_tags'}
-            ]),
-            new TwingFilter('title', title, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('trim', trim, [
-                {name: 'character_mask', defaultValue: null},
-                {name: 'side', defaultValue: 'both'}
-            ]),
-            new TwingFilter('upper', upper, [], {
-                needs_environment: true
-            }),
-            new TwingFilter('url_encode', urlEncode, []),
+            // new TwingFilter('filter', filter, [
+            //     {name: 'array'},
+            //     {name: 'arrow'}
+            // ]),
+            // new TwingFilter('first', firstFilter, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('format', format, []),
+            // new TwingFilter('join', join, [
+            //     {name: 'glue', defaultValue: ''},
+            //     {name: 'and', defaultValue: null}
+            // ]),
+            // new TwingFilter('json_encode', jsonEncode, [
+            //     {name: 'options', defaultValue: null}
+            // ]),
+            // new TwingFilter('keys', arrayKeys, []),
+            // new TwingFilter('last', last, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('length', length, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('lower', lower, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('map', map, [
+            //     {name: 'arrow'}
+            // ]),
+            // new TwingFilter('merge', mergeFilter, []),
+            // new TwingFilter('nl2br', nl2br, [], {
+            //     pre_escape: 'html',
+            //     is_safe: ['html']
+            // }),
+            // new TwingFilter('number_format', numberFormat, [
+            //     {name: 'decimal'},
+            //     {name: 'decimal_point'},
+            //     {name: 'thousand_sep'}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('raw', raw, [], {
+            //     is_safe: ['all']
+            // }),
+            // new TwingFilter('reduce', reduce, [
+            //     {name: 'arrow'},
+            //     {name: 'initial', defaultValue: null}
+            // ]),
+            // new TwingFilter('replace', replace, [
+            //     {name: 'from'}
+            // ]),
+            // new TwingFilter('reverse', reverseFilter, [
+            //     {name: 'preserve_keys', defaultValue: false}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('round', round, [
+            //     {name: 'precision', defaultValue: 0},
+            //     {name: 'method', defaultValue: 'common'}
+            // ]),
+            // new TwingFilter('slice', sliceFilter, [
+            //     {name: 'start'},
+            //     {name: 'length', defaultValue: null},
+            //     {name: 'preserve_keys', defaultValue: false}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('sort', sort, []),
+            // new TwingFilter('spaceless', spaceless, [], {
+            //     is_safe: ['html']
+            // }),
+            // new TwingFilter('split', split, [
+            //     {name: 'delimiter'},
+            //     {name: 'limit'}
+            // ], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('striptags', striptags, [
+            //     {name: 'allowable_tags'}
+            // ]),
+            // new TwingFilter('title', title, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('trim', trim, [
+            //     {name: 'character_mask', defaultValue: null},
+            //     {name: 'side', defaultValue: 'both'}
+            // ]),
+            // new TwingFilter('upper', upper, [], {
+            //     needs_environment: true
+            // }),
+            // new TwingFilter('url_encode', urlEncode, []),
         ];
     }
 
-    getFunctions() {
-        return [
-            new TwingFunction('constant', constant, [
-                {name: 'name'},
-                {name: 'object', defaultValue: null}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFunction('cycle', cycle, [
-                {name: 'values'},
-                {name: 'position'}
-            ]),
-            new TwingFunction('date', dateFunction, [
-                {name: 'date'},
-                {name: 'timezone'}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFunction('dump', dump, [], {
-                is_safe: ['html'],
-                needs_context: true
-            }),
-            new TwingFunction('include', include, [
-                {name: 'template'},
-                {name: 'variables', defaultValue: {}},
-                {name: 'with_context', defaultValue: true},
-                {name: 'ignore_missing', defaultValue: false},
-                {name: 'sandboxed', defaultValue: false}
-            ], {
-                needs_context: true,
-                needs_environment: true,
-                needs_source: true,
-                is_safe: ['all']
-            }),
-            new TwingFunction('max', max, []),
-            new TwingFunction('min', min, []),
-            new TwingFunction('random', random, [
-                {name: 'values', defaultValue: null},
-                {name: 'max', defaultValue: null}
-            ], {
-                needs_environment: true
-            }),
-            new TwingFunction('range', range, [
-                {name: 'low'},
-                {name: 'high'},
-                {name: 'step'}
-            ]),
-            new TwingFunction('source', source, [
-                {name: 'name'},
-                {name: 'ignore_missing', defaultValue: false}
-            ], {
-                needs_environment: true,
-                needs_source: true,
-                is_safe: ['all']
-            }),
-            new TwingFunction('template_from_string', templateFromString, [
-                {name: 'template'},
-                {name: 'name', defaultValue: null}
-            ], {
-                needs_environment: true
-            })
-        ];
-    }
+    // getFunctions() {
+    //     return [
+    //         new TwingFunction('constant', constant, [
+    //             {name: 'name'},
+    //             {name: 'object', defaultValue: null}
+    //         ], {
+    //             needs_environment: true
+    //         }),
+    //         new TwingFunction('cycle', cycle, [
+    //             {name: 'values'},
+    //             {name: 'position'}
+    //         ]),
+    //         new TwingFunction('date', dateFunction, [
+    //             {name: 'date'},
+    //             {name: 'timezone'}
+    //         ], {
+    //             needs_environment: true
+    //         }),
+    //         new TwingFunction('dump', dump, [], {
+    //             is_safe: ['html'],
+    //             needs_context: true
+    //         }),
+    //         new TwingFunction('include', include, [
+    //             {name: 'template'},
+    //             {name: 'variables', defaultValue: {}},
+    //             {name: 'with_context', defaultValue: true},
+    //             {name: 'ignore_missing', defaultValue: false},
+    //             {name: 'sandboxed', defaultValue: false}
+    //         ], {
+    //             needs_context: true,
+    //             needs_environment: true,
+    //             needs_source: true,
+    //             is_safe: ['all']
+    //         }),
+    //         new TwingFunction('max', max, []),
+    //         new TwingFunction('min', min, []),
+    //         new TwingFunction('random', random, [
+    //             {name: 'values', defaultValue: null},
+    //             {name: 'max', defaultValue: null}
+    //         ], {
+    //             needs_environment: true
+    //         }),
+    //         new TwingFunction('range', range, [
+    //             {name: 'low'},
+    //             {name: 'high'},
+    //             {name: 'step'}
+    //         ]),
+    //         new TwingFunction('source', source, [
+    //             {name: 'name'},
+    //             {name: 'ignore_missing', defaultValue: false}
+    //         ], {
+    //             needs_environment: true,
+    //             needs_source: true,
+    //             is_safe: ['all']
+    //         }),
+    //         new TwingFunction('template_from_string', templateFromString, [
+    //             {name: 'template'},
+    //             {name: 'name', defaultValue: null}
+    //         ], {
+    //             needs_environment: true
+    //         })
+    //     ];
+    // }
 
-    getTests(): Array<TwingTest> {
-        return [
-            new TwingTest('constant', null, [], {
-                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
-                }
-            }),
-            new TwingTest('divisible by', divisibleBy, []),
-            new TwingTest('defined', null, [], {
-                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
-                }
-            }),
-            new TwingTest('empty', empty, []),
-            new TwingTest('even', even, []),
-            new TwingTest('iterable', iterable, []),
-            new TwingTest('none', nullTest, []),
-            new TwingTest('null', nullTest, []),
-            new TwingTest('odd', odd, []),
-            new TwingTest('same as', sameAs, []),
-        ];
-    }
+    // getTests(): Array<TwingTest> {
+    //     return [
+    //         new TwingTest('constant', null, [], {
+    //             expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
+    //                 return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
+    //             }
+    //         }),
+    //         new TwingTest('divisible by', divisibleBy, []),
+    //         new TwingTest('defined', null, [], {
+    //             expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
+    //                 return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
+    //             }
+    //         }),
+    //         new TwingTest('empty', empty, []),
+    //         new TwingTest('even', even, []),
+    //         new TwingTest('iterable', iterable, []),
+    //         new TwingTest('none', nullTest, []),
+    //         new TwingTest('null', nullTest, []),
+    //         new TwingTest('odd', odd, []),
+    //         new TwingTest('same as', sameAs, []),
+    //     ];
+    // }
 
     getOperators(): TwingOperator[] {
         return [

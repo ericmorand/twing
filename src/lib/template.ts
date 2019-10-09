@@ -19,7 +19,7 @@ import {compare} from "./helpers/compare";
 import {count} from "./helpers/count";
 import {isCountable} from "./helpers/is-countable";
 import {isPlainObject} from "./helpers/is-plain-object";
-import {iterate} from "./helpers/iterate";
+import {iterate, IterateCallback} from "./helpers/iterate";
 import {isIn} from "./helpers/is-in";
 import {ensureTraversable} from "./helpers/ensure-traversable";
 import {getAttribute} from "./helpers/get-attribute";
@@ -303,7 +303,7 @@ export abstract class TwingTemplate {
         return this.blocks;
     }
 
-    display(context: any, blocks: Map<string, Array<any>> = new Map()) {
+    async display(context: any, blocks: Map<string, Array<any>> = new Map()) {
         if (context === null) {
             throw new TypeError('Argument 1 passed to TwingTemplate::display() must be an iterator, null given');
         }
@@ -314,16 +314,16 @@ export abstract class TwingTemplate {
 
         context = new TwingContext(this.env.mergeGlobals(context));
 
-        this.displayWithErrorHandling(context, merge(this.blocks, blocks) as Map<string, Array<any>>);
+        await this.displayWithErrorHandling(context, merge(this.blocks, blocks) as Map<string, Array<any>>);
     }
 
-    render(context: any): string {
+    async render(context: any): Promise<string> {
         let level = obGetLevel();
 
         obStart();
 
         try {
-            this.display(context);
+            await this.display(context);
         } catch (e) {
             while (obGetLevel() > level) {
                 obEndClean();
@@ -341,15 +341,15 @@ export abstract class TwingTemplate {
      * @param {*} context An array of parameters to pass to the template
      * @param {Map<string, Array<*>>} blocks  An array of blocks to pass to the template
      */
-    abstract doDisplay(context: {}, blocks: Map<string, Array<any>>): void;
+    abstract async doDisplay(context: {}, blocks: Map<string, Array<any>>): Promise<void>;
 
     protected doGetParent(context: any): TwingTemplate | string | false {
         return false;
     }
 
-    protected displayWithErrorHandling(context: any, blocks: Map<string, Array<any>> = new Map()) {
+    protected async displayWithErrorHandling(context: any, blocks: Map<string, Array<any>> = new Map()) {
         try {
-            this.doDisplay(context, blocks);
+            await this.doDisplay(context, blocks);
         } catch (e) {
             if (e instanceof TwingError) {
                 if (!e.getSourceContext()) {
@@ -491,7 +491,7 @@ export abstract class TwingTemplate {
         return isIn;
     }
 
-    protected get iterate(): (it: any, cb: <K, V>(k: K, v: V) => void) => void {
+    protected get iterate(): (it: any, cb: IterateCallback) => Promise<void> {
         return iterate;
     }
 

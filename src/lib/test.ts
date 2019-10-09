@@ -1,7 +1,12 @@
 import {TwingNodeExpression} from "./node/expression";
 import {TwingNode} from "./node";
 import {TwingNodeExpressionTest} from "./node/expression/test";
-import {TwingCallableArgument, TwingCallableWrapper, TwingCallableWrapperOptions} from "./callable-wrapper";
+import {
+    TwingCallable,
+    TwingCallableArgument,
+    TwingCallableWrapper,
+    TwingCallableWrapperOptions
+} from "./callable-wrapper";
 
 type TwingTestCallable = (...args: any[]) => boolean;
 
@@ -16,7 +21,7 @@ export class TwingTest extends TwingCallableWrapper {
      * @param {TwingCallableArgument[]} acceptedArguments
      * @param {TwingCallableWrapperOptions} options Options
      */
-    constructor(name: string, callable: TwingTestCallable, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
+    constructor(name: string, callable: TwingCallable, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         super(name, callable, acceptedArguments);
 
         this.options.expression_factory = function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {

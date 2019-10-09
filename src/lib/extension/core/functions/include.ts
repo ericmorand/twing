@@ -23,7 +23,7 @@ import {isPlainObject} from "../../../helpers/is-plain-object";
  *
  * @returns {string} The rendered template
  */
-export function include(env: TwingEnvironment, context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): string {
+export function include(env: TwingEnvironment, context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): any {
     let alreadySandboxed = env.isSandboxed();
 
     if (!isPlainObject(variables) && !isTraversable(variables)) {

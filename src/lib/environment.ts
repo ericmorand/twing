@@ -258,8 +258,8 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {{}} context An array of parameters to pass to the template
      * @returns {Promise<string>}
      */
-    render(name: string, context: any = {}): string {
-        return this.loadTemplate(name).render(context);
+    render(name: string, context: any = {}): Promise<string> {
+        return Promise.resolve(this.loadTemplate(name).render(context));
     }
 
     /**
@@ -548,6 +548,8 @@ export abstract class TwingEnvironment extends EventEmitter {
             if (e instanceof TwingError) {
                 throw e;
             } else {
+                console.error(e);
+
                 throw new TwingErrorSyntax(`An exception has been thrown during the compilation of a template ("${e.message}").`, -1, source);
             }
         }

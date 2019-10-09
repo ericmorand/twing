@@ -47,55 +47,55 @@ class TwingTestExtension extends TwingExtension {
         ];
     }
 
-    getFilters() {
-        return [
-            // new TwingFilter('§', array($this, '§Filter')),
-            new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
-                'needs_environment': true,
-                'is_safe': ['html']
-            }),
-            // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
-            new TwingFilter('nl2br_', nl2br, [], {'pre_escape': 'html', 'is_safe': ['html']}),
-            new TwingFilter('§', this.sectionFilter, []),
-            new TwingFilter('escape_something', escape_something, [], {'is_safe': ['something']}),
-            new TwingFilter('preserves_safety', preserves_safety, [], {'preserves_safety': ['html']}),
-            new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
-            new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
-            new TwingFilter('magic_call_string', function () {
-                return TwingTestExtension.__callStatic('magicStaticCall', arguments);
-            }, []),
-            new TwingFilter('magic_call_array', function () {
-                return TwingTestExtension.__callStatic('magicStaticCall', arguments);
-            }, []),
-            new TwingFilter('*_path', dynamic_path, []),
-            new TwingFilter('*_foo_*_bar', dynamic_foo, []),
-            new TwingFilter('anon_foo', function (name: string) {
-                return '*' + name + '*';
-            }, []),
-        ];
-    }
+    // getFilters() {
+    //     return [
+    //         // new TwingFilter('§', array($this, '§Filter')),
+    //         new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
+    //             'needs_environment': true,
+    //             'is_safe': ['html']
+    //         }),
+    //         // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
+    //         new TwingFilter('nl2br_', nl2br, [], {'pre_escape': 'html', 'is_safe': ['html']}),
+    //         new TwingFilter('§', this.sectionFilter, []),
+    //         new TwingFilter('escape_something', escape_something, [], {'is_safe': ['something']}),
+    //         new TwingFilter('preserves_safety', preserves_safety, [], {'preserves_safety': ['html']}),
+    //         new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
+    //         new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
+    //         new TwingFilter('magic_call_string', function () {
+    //             return TwingTestExtension.__callStatic('magicStaticCall', arguments);
+    //         }, []),
+    //         new TwingFilter('magic_call_array', function () {
+    //             return TwingTestExtension.__callStatic('magicStaticCall', arguments);
+    //         }, []),
+    //         new TwingFilter('*_path', dynamic_path, []),
+    //         new TwingFilter('*_foo_*_bar', dynamic_foo, []),
+    //         new TwingFilter('anon_foo', function (name: string) {
+    //             return '*' + name + '*';
+    //         }, []),
+    //     ];
+    // }
 
-    getFunctions() {
-        return [
-            new TwingFunction('§', this.sectionFunction, []),
-            new TwingFunction('safe_br', this.br, [], {'is_safe': ['html']}),
-            new TwingFunction('unsafe_br', this.br, []),
-            new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
-            new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
-            new TwingFunction('*_path', dynamic_path, []),
-            new TwingFunction('*_foo_*_bar', dynamic_foo, []),
-            new TwingFunction('anon_foo', function (name: string) {
-                return '*' + name + '*';
-            }, []),
-        ];
-    }
+    // getFunctions() {
+    //     return [
+    //         new TwingFunction('§', this.sectionFunction, []),
+    //         new TwingFunction('safe_br', this.br, [], {'is_safe': ['html']}),
+    //         new TwingFunction('unsafe_br', this.br, []),
+    //         new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
+    //         new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
+    //         new TwingFunction('*_path', dynamic_path, []),
+    //         new TwingFunction('*_foo_*_bar', dynamic_foo, []),
+    //         new TwingFunction('anon_foo', function (name: string) {
+    //             return '*' + name + '*';
+    //         }, []),
+    //     ];
+    // }
 
-    getTests() {
-        return [
-            new TwingTest('multi word', this.is_multi_word, []),
-            new TwingTest('test_*', this.dynamic_test, [])
-        ];
-    }
+    // getTests() {
+    //     return [
+    //         new TwingTest('multi word', this.is_multi_word, []),
+    //         new TwingTest('test_*', this.dynamic_test, [])
+    //     ];
+    // }
 
     sectionFilter(value: string) {
         return `§${value}§`;
@@ -182,8 +182,8 @@ export default abstract class {
         return null;
     }
 
-    run(): void {
-        tape(`${this._name}`, (test) => {
+    async run(): Promise<void> {
+        tape(`${this._name}`, async (test) => {
             // templates
             let templates = this.getTemplates();
 
@@ -223,7 +223,7 @@ export default abstract class {
 
             if (!expectedErrorMessage) {
                 try {
-                    let actual = this.env.render('index.twig', context);
+                    let actual = await this.env.render('index.twig', context);
 
                     test.same(actual.trim(), expected.trim(), `${this.getDescription()} renders as expected`);
 
@@ -233,11 +233,13 @@ export default abstract class {
                         test.same(consoleData, expectedDeprecationMessages, `${this.getDescription()} outputs deprecation warnings`);
                     }
                 } catch (e) {
+                    console.error(e);
+
                     test.fail(`${this.getDescription()} should not throw an error (${e})`);
                 }
             } else {
                 try {
-                    this.env.render('index.twig', context);
+                    await this.env.render('index.twig', context);
 
                     test.fail(`${this.getDescription()} should throw an error`);
                 } catch (e) {
@@ -250,14 +252,14 @@ export default abstract class {
     }
 }
 
-/**
- * nl2br which also escapes, for testing escaper filters.
- */
-function escape_and_nl2br(env: TwingEnvironment, value: string, sep = '<br />') {
-    let result = escape(env, value, 'html');
-
-    return nl2br(result, sep);
-}
+// /**
+//  * nl2br which also escapes, for testing escaper filters.
+//  */
+// function escape_and_nl2br(env: TwingEnvironment, value: string, sep = '<br />') {
+//     let result = escape(env, value, 'html');
+//
+//     return nl2br(result, sep);
+// }
 
 /**
  * nl2br only, for testing filters with pre_escape.

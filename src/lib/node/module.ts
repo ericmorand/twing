@@ -302,7 +302,7 @@ export class TwingNodeModule extends TwingNode {
 
     protected compileDisplay(compiler: TwingCompiler) {
         compiler
-            .write("doDisplay(context, blocks = new Map()) {\n")
+            .write("async doDisplay(context, blocks = new Map()) {\n")
             .indent()
             .write('let macros = this.macros.clone();\n')
             .addSourceMapEnter(this)

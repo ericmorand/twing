@@ -23,7 +23,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
             ;
         }
         else {
-            compiler.raw(`this.env.get${capitalize(this.getAttribute('type'))}('${this.getAttribute('name')}').traceableCallable(${this.getTemplateLine()}, this.source)(...`);
+            compiler.raw(`await this.env.get${capitalize(this.getAttribute('type'))}('${this.getAttribute('name')}').traceableCallable(${this.getTemplateLine()}, this.source)(...`);
         }
 
         this.compileArguments(compiler);

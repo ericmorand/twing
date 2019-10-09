@@ -1,4 +1,5 @@
 import TestBase from "../../TestBase";
+import {TwingEnvironmentOptions} from "../../../../../src/lib/environment-options";
 
 export default class extends TestBase {
     getDescription() {
@@ -46,6 +47,12 @@ export default class extends TestBase {
             items: [
                 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j'
             ]
+        }
+    }
+
+    getEnvironmentOptions(): TwingEnvironmentOptions {
+        return {
+            cache: 'tmp/batch',
         }
     }
 }
