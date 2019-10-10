@@ -23,7 +23,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
             ;
         }
         else {
-            compiler.raw(`await this.env.get${capitalize(this.getAttribute('type'))}('${this.getAttribute('name')}').traceableCallable(${this.getTemplateLine()}, this.source)(...`);
+            compiler.raw(`await this.env.get${capitalize(this.getAttribute('type'))}('${this.getAttribute('name')}').traceableCallable(${this.getTemplateLine()}, this.getSource())(...`);
         }
 
         this.compileArguments(compiler);
@@ -57,7 +57,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
                 compiler.raw(', ');
             }
 
-            compiler.raw('this.source');
+            compiler.raw('this.getSource()');
 
             first = false;
         }

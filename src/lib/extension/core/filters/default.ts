@@ -1,12 +1,9 @@
 import {empty} from "../tests/empty";
 
-/**
- * @internal
- */
-export function defaultFilter(value: any, defaultValue: any = '') {
+export function defaultFilter(value: any, defaultValue: any = ''): Promise<any> {
     if (empty(value)) {
-        return defaultValue;
+        return Promise.resolve(defaultValue);
     }
 
-    return value;
+    return Promise.resolve(value);
 }

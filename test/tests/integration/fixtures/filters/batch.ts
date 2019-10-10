@@ -49,10 +49,4 @@ export default class extends TestBase {
             ]
         }
     }
-
-    getEnvironmentOptions(): TwingEnvironmentOptions {
-        return {
-            cache: 'tmp/batch',
-        }
-    }
 }

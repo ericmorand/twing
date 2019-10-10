@@ -8,8 +8,6 @@ import {
     TwingCallableWrapperOptions
 } from "./callable-wrapper";
 
-type TwingTestCallable = (...args: any[]) => boolean;
-
 export class TwingTest extends TwingCallableWrapper {
     readonly options: TwingCallableWrapperOptions;
 
@@ -17,7 +15,7 @@ export class TwingTest extends TwingCallableWrapper {
      * Creates a template test.
      *
      * @param {string} name Name of this test
-     * @param {TwingTestCallable} callable A callable implementing the test. If null, you need to overwrite the "node_class" option to customize compilation.
+     * @param {TwingCallable} callable A callable implementing the test. If null, you need to overwrite the "node_class" option to customize compilation.
      * @param {TwingCallableArgument[]} acceptedArguments
      * @param {TwingCallableWrapperOptions} options Options
      */

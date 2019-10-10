@@ -89,8 +89,6 @@ export class TwingNodeModule extends TwingNode {
 
         this.compileIsTraitable(compiler);
 
-        this.compileGetSourceContext(compiler);
-
         this.compileClassfooter(compiler);
     }
 
@@ -142,8 +140,14 @@ export class TwingNodeModule extends TwingNode {
             .indent()
             .subcompile(this.getNode('constructor_start'))
             .write('super(env);\n\n')
-            .write("this.source = this.getSourceContext();\n")
-            .write("this.macros = new this.Context();\n")
+            .write('this.source = new this.Source(')
+            .string(compiler.getEnvironment().isDebug() || compiler.getEnvironment().isSourceMap() ? this.source.getCode() : '')
+            .raw(', ')
+            .string(this.source.getName())
+            .raw(', ')
+            .string(this.source.getPath())
+            .raw(");\n")
+            .write("this.macros = new this.Context();\n\n")
             .write('let macros = new this.Context();\n\n')
         ;
 
@@ -191,7 +195,7 @@ export class TwingNodeModule extends TwingNode {
                     .subcompile(trait.getNode('template'))
                     .raw('+" cannot be used as a trait.\', ')
                     .repr(node.getTemplateLine())
-                    .raw(", this.source);\n")
+                    .raw(", this.getSource());\n")
                     .outdent()
                     .write('}\n')
                     .write(`let _trait_${i}_blocks = this.cloneMap(_trait_${i}.getBlocks());\n\n`)
@@ -209,7 +213,7 @@ export class TwingNodeModule extends TwingNode {
                         .subcompile(trait.getNode('template'))
                         .raw('.\', ')
                         .repr(value.getTemplateLine())
-                        .raw(', this.source);\n')
+                        .raw(', this.getSource());\n')
                         .outdent()
                         .write('}\n\n')
                         .write(`_trait_${i}_blocks.set(`)
@@ -391,22 +395,6 @@ export class TwingNodeModule extends TwingNode {
             .write('return false;\n')
             .outdent()
             .write("}\n\n")
-        ;
-    }
-
-    protected compileGetSourceContext(compiler: TwingCompiler) {
-        compiler
-            .write("getSourceContext() {\n")
-            .indent()
-            .write('return new this.Source(')
-            .string(compiler.getEnvironment().isDebug() || compiler.getEnvironment().isSourceMap() ? this.source.getCode() : '')
-            .raw(', ')
-            .string(this.source.getName())
-            .raw(', ')
-            .string(this.source.getPath())
-            .raw(");\n")
-            .outdent()
-            .write("}\n")
         ;
     }
 

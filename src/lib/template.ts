@@ -46,11 +46,8 @@ export abstract class TwingTemplate {
     protected env: TwingEnvironment;
     protected blocks: Map<string, Array<any>> = new Map();
     protected traits: Map<string, Array<any>> = new Map();
-
-    /**
-     * @internal
-     */
     protected extensions: Map<string, TwingExtensionInterface> = new Map();
+    protected source: TwingSource;
 
     constructor(env: TwingEnvironment) {
         this.env = env;
@@ -72,12 +69,10 @@ export abstract class TwingTemplate {
     abstract getTemplateName(): string;
 
     /**
-     * Returns information about the original template source code.
-     *
-     * @return TwingSource
+     * @returns {TwingSource}
      */
-    getSourceContext(): TwingSource {
-        return new TwingSource('', this.getTemplateName());
+    getSource(): TwingSource {
+        return this.source;
     }
 
     /**
@@ -102,7 +97,7 @@ export abstract class TwingTemplate {
             }
 
             if (parent instanceof TwingTemplate) {
-                this.parents.set(parent.getSourceContext().getName(), parent);
+                this.parents.set(parent.getSource().getName(), parent);
             }
 
             if (!this.parents.has(parent)) {
@@ -144,7 +139,7 @@ export abstract class TwingTemplate {
         } else if ((parent = this.getParent(context) as TwingTemplate | false) !== false) {
             (<TwingTemplate>parent).displayBlock(name, context, blocks, false);
         } else {
-            throw new TwingErrorRuntime(`The template has no parent and no traits defining the "${name}" block.`, -1, this.getSourceContext());
+            throw new TwingErrorRuntime(`The template has no parent and no traits defining the "${name}" block.`, -1, this.getSource());
         }
     }
 
@@ -182,9 +177,9 @@ export abstract class TwingTemplate {
         } else if ((parent = this.getParent(context) as TwingTemplate | false) !== false) {
             parent.displayBlock(name, context, merge(this.blocks, blocks) as Map<string, Array<any>>, false);
         } else if (blocks.has(name)) {
-            throw new TwingErrorRuntime(`Block "${name}" should not call parent() in "${blocks.get(name)[0].getTemplateName()}" as the block does not exist in the parent template "${this.getTemplateName()}".`, -1, blocks.get(name)[0].getSourceContext());
+            throw new TwingErrorRuntime(`Block "${name}" should not call parent() in "${blocks.get(name)[0].getTemplateName()}" as the block does not exist in the parent template "${this.getTemplateName()}".`, -1, blocks.get(name)[0].getSource());
         } else {
-            throw new TwingErrorRuntime(`Block "${name}" on template "${this.getTemplateName()}" does not exist.`, -1, this.getSourceContext());
+            throw new TwingErrorRuntime(`Block "${name}" on template "${this.getTemplateName()}" does not exist.`, -1, this.getSource());
         }
     }
 
@@ -266,14 +261,14 @@ export abstract class TwingTemplate {
     public loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, templateName: string = null, line: number = null, index: number = 0): TwingTemplate {
         try {
             if (typeof templates === 'string') {
-                return this.env.loadTemplate(templates, index, this.getSourceContext());
+                return this.env.loadTemplate(templates, index, this.getSource());
             }
 
             if (templates instanceof TwingTemplate) {
                 return templates;
             }
 
-            return this.env.resolveTemplate([...templates.values()], this.getSourceContext());
+            return this.env.resolveTemplate([...templates.values()], this.getSource());
         } catch (e) {
             if (e instanceof TwingError) {
                 if (e.getTemplateLine() !== -1) {
@@ -353,13 +348,13 @@ export abstract class TwingTemplate {
         } catch (e) {
             if (e instanceof TwingError) {
                 if (!e.getSourceContext()) {
-                    e.setSourceContext(this.getSourceContext());
+                    e.setSourceContext(this.getSource());
                 }
 
                 throw e;
             }
 
-            throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSourceContext(), e);
+            throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSource(), e);
         }
     }
 

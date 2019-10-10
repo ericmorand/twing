@@ -22,7 +22,7 @@ export class TwingNodeInclude extends TwingNode {
     compile(compiler: TwingCompiler) {
         compiler
             .write('this.echo(')
-            .raw('this.include(context, this.source, ');
+            .raw('this.include(context, this.getSource(), ');
 
         this.addGetTemplate(compiler);
 

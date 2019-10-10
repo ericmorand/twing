@@ -8,8 +8,6 @@ import {
     TwingCallable
 } from "./callable-wrapper";
 
-type TwingFilterCallable = (...args: any[]) => any;
-
 export type TwingFilterOptions = TwingCallableWrapperOptions & {
     pre_escape?: string,
     preserves_safety?: Array<string>

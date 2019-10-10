@@ -6,7 +6,7 @@ const finder = require('fs-finder');
 
 let directory = resolve('test/tests/integration/fixtures');
 
-let files = finder.from(directory).findFiles('filters/batch.ts');
+let files = finder.from(directory).findFiles('filters/*.ts');
 
 type Module = {
     [key: string]: new (...args: any[]) => TestBase;

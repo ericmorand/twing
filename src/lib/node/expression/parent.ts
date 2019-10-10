@@ -26,14 +26,14 @@ export class TwingNodeExpressionParent extends TwingNodeExpression {
 
         if (this.getAttribute('output')) {
             compiler
-                .write(`this.traceableDisplayParentBlock(${this.getTemplateLine()}, this.source)(`)
+                .write(`this.traceableDisplayParentBlock(${this.getTemplateLine()}, this.getSource())(`)
                 .string(name)
                 .raw(", context, blocks);\n")
             ;
         }
         else {
             compiler
-                .raw(`this.traceableRenderParentBlock(${this.getTemplateLine()}, this.source)(`)
+                .raw(`this.traceableRenderParentBlock(${this.getTemplateLine()}, this.getSource())(`)
                 .string(name)
                 .raw(', context, blocks)')
             ;

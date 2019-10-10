@@ -13,9 +13,9 @@ import {date as createDate} from "../functions/date";
  * @param {DateTime|Duration|string} date A date
  * @param {string} modifier A modifier string
  *
- * @returns {DateTime} A new date object
+ * @returns {Promise<DateTime>} A new date object
  */
-export function dateModify(env: TwingEnvironment, date: Date | DateTime | Duration | string, modifier: string) {
+export function dateModify(env: TwingEnvironment, date: Date | DateTime | Duration | string, modifier: string): Promise<DateTime> {
     let dateTime: DateTime = createDate(env, date) as DateTime;
 
     let regExp = new RegExp(/(\+|-)([0-9])(.*)/);
@@ -31,5 +31,5 @@ export function dateModify(env: TwingEnvironment, date: Date | DateTime | Durati
 
     dateTime = dateTime.plus(duration);
 
-    return dateTime;
+    return Promise.resolve(dateTime);
 }

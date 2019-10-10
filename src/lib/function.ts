@@ -7,8 +7,6 @@ import {
     TwingCallable
 } from "./callable-wrapper";
 
-type TwingFunctionCallable = (...args: any[]) => void;
-
 export class TwingFunction extends TwingCallableWrapper {
     readonly options: TwingCallableWrapperOptions;
 
@@ -16,7 +14,7 @@ export class TwingFunction extends TwingCallableWrapper {
      * Creates a template function.
      *
      * @param {string} name Name of this function
-     * @param {TwingFunctionCallable} callable A callable implementing the function. If null, you need to overwrite the "expression_factory" option to customize compilation.
+     * @param {TwingCallable} callable A callable implementing the function. If null, you need to overwrite the "expression_factory" option to customize compilation.
      * @param {TwingCallableArgument[]} acceptedArguments
      * @param {TwingCallableWrapperOptions} options Options
      */

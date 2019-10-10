@@ -30,7 +30,7 @@ class TwingTestTokenParserSection extends TwingTokenParser {
 
 class TwingTestExtension extends TwingExtension {
     static staticCall(value: string) {
-        return `*${value}*`;
+        return Promise.resolve(`*${value}*`);
     }
 
     static __callStatic(method: string, ...arguments_: any[]) {
@@ -38,7 +38,7 @@ class TwingTestExtension extends TwingExtension {
             throw new Error('Unexpected call to __callStatic');
         }
 
-        return 'static_magic_' + arguments_[0];
+        return Promise.resolve('static_magic_' + arguments_[0]);
     }
 
     getTokenParsers() {
@@ -47,33 +47,32 @@ class TwingTestExtension extends TwingExtension {
         ];
     }
 
-    // getFilters() {
-    //     return [
-    //         // new TwingFilter('§', array($this, '§Filter')),
-    //         new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
-    //             'needs_environment': true,
-    //             'is_safe': ['html']
-    //         }),
-    //         // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
-    //         new TwingFilter('nl2br_', nl2br, [], {'pre_escape': 'html', 'is_safe': ['html']}),
-    //         new TwingFilter('§', this.sectionFilter, []),
-    //         new TwingFilter('escape_something', escape_something, [], {'is_safe': ['something']}),
-    //         new TwingFilter('preserves_safety', preserves_safety, [], {'preserves_safety': ['html']}),
-    //         new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
-    //         new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
-    //         new TwingFilter('magic_call_string', function () {
-    //             return TwingTestExtension.__callStatic('magicStaticCall', arguments);
-    //         }, []),
-    //         new TwingFilter('magic_call_array', function () {
-    //             return TwingTestExtension.__callStatic('magicStaticCall', arguments);
-    //         }, []),
-    //         new TwingFilter('*_path', dynamic_path, []),
-    //         new TwingFilter('*_foo_*_bar', dynamic_foo, []),
-    //         new TwingFilter('anon_foo', function (name: string) {
-    //             return '*' + name + '*';
-    //         }, []),
-    //     ];
-    // }
+    getFilters() {
+        return [
+            new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
+                'needs_environment': true,
+                'is_safe': ['html']
+            }),
+            // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
+            new TwingFilter('nl2br_', nl2br, [], {'pre_escape': 'html', 'is_safe': ['html']}),
+            new TwingFilter('§', this.sectionFilter, []),
+            new TwingFilter('escape_something', escape_something, [], {'is_safe': ['something']}),
+            new TwingFilter('preserves_safety', preserves_safety, [], {'preserves_safety': ['html']}),
+            new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
+            new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
+            new TwingFilter('magic_call_string', function () {
+                return TwingTestExtension.__callStatic('magicStaticCall', arguments);
+            }, []),
+            new TwingFilter('magic_call_array', function () {
+                return TwingTestExtension.__callStatic('magicStaticCall', arguments);
+            }, []),
+            new TwingFilter('*_path', dynamic_path, []),
+            new TwingFilter('*_foo_*_bar', dynamic_foo, []),
+            new TwingFilter('anon_foo', function (name: string) {
+                return Promise.resolve('*' + name + '*');
+            }, []),
+        ];
+    }
 
     // getFunctions() {
     //     return [
@@ -98,7 +97,7 @@ class TwingTestExtension extends TwingExtension {
     // }
 
     sectionFilter(value: string) {
-        return `§${value}§`;
+        return Promise.resolve(`§${value}§`);
     }
 
     sectionFunction(value: string) {
@@ -252,34 +251,34 @@ export default abstract class {
     }
 }
 
-// /**
-//  * nl2br which also escapes, for testing escaper filters.
-//  */
-// function escape_and_nl2br(env: TwingEnvironment, value: string, sep = '<br />') {
-//     let result = escape(env, value, 'html');
-//
-//     return nl2br(result, sep);
-// }
+/**
+ * nl2br which also escapes, for testing escaper filters.
+ */
+function escape_and_nl2br(env: TwingEnvironment, value: string, sep = '<br />') {
+    return escape(env, value, 'html').then((result) => {
+        return nl2br(result, sep);
+    });
+}
 
 /**
  * nl2br only, for testing filters with pre_escape.
  */
 function nl2br(value: string, sep = '<br />') {
-    return value.replace('\n', `${sep}\n`);
+    return Promise.resolve(value.replace('\n', `${sep}\n`));
 }
 
 function escape_something(value: string) {
-    return value.toUpperCase();
+    return Promise.resolve(value.toUpperCase());
 }
 
 function preserves_safety(value: string) {
-    return value.toUpperCase();
+    return Promise.resolve(value.toUpperCase());
 }
 
 function dynamic_path(element: string, item: string) {
-    return element + '/' + item;
+    return Promise.resolve(element + '/' + item);
 }
 
 function dynamic_foo(foo: string, bar: string, item: string) {
-    return foo + '/' + bar + '/' + item;
+    return Promise.resolve(foo + '/' + bar + '/' + item);
 }

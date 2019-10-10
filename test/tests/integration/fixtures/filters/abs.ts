@@ -51,11 +51,4 @@ export default class extends TestBase {
             number6: 5.5
         }
     }
-
-    getEnvironmentOptions(): TwingEnvironmentOptions {
-        return {
-            cache: 'tmp/abs',
-            autoescape: false
-        }
-    }
 }
