@@ -1,6 +1,5 @@
 import {TwingEnvironment} from "../../../environment";
 import {isNullOrUndefined} from "util";
-import {TwingExtensionCore} from "../../../extension/core";
 
 const locutusNumberFormat = require('locutus/php/strings/number_format');
 

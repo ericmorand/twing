@@ -18,12 +18,6 @@ export class TwingNodeExpressionParent extends TwingNodeExpression {
     compile(compiler: TwingCompiler) {
         let name = this.getAttribute('name');
 
-        const varValidator = require('var-validator');
-
-        if (!varValidator.isValid(name)) {
-            name = Buffer.from(name).toString('hex');
-        }
-
         if (this.getAttribute('output')) {
             compiler
                 .write(`await this.traceableDisplayParentBlock(${this.getTemplateLine()}, this.getSourceContext())(`)

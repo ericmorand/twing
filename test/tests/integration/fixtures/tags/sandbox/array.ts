@@ -26,11 +26,9 @@ string(1) "b"
 `;
     }
 
-
     getEnvironmentOptions() {
         return {
-            autoescape: false,
-            debug: true
+            autoescape: false
         }
     }
 

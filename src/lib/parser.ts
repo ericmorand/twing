@@ -890,15 +890,9 @@ export class TwingParser {
             }
 
             if ((node.getType() === TwingNodeType.EXPRESSION_NAME) && this.getImportedSymbol('template', node.getAttribute('name'))) {
-                const varValidator = require('var-validator');
-
                 let name = arg.getAttribute('value');
 
-                if (!varValidator.isValid(name)) {
-                    name = Buffer.from(name).toString('hex');
-                }
-
-                node = new TwingNodeExpressionMethodCall(node, 'macro_' + name, arguments_, lineno, columnno);
+                node = new TwingNodeExpressionMethodCall(node, name, arguments_, lineno, columnno);
                 node.setAttribute('safe', true);
 
                 return node;

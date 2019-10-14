@@ -25,7 +25,7 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
     compile(compiler: TwingCompiler) {
         if (this.getAttribute('is_defined_test')) {
             compiler
-                .raw('(typeof (macros.proxy[')
+                .raw('(typeof (aliases.proxy[')
                 .repr(this.getNode('node').getAttribute('name'))
                 .raw('][')
                 .repr(this.getAttribute('method'))
@@ -34,7 +34,7 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
         }
         else {
             compiler
-                .raw('this.callMacro(macros.proxy[')
+                .raw('await this.callMacro(aliases.proxy[')
                 .repr(this.getNode('node').getAttribute('name'))
                 .raw('], ')
                 .repr(this.getAttribute('method'))

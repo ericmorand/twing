@@ -11,15 +11,15 @@ export class TwingNodeBlock extends TwingNode {
 
     compile(compiler: TwingCompiler) {
         compiler
-            .raw(`(async (context, blocks = new Map()) => {\n`)
+            .raw(`async (context, blocks = new Map()) => {\n`)
             .indent()
-            .write('let macros = this.macros.clone();\n')
+            .write('let aliases = this.aliases.clone();\n')
         ;
 
         compiler
             .subcompile(this.getNode('body'))
             .outdent()
-            .write("}).bind(this)")
+            .write("}")
         ;
     }
 }

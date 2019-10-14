@@ -6,7 +6,7 @@ const finder = require('fs-finder');
 
 let directory = resolve('test/tests/integration/fixtures');
 
-let files = finder.from(directory).findFiles('tags/inheritance/*.ts');
+let files = finder.from(directory).findFiles('tags/macro/*.ts');
 
 type Module = {
     [key: string]: new (...args: any[]) => TestBase;

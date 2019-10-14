@@ -15,8 +15,6 @@ export class TwingNodeEmbed extends TwingNodeInclude {
             .raw('await this.loadTemplate(')
             .string(this.getAttribute('name'))
             .raw(', ')
-            .repr(this.getTemplateName())
-            .raw(', ')
             .repr(this.getTemplateLine())
             .raw(', ')
             .string(this.getAttribute('index'))

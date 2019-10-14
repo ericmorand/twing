@@ -38,7 +38,7 @@ export class TwingNodeExpressionGetAttr extends TwingNodeExpression {
             let var_ = compiler.getVarName();
 
             compiler
-                .raw('(() => {let ' + var_ + ' = ')
+                .raw('await (async () => {let ' + var_ + ' = ')
                 .subcompile(this.getNode('node'))
                 .raw('; return this.get(')
                 .raw(var_)

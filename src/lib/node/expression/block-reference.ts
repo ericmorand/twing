@@ -49,8 +49,6 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
                 .raw('(await this.loadTemplate(')
                 .subcompile(this.getNode('template'))
                 .raw(', ')
-                .repr(this.getTemplateName())
-                .raw(', ')
                 .repr(this.getTemplateLine())
                 .raw('))')
             ;

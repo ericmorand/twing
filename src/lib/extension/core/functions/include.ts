@@ -27,7 +27,7 @@ export function include(env: TwingEnvironment, context: any, from: TwingSource, 
     let alreadySandboxed = env.isSandboxed();
 
     if (!isPlainObject(variables) && !isTraversable(variables)) {
-        throw new TwingErrorRuntime(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, -1, from);
+        return Promise.reject(new TwingErrorRuntime(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, -1, from));
     }
 
     variables = iteratorToMap(variables);
