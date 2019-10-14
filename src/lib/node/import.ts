@@ -43,7 +43,7 @@ export class TwingNodeImport extends TwingNode {
             compiler.raw('this');
         } else {
             compiler
-                .raw('this.loadTemplate(')
+                .raw('await this.loadTemplate(')
                 .subcompile(this.getNode('expr'))
                 .raw(', ')
                 .repr(this.getTemplateName())

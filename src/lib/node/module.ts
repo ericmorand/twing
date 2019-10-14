@@ -74,56 +74,14 @@ export class TwingNodeModule extends TwingNode {
 
     protected compileTemplate(compiler: TwingCompiler) {
         this.compileClassHeader(compiler);
-
         this.compileConstructor(compiler);
-
-        this.compileGetParent(compiler);
-
-        this.compileDisplay(compiler);
-
-        compiler.subcompile(this.getNode('blocks'));
-
+        this.compileDoGetParent(compiler);
+        this.compileDoGetTraits(compiler);
+        this.compileDoGetBlocks(compiler);
+        this.compileDoDisplay(compiler);
         this.compileMacros(compiler);
-
-        this.compileGetTemplateName(compiler);
-
         this.compileIsTraitable(compiler);
-
         this.compileClassfooter(compiler);
-    }
-
-    protected compileGetParent(compiler: TwingCompiler) {
-        if (!this.hasNode('parent')) {
-            return;
-        }
-
-        let parent = this.getNode('parent');
-
-        compiler
-            .write("doGetParent(context) {\n")
-            .indent()
-            .write('return ')
-        ;
-
-        if (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT) {
-            compiler.subcompile(parent);
-        } else {
-            compiler
-                .raw('this.loadTemplate(')
-                .subcompile(parent)
-                .raw(', ')
-                .repr(this.source.getName())
-                .raw(', ')
-                .repr(parent.getTemplateLine())
-                .raw(')')
-            ;
-        }
-
-        compiler
-            .raw(";\n")
-            .outdent()
-            .write("}\n\n")
-        ;
     }
 
     protected compileClassHeader(compiler: TwingCompiler) {
@@ -140,7 +98,7 @@ export class TwingNodeModule extends TwingNode {
             .indent()
             .subcompile(this.getNode('constructor_start'))
             .write('super(env);\n\n')
-            .write('this.source = new this.Source(')
+            .write('this.sourceContext = new this.Source(')
             .string(compiler.getEnvironment().isDebug() || compiler.getEnvironment().isSourceMap() ? this.source.getCode() : '')
             .raw(', ')
             .string(this.source.getName())
@@ -148,152 +106,7 @@ export class TwingNodeModule extends TwingNode {
             .string(this.source.getPath())
             .raw(");\n")
             .write("this.macros = new this.Context();\n\n")
-            .write('let macros = new this.Context();\n\n')
-        ;
-
-        // parent
-        if (!this.hasNode('parent')) {
-            compiler.write("this.parent = false;\n\n");
-        }
-        else {
-            let parent = this.getNode('parent');
-
-            if (parent && (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT)) {
-                compiler
-                    .write('this.parent = this.loadTemplate(')
-                    .subcompile(parent)
-                    .raw(', ')
-                    .repr(this.source.getName())
-                    .raw(', ')
-                    .repr(parent.getTemplateLine())
-                    .raw(");\n\n")
-                ;
-            }
-        }
-
-        let countTraits = this.getNode('traits').getNodes().size;
-
-        if (countTraits) {
-            // traits
-            for (let [i, trait] of this.getNode('traits').getNodes()) {
-                let node = trait.getNode('template');
-
-                compiler
-                    .write(`let _trait_${i} = this.loadTemplate(`)
-                    .subcompile(node)
-                    .raw(', ')
-                    .repr(node.getTemplateName())
-                    .raw(', ')
-                    .repr(node.getTemplateLine())
-                    .raw(");\n")
-                ;
-
-                compiler
-                    .write(`if (!_trait_${i}.isTraitable()) {\n`)
-                    .indent()
-                    .write('throw new this.RuntimeError(\'Template "+')
-                    .subcompile(trait.getNode('template'))
-                    .raw('+" cannot be used as a trait.\', ')
-                    .repr(node.getTemplateLine())
-                    .raw(", this.getSource());\n")
-                    .outdent()
-                    .write('}\n')
-                    .write(`let _trait_${i}_blocks = this.cloneMap(_trait_${i}.getBlocks());\n\n`)
-                ;
-
-                for (let [key, value] of trait.getNode('targets').getNodes()) {
-                    compiler
-                        .write(`if (!_trait_${i}_blocks.has(`)
-                        .string(key as string)
-                        .raw(")) {\n")
-                        .indent()
-                        .write('throw new this.RuntimeError(\'Block ')
-                        .string(key as string)
-                        .raw(' is not defined in trait ')
-                        .subcompile(trait.getNode('template'))
-                        .raw('.\', ')
-                        .repr(value.getTemplateLine())
-                        .raw(', this.getSource());\n')
-                        .outdent()
-                        .write('}\n\n')
-                        .write(`_trait_${i}_blocks.set(`)
-                        .subcompile(value)
-                        .raw(`, _trait_${i}_blocks.get(`)
-                        .string(key)
-                        .raw(`)); _trait_${i}_blocks.delete(`)
-                        .string(key)
-                        .raw(');\n\n')
-                    ;
-                }
-            }
-
-            if (countTraits > 1) {
-                for (let i = 0; i < countTraits; ++i) {
-                    compiler
-                        .write(`this.traits = this.merge(this.traits, _trait_${i}_blocks);\n`)
-                    ;
-                }
-            } else {
-                compiler
-                    .write("this.traits = this.cloneMap(_trait_0_blocks);\n\n")
-                ;
-            }
-
-            compiler
-                .write("this.blocks = this.merge(this.traits, new Map([\n")
-                .indent()
-            ;
-        } else {
-            compiler
-                .write("this.blocks = new Map([\n")
-            ;
-        }
-
-        // blocks
-        compiler
-            .indent()
-        ;
-
-        let count = this.getNode('blocks').getNodes().size;
-
-        for (let [name, node] of this.getNode('blocks').getNodes()) {
-            count--;
-
-            let safeName = name;
-
-            const varValidator = require('var-validator');
-
-            if (!varValidator.isValid(name)) {
-                safeName = Buffer.from(name as string).toString('hex');
-            }
-
-            compiler
-                .write(`['${name}', [this, 'block_${safeName}']]`)
-            ;
-
-            if (count > 0) {
-                compiler.raw(',')
-            }
-
-            compiler.raw('\n');
-        }
-
-        compiler
-            .outdent()
-            .write("])")
-        ;
-
-        if (countTraits) {
-            compiler
-                .write("\n")
-                .outdent()
-                .write(")")
-            ;
-        }
-
-        compiler.raw(';\n');
-
-        compiler
+            .write('let macros = new this.Context();\n')
             .subcompile(this.getNode('constructor_end'))
             .outdent()
             .write('}\n\n')
@@ -304,11 +117,157 @@ export class TwingNodeModule extends TwingNode {
         compiler.subcompile(this.getNode('macros'));
     }
 
-    protected compileDisplay(compiler: TwingCompiler) {
+    protected compileDoGetTraits(compiler: TwingCompiler) {
+        compiler
+            .write("async doGetTraits() {\n")
+            .indent()
+            .write('let traits = new Map();\n\n');
+
+        let countTraits = this.getNode('traits').getNodes().size;
+
+        if (countTraits) {
+            for (let [i, trait] of this.getNode('traits').getNodes()) {
+                let node = trait.getNode('template');
+
+                compiler
+                    .write(`let trait_${i} = await this.loadTemplate(`)
+                    .subcompile(node)
+                    .raw(', ')
+                    .repr(node.getTemplateLine())
+                    .raw(");\n\n")
+                ;
+
+                compiler
+                    .write(`if (!trait_${i}.isTraitable()) {\n`)
+                    .indent()
+                    .write('throw new this.RuntimeError(\'Template ')
+                    .subcompile(trait.getNode('template'))
+                    .raw(' cannot be used as a trait.\', ')
+                    .repr(node.getTemplateLine())
+                    .raw(", this.getSourceContext());\n")
+                    .outdent()
+                    .write('}\n\n')
+                    .write(`let traits_${i} = await trait_${i}.getTraitsMap();\n\n`)
+                ;
+
+                for (let [key, value] of trait.getNode('targets').getNodes()) {
+                    compiler
+                        .write(`if (!traits_${i}.has(`)
+                        .string(key as string)
+                        .raw(")) {\n")
+                        .indent()
+                        .write('throw new this.RuntimeError(\'Block ')
+                        .string(key as string)
+                        .raw(' is not defined in trait ')
+                        .subcompile(trait.getNode('template'))
+                        .raw('.\', ')
+                        .repr(value.getTemplateLine())
+                        .raw(', this.getSourceContext());\n')
+                        .outdent()
+                        .write('}\n\n')
+                        .write(`traits_${i}.set(`)
+                        .subcompile(value)
+                        .raw(`, traits_${i}.get(`)
+                        .string(key)
+                        .raw(`)); traits_${i}.delete(`)
+                        .string(key)
+                        .raw(');\n\n')
+                    ;
+                }
+            }
+
+            for (let i = 0; i < countTraits; ++i) {
+                compiler.write(`traits = this.merge(traits, traits_${i});\n`);
+            }
+
+            compiler.write('\n');
+        }
+
+        compiler
+            .write('return Promise.resolve(traits);\n')
+            .outdent()
+            .write('}\n\n');
+    }
+
+    protected compileDoGetBlocks(compiler: TwingCompiler) {
+        compiler
+            .write("async doGetBlocks() {\n")
+            .indent()
+            .write('let blocks = new Map([\n')
+            .indent();
+
+        let count = this.getNode('blocks').getNodes().size;
+
+        for (let [name, node] of this.getNode('blocks').getNodes()) {
+            count--;
+
+            // let safeName = name;
+            //
+            // const varValidator = require('var-validator');
+            //
+            // if (!varValidator.isValid(name)) {
+            //     safeName = Buffer.from(name as string).toString('hex');
+            // }
+
+            compiler.write(`['${name}', `)
+                .subcompile(node)
+                .raw(']');
+
+            if (count > 0) {
+                compiler.raw(',')
+            }
+
+            compiler.raw('\n');
+        }
+
+        compiler
+            .outdent()
+            .write(']);\n\n')
+            .write('return Promise.resolve(blocks);\n')
+            .outdent()
+            .write('}\n\n');
+    }
+
+    protected compileDoGetParent(compiler: TwingCompiler) {
+        if (!this.hasNode('parent')) {
+            return;
+        }
+
+        let parent = this.getNode('parent');
+
+        compiler
+            .write("doGetParent(context) {\n")
+            .indent()
+            .write('return this.loadTemplate(')
+            .subcompile(parent)
+            .raw(', ')
+            .repr(parent.getTemplateLine())
+            .raw(")")
+        ;
+
+        // if the parent name is not dynamic, then we can cache the parent as it will never change
+        if (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT) {
+            compiler
+                .raw('.then((parent) => {\n')
+                .indent()
+                .write('this.parent = parent;\n\n')
+                .write('return parent;\n')
+                .outdent()
+                .write('})')
+        }
+
+        compiler
+            .raw(';\n')
+            .outdent()
+            .write("}\n\n")
+        ;
+    }
+
+    protected compileDoDisplay(compiler: TwingCompiler) {
         compiler
             .write("async doDisplay(context, blocks = new Map()) {\n")
             .indent()
-            .write('let macros = this.macros.clone();\n')
+            .write('let macros = this.macros.clone();\n\n')
             .addSourceMapEnter(this)
             .subcompile(this.getNode('display_start'))
             .subcompile(this.getNode('body'))
@@ -317,31 +276,18 @@ export class TwingNodeModule extends TwingNode {
         if (this.hasNode('parent')) {
             let parent = this.getNode('parent');
 
+            // if (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT) {
+            //     compiler.write('await this.parent');
+            // } else {
+            compiler.write('await (await this.getParent(context))');
+            // }
 
-            if (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT) {
-                compiler.write('this.parent');
-            } else {
-                compiler.write('this.getParent(context)');
-            }
-
-            compiler.raw(".display(context, this.merge(this.blocks, blocks));\n");
+            compiler.raw(".display(context, this.merge(await this.getBlocks(), blocks));\n");
         }
 
         compiler
             .subcompile(this.getNode('display_end'))
             .addSourceMapLeave()
-            .outdent()
-            .write("}\n\n")
-        ;
-    }
-
-    protected compileGetTemplateName(compiler: TwingCompiler) {
-        compiler
-            .write("getTemplateName() {\n")
-            .indent()
-            .write('return ')
-            .repr(this.source.getName())
-            .raw(";\n")
             .outdent()
             .write("}\n\n")
         ;
@@ -399,7 +345,6 @@ export class TwingNodeModule extends TwingNode {
     }
 
     protected compileClassfooter(compiler: TwingCompiler) {
-
         compiler
             .subcompile(this.getNode('class_end'))
             .outdent()

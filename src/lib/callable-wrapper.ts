@@ -2,11 +2,11 @@ import {TwingError} from "./error";
 import {TwingSource} from "./source";
 import {TwingNode} from "./node";
 
-export type TwingCallable = (...args: any[]) => Promise<any>;
+export type TwingCallable<T> = (...args: any[]) => Promise<T>;
 
 export type TwingCallableArgument = {
-  name: string,
-  defaultValue?: any
+    name: string,
+    defaultValue?: any
 };
 
 export type TwingCallableWrapperOptions = {
@@ -21,15 +21,15 @@ export type TwingCallableWrapperOptions = {
     expression_factory?: Function;
 }
 
-export abstract class TwingCallableWrapper {
+export abstract class TwingCallableWrapper<T> {
     readonly name: string;
-    readonly callable: TwingCallable;
+    readonly callable: TwingCallable<T>;
     readonly acceptedArguments: TwingCallableArgument[];
     readonly options: TwingCallableWrapperOptions;
 
     private arguments: Array<any> = [];
 
-    protected constructor(name: string, callable: TwingCallable, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
+    protected constructor(name: string, callable: TwingCallable<any>, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         this.name = name;
         this.callable = callable;
         this.acceptedArguments = acceptedArguments;
@@ -69,15 +69,14 @@ export abstract class TwingCallableWrapper {
      *
      * @param {number} lineno
      * @param {TwingSource} source
-     * @return {TwingCallable}
+     *
+     * @return {TwingCallable<T>}
      */
-    traceableCallable(lineno: number, source: TwingSource) {
+    traceableCallable(lineno: number, source: TwingSource): TwingCallable<T> {
         let callable = this.callable;
 
-        return async function () {
-            try {
-                return await callable.apply(null, arguments);
-            } catch (e) {
+        return function () {
+            return (callable.apply(null, arguments) as Promise<T>).catch((e) => {
                 if (e instanceof TwingError) {
                     if (e.getTemplateLine() === -1) {
                         e.setTemplateLine(lineno);
@@ -85,9 +84,11 @@ export abstract class TwingCallableWrapper {
                     }
                 }
 
+                console.warn('UP THERE');
+
                 throw e;
-            }
-        };
+            });
+        }
     }
 
     isVariadic(): boolean {

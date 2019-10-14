@@ -1,6 +1,5 @@
 import {TwingErrorRuntime} from "./error/runtime";
 import {TwingSource} from "./source";
-import {TwingNodeBlock} from "./node/block";
 import {TwingError} from "./error";
 import {TwingEnvironment} from "./environment";
 import {flush, echo, obGetLevel, obStart, obEndClean, obGetClean, obGetContents} from './output-buffering';
@@ -9,7 +8,6 @@ import {merge} from "./helpers/merge";
 import {TwingExtensionInterface} from "./extension-interface";
 import {TwingContext} from "./context";
 import {isMap} from "./helpers/is-map";
-import {TwingErrorLoader} from "./error/loader";
 import {TwingMarkup} from "./markup";
 import {TwingSandboxSecurityError} from "./sandbox/security-error";
 import {TwingSandboxSecurityNotAllowedFilterError} from "./sandbox/security-not-allowed-filter-error";
@@ -31,6 +29,11 @@ import {callMacro} from "./helpers/call-macro";
 import {get} from "./helpers/get";
 import {include} from "./extension/core/functions/include";
 
+type TwingTemplateBlocksMap = Map<string, TwingTemplateBlockHandler>;
+type TwingTemplateTraitsMap = Map<string, TwingTemplate>;
+type TwingTemplateBlockHandler = (context: any, blocks: TwingTemplateBlocksMap) => Promise<void>;
+type TwingTemplateTraceableMethod<T> = (...args: Array<any>) => Promise<T>;
+
 /**
  * Default base class for compiled templates.
  *
@@ -41,13 +44,13 @@ export abstract class TwingTemplate {
     static ARRAY_CALL = 'array';
     static METHOD_CALL = 'method';
 
-    protected parent: TwingTemplate | false = null;
+    protected parent: TwingTemplate | false;
     protected parents: Map<TwingTemplate | string, TwingTemplate> = new Map();
     protected env: TwingEnvironment;
-    protected blocks: Map<string, Array<any>> = new Map();
-    protected traits: Map<string, Array<any>> = new Map();
+    protected blocks: TwingTemplateBlocksMap;
+    protected traits: TwingTemplateTraitsMap;
     protected extensions: Map<string, TwingExtensionInterface> = new Map();
-    protected source: TwingSource;
+    protected sourceContext: TwingSource;
 
     constructor(env: TwingEnvironment) {
         this.env = env;
@@ -66,52 +69,58 @@ export abstract class TwingTemplate {
      *
      * @returns {string} The template name
      */
-    abstract getTemplateName(): string;
+    getTemplateName(): string {
+        return this.getSourceContext().getName();
+    };
 
     /**
      * @returns {TwingSource}
      */
-    getSource(): TwingSource {
-        return this.source;
+    getSourceContext(): TwingSource {
+        return this.sourceContext;
     }
 
     /**
      * Returns the parent template.
      *
-     * @param context
+     * @param {any} context
      *
-     * @returns TwingTemplate|false The parent template or false if there is no parent
+     * @returns {Promise<TwingTemplate|false>} The parent template or false if there is no parent
      */
-    getParent(context: any = {}) {
-        if (this.parent !== null) {
-            return this.parent;
+    getParent(context: any = {}): Promise<TwingTemplate | false> {
+        if (this.parent) {
+            return Promise.resolve(this.parent);
         }
 
-        let parent: TwingTemplate | string | false;
+        return this.doGetParent(context)
+            .then((parent) => {
+                if (parent === false || parent instanceof TwingTemplate) {
+                    if (parent instanceof TwingTemplate) {
+                        this.parents.set(parent.getSourceContext().getName(), parent);
+                    }
 
-        try {
-            parent = this.doGetParent(context);
+                    return parent;
+                }
 
-            if (parent === false) {
-                return false;
-            }
+                // parent is a string
+                if (!this.parents.has(parent)) {
+                    return this.loadTemplate(parent)
+                        .then((template: TwingTemplate) => {
+                            this.parents.set(parent, template);
 
-            if (parent instanceof TwingTemplate) {
-                this.parents.set(parent.getSource().getName(), parent);
-            }
+                            return template;
+                        });
+                } else {
+                    return this.parents.get(parent);
+                }
+            })
+            .catch((e) => {
+                if (e instanceof TwingError) {
+                    e.setSourceContext(null);
+                }
 
-            if (!this.parents.has(parent)) {
-                this.parents.set(parent, this.loadTemplate(parent as string) as TwingTemplate);
-            }
-        } catch (e) {
-            if (e instanceof TwingError) {
-                e.setSourceContext(null);
-            }
-
-            throw e;
-        }
-
-        return this.parents.get(parent);
+                throw e;
+            });
     }
 
     isTraitable() {
@@ -121,155 +130,150 @@ export abstract class TwingTemplate {
     /**
      * Displays a parent block.
      *
-     * This method is for internal use only and should never be called
-     * directly.
-     *
      * @param {string} name The block name to display from the parent
-     * @param context The context
-     * @param {Map<string, TwingNodeBlock>} blocks The active set of blocks
-     * @returns {string}
+     * @param {any} context The context
+     * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      *
-     * @internal
+     * @returns {Promise<void>}
      */
-    displayParentBlock(name: string, context: any, blocks: Map<string, Array<any>> = new Map()) {
-        let parent;
-
-        if (this.traits.has(name)) {
-            (this.traits.get(name)[0] as TwingTemplate).displayBlock(name, context, blocks, false);
-        } else if ((parent = this.getParent(context) as TwingTemplate | false) !== false) {
-            (<TwingTemplate>parent).displayBlock(name, context, blocks, false);
-        } else {
-            throw new TwingErrorRuntime(`The template has no parent and no traits defining the "${name}" block.`, -1, this.getSource());
-        }
+    protected displayParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
+        return this.getTraits().then((traits) => {
+            if (traits.has(name)) {
+                return traits.get(name).displayBlock(name, context, blocks, false);
+            } else {
+                return this.getParent(context).then((template) => {
+                    if (template !== false) {
+                        return template.displayBlock(name, context, blocks, false);
+                    } else {
+                        throw new TwingErrorRuntime(`The template has no parent and no traits defining the "${name}" block.`, -1, this.getSourceContext());
+                    }
+                });
+            }
+        });
     }
 
     /**
      * Displays a block.
      *
-     * This method is for internal use only and should never be called
-     * directly.
-     *
      * @param {string} name The block name to display
-     * @param context The context
-     * @param {Map<string, Array<*>>} blocks The active set of blocks
+     * @param {any} context The context
+     * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      * @param {boolean} useBlocks Whether to use the active set of blocks
      *
-     * @internal
+     * @returns {Promise<void>}
      */
-    displayBlock(name: string, context: any, blocks: Map<string, Array<any>> = new Map(), useBlocks = true): void {
-        let block: string;
-        let template: TwingTemplate;
-        let parent: TwingTemplate | false;
+    protected displayBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map(), useBlocks = true): Promise<void> {
+        return this.getBlocks().then((ownBlocks) => {
+            let blockHandler: TwingTemplateBlockHandler;
 
-        if (useBlocks && blocks.has(name)) {
-            template = blocks.get(name)[0];
-            block = blocks.get(name)[1];
-        } else if (this.blocks.has(name)) {
-            template = this.blocks.get(name)[0];
-            block = this.blocks.get(name)[1];
-        } else {
-            template = null;
-            block = null;
-        }
+            if (useBlocks && blocks.has(name)) {
+                blockHandler = blocks.get(name);
+            } else if (ownBlocks.has(name)) {
+                blockHandler = ownBlocks.get(name);
+            } else {
+                blockHandler = null;
+            }
 
-        if (template !== null) {
-            Reflect.get(template, block).call(template, context, blocks);
-        } else if ((parent = this.getParent(context) as TwingTemplate | false) !== false) {
-            parent.displayBlock(name, context, merge(this.blocks, blocks) as Map<string, Array<any>>, false);
-        } else if (blocks.has(name)) {
-            throw new TwingErrorRuntime(`Block "${name}" should not call parent() in "${blocks.get(name)[0].getTemplateName()}" as the block does not exist in the parent template "${this.getTemplateName()}".`, -1, blocks.get(name)[0].getSource());
-        } else {
-            throw new TwingErrorRuntime(`Block "${name}" on template "${this.getTemplateName()}" does not exist.`, -1, this.getSource());
-        }
+            if (blockHandler !== null) {
+                return blockHandler(context, blocks);
+            } else {
+                return this.displayParentBlock(name, context, merge(ownBlocks, blocks));
+                // if (ownTraits.has(name)) {
+                //     return ownTraits.get(name).displayBlock(name, context, merge(ownBlocks, blocks), false);
+                // }
+                // else {
+                //     return this.getParent(context).then((parent) => {
+                //         if (parent) {
+                //             return parent.displayBlock(name, context, merge(ownBlocks, blocks), false);
+                //         } else if (blocks.has(name)) {
+                //             throw new TwingErrorRuntime(`Block "${name}" should not call parent() in "${ownTraits.get(name).getTemplateName()}" as the block does not exist in the parent template "${this.getTemplateName()}".`, -1, ownTraits.get(name).getSourceContext());
+                //         } else {
+                //             throw new TwingErrorRuntime(`Block "${name}" on template "${this.getTemplateName()}" does not exist.`, -1, this.getSourceContext());
+                //         }
+                //     });
+                // }
+            }
+        });
     }
 
     /**
      * Renders a parent block.
      *
-     * This method is for internal use only and should never be called
-     * directly.
-     *
      * @param {string} name The block name to display from the parent
      * @param {*} context The context
-     * @param {Map<string, Array<any>>} blocks The active set of blocks
+     * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      *
-     * @returns string The rendered block
-     *
-     * @internal
+     * @returns {Promise<string>} The rendered block
      */
-    renderParentBlock(name: string, context: any, blocks: Map<string, Array<any>> = new Map()) {
+    protected renderParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<string> {
         obStart();
 
-        this.displayParentBlock(name, context, blocks);
-
-        return obGetClean() as string;
+        return this.displayParentBlock(name, context, blocks).then(() => {
+            return obGetClean() as string;
+        })
     }
 
     /**
      * Renders a block.
      *
-     * This method is for internal use only and should never be called
-     * directly.
-     *
      * @param {string} name The block name to display
      * @param context The context
-     * @param {Map<string, Array<*>>} blocks The active set of blocks
+     * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      * @param {boolean} useBlocks Whether to use the active set of blocks
      *
-     * @return string The rendered block
-     *
-     * @internal
+     * @return {Promise<string>} The rendered block
      */
-    renderBlock(name: string, context: any, blocks: Map<string, [TwingTemplate, string]> = new Map(), useBlocks = true): string {
+    protected renderBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map(), useBlocks = true): Promise<string> {
         obStart();
 
-        this.displayBlock(name, context, blocks, useBlocks);
-
-        return obGetClean() as string;
+        return this.displayBlock(name, context, blocks, useBlocks).then(() => {
+            return obGetClean() as string;
+        });
     }
 
     /**
      * Returns whether a block exists or not in the active context of the template.
      *
-     * This method checks blocks defined in the active template
-     * or defined in "used" traits or defined in parent templates.
+     * This method checks blocks defined in the active template or defined in "used" traits or defined in parent templates.
      *
      * @param {string} name The block name
-     * @param context The context
-     * @param {Map<string, Array<*>>} blocks The active set of blocks
+     * @param {any} context The context
+     * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      *
-     * @returns {boolean} true if the block exists, false otherwise
+     * @returns {Promise<boolean>} true if the block exists, false otherwise
      */
-    hasBlock(name: string, context: any, blocks: Map<string, Array<any>> = new Map()): boolean {
+    hasBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<boolean> {
         if (blocks.has(name)) {
-            return blocks.get(name)[0] instanceof TwingTemplate;
+            return Promise.resolve(true);
+        } else {
+            return this.getBlocks().then((blocks) => {
+                if (blocks.has(name)) {
+                    return Promise.resolve(true);
+                } else {
+                    return this.getParent(context).then((parent) => {
+                        if (parent) {
+                            return parent.hasBlock(name, context);
+                        } else {
+                            return false;
+                        }
+                    });
+                }
+            })
         }
-
-        if (this.blocks.has(name)) {
-            return true;
-        }
-
-        let parent = this.getParent(context) as any;
-
-        if (parent) {
-            return parent.hasBlock(name, context);
-        }
-
-        return false;
     }
 
-    public loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, templateName: string = null, line: number = null, index: number = 0): TwingTemplate {
-        try {
-            if (typeof templates === 'string') {
-                return this.env.loadTemplate(templates, index, this.getSource());
-            }
+    public loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, line: number = null, index: number = 0): Promise<TwingTemplate> {
+        let promise: Promise<TwingTemplate>;
 
-            if (templates instanceof TwingTemplate) {
-                return templates;
-            }
+        if (typeof templates === 'string') {
+            promise = this.env.loadTemplate(templates, index, this.getSourceContext());
+        } else if (templates instanceof TwingTemplate) {
+            promise = Promise.resolve(templates);
+        } else {
+            promise = this.env.resolveTemplate([...templates.values()], this.getSourceContext());
+        }
 
-            return this.env.resolveTemplate([...templates.values()], this.getSource());
-        } catch (e) {
+        return promise.catch((e) => {
             if (e instanceof TwingError) {
                 if (e.getTemplateLine() !== -1) {
                     throw e;
@@ -281,24 +285,56 @@ export abstract class TwingTemplate {
             }
 
             throw e;
-        }
+        });
     }
 
     /**
-     * Returns all blocks.
+     * Returns template traits.
      *
-     * This method is for internal use only and should never be called
-     * directly.
-     *
-     * @returns {Map<string, Array<*>>} An array of blocks
-     *
-     * @internal
+     * @returns {Promise<TwingTemplateTraitsMap>} A map of traits
      */
-    getBlocks() {
-        return this.blocks;
+    getTraits(): Promise<TwingTemplateTraitsMap> {
+        if (this.traits) {
+            return Promise.resolve(this.traits);
+        } else {
+            return this.doGetTraits().then((traits) => {
+                this.traits = traits;
+
+                return traits;
+            });
+        }
     }
 
-    async display(context: any, blocks: Map<string, Array<any>> = new Map()) {
+    getTraitsMap(): Promise<TwingTemplateTraitsMap> {
+        return this.getBlocks().then((blocks) => {
+            return new Map([...blocks.keys()].map((key) => {
+                return [key, this];
+            }));
+        });
+    }
+
+    /**
+     * Returns template blocks.
+     *
+     * @returns {Promise<TwingTemplateBlocksMap>} A map of blocks
+     */
+    getBlocks(): Promise<TwingTemplateBlocksMap> {
+        if (this.blocks) {
+            return Promise.resolve(this.blocks);
+        } else {
+            return this.doGetBlocks().then((blocks) => {
+                this.blocks = blocks;
+
+                return blocks;
+            });
+        }
+    }
+
+    protected abstract doGetTraits(): Promise<TwingTemplateTraitsMap>;
+
+    protected abstract doGetBlocks(): Promise<TwingTemplateBlocksMap>;
+
+    display(context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
         if (context === null) {
             throw new TypeError('Argument 1 passed to TwingTemplate::display() must be an iterator, null given');
         }
@@ -309,60 +345,56 @@ export abstract class TwingTemplate {
 
         context = new TwingContext(this.env.mergeGlobals(context));
 
-        await this.displayWithErrorHandling(context, merge(this.blocks, blocks) as Map<string, Array<any>>);
+        return this.getBlocks().then((_blocks) => this.displayWithErrorHandling(context, merge(_blocks, blocks) as TwingTemplateBlocksMap));
     }
 
-    async render(context: any): Promise<string> {
+    render(context: any): Promise<string> {
         let level = obGetLevel();
 
         obStart();
 
-        try {
-            await this.display(context);
-        } catch (e) {
-            while (obGetLevel() > level) {
-                obEndClean();
-            }
+        return this.display(context)
+            .then(() => {
+                return obGetClean() as string;
+            })
+            .catch((e) => {
+                while (obGetLevel() > level) {
+                    obEndClean();
+                }
 
-            throw e;
-        }
-
-        return obGetClean() as string;
+                throw e;
+            })
     }
 
     /**
      * Auto-generated method to display the template with the given context.
      *
-     * @param {*} context An array of parameters to pass to the template
-     * @param {Map<string, Array<*>>} blocks  An array of blocks to pass to the template
+     * @param {any} context An array of parameters to pass to the template
+     * @param {TwingTemplateBlocksMap} blocks
      */
-    abstract async doDisplay(context: {}, blocks: Map<string, Array<any>>): Promise<void>;
+    protected abstract doDisplay(context: any, blocks: TwingTemplateBlocksMap): Promise<void>;
 
-    protected doGetParent(context: any): TwingTemplate | string | false {
-        return false;
+    protected doGetParent(context: any): Promise<TwingTemplate | string | false> {
+        return Promise.resolve(false);
     }
 
-    protected async displayWithErrorHandling(context: any, blocks: Map<string, Array<any>> = new Map()) {
-        try {
-            await this.doDisplay(context, blocks);
-        } catch (e) {
+    protected displayWithErrorHandling(context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
+        return this.doDisplay(context, blocks).catch((e) => {
             if (e instanceof TwingError) {
                 if (!e.getSourceContext()) {
-                    e.setSourceContext(this.getSource());
+                    e.setSourceContext(this.getSourceContext());
                 }
 
                 throw e;
             }
 
-            throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSource(), e);
-        }
+            throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSourceContext(), e);
+        });
     }
 
-    public traceableMethod(method: Function, lineno: number, source: TwingSource) {
+    public traceableMethod<T>(method: Function, lineno: number, source: TwingSource): TwingTemplateTraceableMethod<T> {
         return function () {
-            try {
-                return method.apply(null, arguments);
-            } catch (e) {
+            return (method.apply(null, arguments) as Promise<T>).catch((e) => {
                 if (e instanceof TwingError) {
                     if (e.getTemplateLine() === -1) {
                         e.setTemplateLine(lineno);
@@ -373,27 +405,27 @@ export abstract class TwingTemplate {
                 }
 
                 throw e;
-            }
+            });
         }
     }
 
-    public traceableDisplayBlock(lineno: number, source: TwingSource) {
+    public traceableDisplayBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<void> {
         return this.traceableMethod(this.displayBlock.bind(this), lineno, source);
     }
 
-    public traceableDisplayParentBlock(lineno: number, source: TwingSource) {
+    public traceableDisplayParentBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<void> {
         return this.traceableMethod(this.displayParentBlock.bind(this), lineno, source);
     }
 
-    public traceableRenderBlock(lineno: number, source: TwingSource) {
+    public traceableRenderBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<string> {
         return this.traceableMethod(this.renderBlock.bind(this), lineno, source);
     }
 
-    public traceableRenderParentBlock(lineno: number, source: TwingSource) {
+    public traceableRenderParentBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<string> {
         return this.traceableMethod(this.renderParentBlock.bind(this), lineno, source);
     }
 
-    public traceableHasBlock(lineno: number, source: TwingSource) {
+    public traceableHasBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<boolean> {
         return this.traceableMethod(this.hasBlock.bind(this), lineno, source);
     }
 
@@ -461,12 +493,9 @@ export abstract class TwingTemplate {
         return obGetContents;
     }
 
-    protected get include(): (context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number) => string {
-        return (context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number): string => {
-            try {
-                return include(this.env, context, from, templates, variables, withContext, ignoreMissing);
-            }
-            catch (e) {
+    protected get include(): (context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number) => Promise<string> {
+        return (context: any, from: TwingSource, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number): Promise<string> => {
+            return include(this.env, context, from, templates, variables, withContext, ignoreMissing).catch((e) => {
                 if (e instanceof TwingError) {
                     if (e.getTemplateLine() === -1) {
                         e.setTemplateLine(line);
@@ -474,7 +503,7 @@ export abstract class TwingTemplate {
                 }
 
                 throw e;
-            }
+            });
         }
     }
 
@@ -490,7 +519,7 @@ export abstract class TwingTemplate {
         return iterate;
     }
 
-    protected get merge(): (iterable1: Array<any> | Map<any, any>, iterable2: Array<any> | Map<any, any>) => Array<any> | Map<any, any> {
+    protected get merge(): <V>(iterable1: Map<any, V>, iterable2: Map<any, V>) => Map<any, V> {
         return merge;
     }
 

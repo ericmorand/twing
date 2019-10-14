@@ -1,10 +1,9 @@
 import {TwingLoaderInterface} from "../loader-interface";
 import {TwingSource} from "../source";
 import {TwingErrorLoader} from "../error/loader";
-import {Stats} from "fs";
+import {Stats, stat as fsStat, statSync, readFileSync} from "fs";
+import {relative as relativePath, resolve as resolvePath, join as joinPath, sep as pathSeparator, isAbsolute as isAbsolutePath} from "path";
 
-const nodePath = require('path');
-const fs = require('fs');
 const rtrim = require('locutus/php/strings/rtrim');
 
 /**
@@ -13,8 +12,6 @@ const rtrim = require('locutus/php/strings/rtrim');
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export class TwingLoaderFilesystem implements TwingLoaderInterface {
-    TwingLoaderInterfaceImpl: TwingLoaderInterface;
-
     /** Identifier of the main namespace. */
     static MAIN_NAMESPACE = '__main__';
 
@@ -29,11 +26,9 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      * @param {string} rootPath The root path common to all relative paths (null for process.cwd())
      */
     constructor(paths: string | Array<string> = [], rootPath: string = null) {
-        this.TwingLoaderInterfaceImpl = this;
-
         rootPath = (rootPath === null ? process.cwd() : rootPath);
 
-        this.rootPath = nodePath.resolve(rootPath);
+        this.rootPath = resolvePath(rootPath);
 
         if (paths) {
             this.setPaths(paths);
@@ -93,12 +88,12 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         this.cache = new Map();
         this.errorCache = new Map();
 
-        let checkPath = this.isAbsolutePath(path) ? path : nodePath.join(this.rootPath, path);
+        let checkPath = this.isAbsolutePath(path) ? path : joinPath(this.rootPath, path);
 
         let stat: Stats = null;
 
         try {
-            stat = fs.statSync(this.normalizeName(checkPath));
+            stat = statSync(this.normalizeName(checkPath));
         } catch (err) {
             // noop, we just want to handle the error
         }
@@ -127,9 +122,9 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         this.cache = new Map();
         this.errorCache = new Map();
 
-        let checkPath = this.isAbsolutePath(path) ? path : nodePath.join(this.rootPath, path);
+        let checkPath = this.isAbsolutePath(path) ? path : joinPath(this.rootPath, path);
 
-        let stat = fs.statSync(this.normalizeName(checkPath));
+        let stat = statSync(this.normalizeName(checkPath));
 
         if (!stat.isDirectory()) {
             throw new TwingErrorLoader(`The "${path}" directory does not exist ("${checkPath}").`, -1, null);
@@ -144,99 +139,113 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         }
     }
 
-    getSourceContext(name: string, from: TwingSource): TwingSource {
-        let path = this.findTemplate(name, true, from);
-
-        return new TwingSource(fs.readFileSync(path).toString(), name, path);
+    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
+        return this.findTemplate(name, true, from).then((path) => {
+            return new TwingSource(readFileSync(path).toString(), name, path);
+        });
     }
 
-    getCacheKey(name: string, from: TwingSource): string {
-        let path = this.findTemplate(name, true, from);
-
-        return nodePath.relative(this.rootPath, path);
+    getCacheKey(name: string, from: TwingSource): Promise<string> {
+        return this.findTemplate(name, true, from).then((path) => {
+            return relativePath(this.rootPath, path);
+        });
     }
 
-    exists(name: string, from: TwingSource): boolean {
+    exists(name: string, from: TwingSource): Promise<boolean> {
         name = this.normalizeName(name);
 
         if (this.cache.has(name)) {
-            return true;
+            return Promise.resolve(true);
         }
 
-        return this.findTemplate(name, false, from) !== null;
+        return this.findTemplate(name, false, from).then((path) => {
+            return path !== null;
+        });
     }
 
-    isFresh(name: string, time: number, from: TwingSource): boolean {
-        let stat = fs.statSync(this.findTemplate(name, true, from));
-
-        return stat.mtime.getTime() < time;
+    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+        return this.findTemplate(name, true, from).then((path) => {
+            return new Promise((resolve, reject) => {
+                fsStat(path, (err, stat) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(stat.mtime.getTime() < time);
+                    }
+                });
+            });
+        });
     }
 
-    protected findTemplate(name: string, throw_: boolean = true, from: TwingSource = null): string {
-        name = this.normalizeName(name);
+    protected findTemplate(name: string, throw_: boolean = true, from: TwingSource = null): Promise<string> {
+        let _do = () => {
+            name = this.normalizeName(name);
 
-        if (this.cache.has(name)) {
-            return this.cache.get(name);
-        }
-
-        if (this.errorCache.has(name)) {
-            if (!throw_) {
-                return null;
+            if (this.cache.has(name)) {
+                return this.cache.get(name);
             }
 
-            throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
-        }
+            if (this.errorCache.has(name)) {
+                if (!throw_) {
+                    return null;
+                }
 
-        let namespace: string;
-        let shortname: string;
-
-        try {
-            this.validateName(name);
-
-            [namespace, shortname] = this.parseName(name);
-        } catch (e) {
-            if (!throw_) {
-                return null;
+                throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
             }
 
-            throw e;
-        }
-
-        if (!this.paths.has(namespace)) {
-            this.errorCache.set(name, `There are no registered paths for namespace "${namespace}".`);
-
-            if (!throw_) {
-                return null;
-            }
-
-            throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
-        }
-
-        for (let path of this.paths.get(namespace)) {
-            if (!this.isAbsolutePath(path)) {
-                path = nodePath.join(this.rootPath, path);
-            }
+            let namespace: string;
+            let shortname: string;
 
             try {
-                let stat = fs.statSync(nodePath.join(path, shortname));
+                this.validateName(name);
 
-                if (stat.isFile()) {
-                    this.cache.set(name, nodePath.resolve(nodePath.join(path, shortname)));
-
-                    return this.cache.get(name);
-                }
+                [namespace, shortname] = this.parseName(name);
             } catch (e) {
-                // let's continue searching
+                if (!throw_) {
+                    return null;
+                }
+
+                throw e;
             }
-        }
 
-        this.errorCache.set(name, `Unable to find template "${name}" (looked into: ${this.paths.get(namespace)}).`);
+            if (!this.paths.has(namespace)) {
+                this.errorCache.set(name, `There are no registered paths for namespace "${namespace}".`);
 
-        if (!throw_) {
-            return null;
-        }
+                if (!throw_) {
+                    return null;
+                }
 
-        throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
+                throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
+            }
+
+            for (let path of this.paths.get(namespace)) {
+                if (!this.isAbsolutePath(path)) {
+                    path = joinPath(this.rootPath, path);
+                }
+
+                try {
+                    let stat = statSync(joinPath(path, shortname));
+
+                    if (stat.isFile()) {
+                        this.cache.set(name, resolvePath(joinPath(path, shortname)));
+
+                        return this.cache.get(name);
+                    }
+                } catch (e) {
+                    // let's continue searching
+                }
+            }
+
+            this.errorCache.set(name, `Unable to find template "${name}" (looked into: ${this.paths.get(namespace)}).`);
+
+            if (!throw_) {
+                return null;
+            }
+
+            throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
+        };
+
+        return Promise.resolve(_do());
     }
 
     protected normalizeName(name: string) {
@@ -269,7 +278,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
             throw new TwingErrorLoader('A template name cannot contain NUL bytes.', -1, null);
         }
 
-        let parts = name.split(nodePath.sep);
+        let parts = name.split(pathSeparator);
         let level = 0;
 
         for (let part of parts) {
@@ -286,10 +295,10 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
     }
 
     protected isAbsolutePath(file: string) {
-        return nodePath.isAbsolute(file);
+        return isAbsolutePath(file);
     }
 
-    resolve(name: string, from: TwingSource): string {
+    resolve(name: string, from: TwingSource): Promise<string> {
         return this.findTemplate(name, false, from);
     }
 }

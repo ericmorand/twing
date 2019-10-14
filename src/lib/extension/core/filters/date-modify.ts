@@ -16,20 +16,20 @@ import {date as createDate} from "../functions/date";
  * @returns {Promise<DateTime>} A new date object
  */
 export function dateModify(env: TwingEnvironment, date: Date | DateTime | Duration | string, modifier: string): Promise<DateTime> {
-    let dateTime: DateTime = createDate(env, date) as DateTime;
+    return createDate(env, date).then((dateTime: DateTime) => {
+        let regExp = new RegExp(/(\+|-)([0-9])(.*)/);
+        let parts = regExp.exec(modifier);
 
-    let regExp = new RegExp(/(\+|-)([0-9])(.*)/);
-    let parts = regExp.exec(modifier);
+        let operator: string = parts[1];
+        let operand: number = Number.parseInt(parts[2]);
+        let unit: string = parts[3].trim();
 
-    let operator: string = parts[1];
-    let operand: number = Number.parseInt(parts[2]);
-    let unit: string = parts[3].trim();
+        let duration: any = {};
 
-    let duration: any = {};
+        duration[unit] = operator === '-' ? -operand : operand;
 
-    duration[unit] = operator === '-' ? -operand : operand;
+        dateTime = dateTime.plus(duration);
 
-    dateTime = dateTime.plus(duration);
-
-    return Promise.resolve(dateTime);
+        return dateTime;
+    });
 }

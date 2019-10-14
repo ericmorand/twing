@@ -234,12 +234,14 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {number} index The index of the template
      * @param {TwingSource} from The source that initiated the template loading
      *
-     * @return string The template hash
+     * @return {Promise<string>} The template hash
      */
-    getTemplateHash(name: string, index: number = 0, from: TwingSource = null) {
-        let key = this.getLoader().getCacheKey(name, from) + this.optionsHash;
+    getTemplateHash(name: string, index: number = 0, from: TwingSource = null): Promise<string> {
+        return this.getLoader().getCacheKey(name, from).then((key) => {
+            key += this.optionsHash;
 
-        return hex.stringify(sha256(key)) + (index === 0 ? '' : '_' + index);
+            return hex.stringify(sha256(key)) + (index === 0 ? '' : '_' + index);
+        });
     }
 
     /**
@@ -259,7 +261,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @returns {Promise<string>}
      */
     render(name: string, context: any = {}): Promise<string> {
-        return Promise.resolve(this.loadTemplate(name).render(context));
+        return this.loadTemplate(name).then((template) => template.render(context));
     }
 
     /**
@@ -267,13 +269,14 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {string} name The template name
      * @param {{}} context An array of parameters to pass to the template
+     * @returns {Promise<void>}
      *
      * @throws TwingErrorLoader  When the template cannot be found
      * @throws TwingErrorSyntax  When an error occurred during compilation
      * @throws TwingErrorRuntime When an error occurred during rendering
      */
-    display(name: string, context: any = {}) {
-        this.loadTemplate(name).display(context);
+    display(name: string, context: any = {}): Promise<void> {
+        return this.loadTemplate(name).then((template) => template.display(context));
     }
 
     /**
@@ -285,11 +288,11 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @throws {TwingErrorRuntime} When a previously generated cache is corrupted
      * @throws {TwingErrorSyntax}  When an error occurred during compilation
      *
-     * @returns {TwingTemplate}
+     * @returns {Promise<TwingTemplate>}
      */
-    load(name: string | TwingTemplate) {
+    load(name: string | TwingTemplate): Promise<TwingTemplate> {
         if (name instanceof TwingTemplate) {
-            return name;
+            return Promise.resolve(name);
         }
 
         return this.loadTemplate(name);
@@ -327,67 +330,96 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {number} index The index of the template
      * @param {TwingSource} from The source that initiated the template loading
      *
-     * @returns {TwingTemplate} A template instance representing the given template name
+     * @returns {Promise<TwingTemplate>} A template instance representing the given template name
      *
      * @throws {TwingErrorLoader}  When the template cannot be found
      * @throws {TwingErrorRuntime} When a previously generated cache is corrupted
      * @throws {TwingErrorSyntax}  When an error occurred during compilation
      */
-    loadTemplate(name: string, index: number = 0, from: TwingSource = null): TwingTemplate {
+    loadTemplate(name: string, index: number = 0, from: TwingSource = null): Promise<TwingTemplate> {
         this.emit('template', name, from);
 
         let cacheKey: string = name + (index !== 0 ? '_' + index : '');
 
         if (this.loadedTemplates.has(cacheKey)) {
-            return this.loadedTemplates.get(cacheKey);
+            return Promise.resolve(this.loadedTemplates.get(cacheKey));
         }
 
-        let mainTemplateHash = this.getTemplateHash(name, 0, from);
-        let templateHash = this.getTemplateHash(name, index, from);
+        let hashesPromises: Array<Promise<string>> = [
+            this.getTemplateHash(name, 0, from),
+            this.getTemplateHash(name, index, from)
+        ];
 
-        if (this.loadedTemplates.has(templateHash)) {
-            return this.loadedTemplates.get(templateHash);
-        }
+        return Promise.all(hashesPromises).then((hashes) => {
+            let mainTemplateHash = hashes[0];
+            let templateHash = hashes[1];
 
-        let cache = this.cache as TwingCacheInterface;
+            if (this.loadedTemplates.has(templateHash)) {
+                return Promise.resolve(this.loadedTemplates.get(templateHash));
+            } else {
+                let cache = this.cache as TwingCacheInterface;
 
-        cacheKey = cache.generateKey(name, mainTemplateHash);
+                cacheKey = cache.generateKey(name, mainTemplateHash);
 
-        let templates: Map<number, TwingTemplateConstructor> = new Map();
-        let templateConstructor = this.templateConstructor;
+                let templateConstructor = this.templateConstructor;
 
-        if (!this.isAutoReload() || this.isTemplateFresh(name, cache.getTimestamp(cacheKey), from)) {
-            templates = cache.load(cacheKey)(templateConstructor);
-        }
+                let resolveTemplateConstructors = (): Promise<Map<number, TwingTemplateConstructor>> => {
+                    if (!this.isAutoReload()) {
+                        return this.isTemplateFresh(name, cache.getTimestamp(cacheKey), from).then((fresh) => {
+                            if (fresh) {
+                                return cache.load(cacheKey)(templateConstructor);
+                            } else {
+                                return new Map();
+                            }
+                        });
+                    } else {
+                        return Promise.resolve(new Map());
+                    }
+                };
 
-        if (!templates.has(index)) {
-            let source = this.getLoader().getSourceContext(name, from);
-            let content = this.compileSource(source);
+                let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<TwingTemplate> => {
+                    let mainTemplate: TwingTemplate;
 
-            cache.write(cacheKey, content);
+                    let promises: Array<Promise<void>> = [];
 
-            templates = cache.load(cacheKey)(templateConstructor);
+                    for (let [index, constructor] of templates) {
+                        let template = new constructor(this);
 
-            if (!templates.has(index)) {
-                let templatesModule = this.getTemplatesModule(content);
+                        if (index === 0) {
+                            mainTemplate = template;
+                        }
 
-                templates = templatesModule(templateConstructor);
+                        promises.push(this.getTemplateHash(name, index, from).then((hash) => {
+                            this.registerTemplate(template, hash);
+                        }));
+                    }
+
+                    return Promise.all(promises).then(() => Promise.resolve(mainTemplate));
+                };
+
+                return resolveTemplateConstructors().then((templates) => {
+                    if (!templates.has(index)) {
+                        return this.getLoader().getSourceContext(name, from).then((source) => {
+                            let content = this.compileSource(source);
+
+                            cache.write(cacheKey, content);
+
+                            templates = cache.load(cacheKey)(templateConstructor);
+
+                            if (!templates.has(index)) {
+                                let templatesModule = this.getTemplatesModule(content);
+
+                                templates = templatesModule(templateConstructor);
+                            }
+
+                            return resolveMainTemplateFromTemplateConstructors(templates);
+                        });
+                    } else {
+                        return resolveMainTemplateFromTemplateConstructors(templates);
+                    }
+                })
             }
-        }
-
-        let mainTemplate: TwingTemplate;
-
-        for (let [index, constructor] of templates) {
-            let template = new constructor(this);
-
-            if (index === 0) {
-                mainTemplate = template;
-            }
-
-            this.registerTemplate(template, this.getTemplateHash(name, index, from));
-        }
-
-        return mainTemplate;
+        });
     }
 
     /**
@@ -398,12 +430,12 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {string} template The template name
      * @param {string} name An optional name for the template to be used in error messages
      *
-     * @returns {TwingTemplate} A template instance representing the given template name
+     * @returns {Promise<TwingTemplate>} A template instance representing the given template name
      *
      * @throws TwingErrorLoader When the template cannot be found
      * @throws TwingErrorSyntax When an error occurred during compilation
      */
-    createTemplate(template: string, name: string = null): TwingTemplate {
+    createTemplate(template: string, name: string = null): Promise<TwingTemplate> {
         let hash: string = hex.stringify(sha256(template));
 
         if (name !== null) {
@@ -439,13 +471,13 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {string|TwingTemplate|Array<string|TwingTemplate>} names A template or an array of templates to try consecutively
      * @param {TwingSource} from The source of the template that initiated the resolving.
-     * @returns {TwingTemplate}
+     *
+     * @returns {Promise<TwingTemplate>}
      *
      * @throws {TwingErrorLoader} When none of the templates can be found
      * @throws {TwingErrorSyntax} When an error occurred during compilation
      */
-    resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: TwingSource): TwingTemplate {
-        let self = this;
+    resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: TwingSource): Promise<TwingTemplate> {
         let namesArray: Array<any>;
 
         if (!Array.isArray(names)) {
@@ -454,33 +486,41 @@ export abstract class TwingEnvironment extends EventEmitter {
             namesArray = names;
         }
 
-        let error = null;
+        let error: TwingErrorLoader = null;
 
-        for (let name of namesArray) {
-            if (name instanceof TwingTemplate) {
-                return name;
-            }
+        let loadTemplateAtIndex = (index: number): Promise<TwingTemplate> => {
+            if (index < namesArray.length) {
+                let name = namesArray[index];
 
-            try {
-                return self.loadTemplate(name, 0, from);
-            } catch (e) {
-                if (e instanceof TwingErrorLoader) {
-                    if (e.getSourceContext().getName() !== from.getName()) {
-                        throw e;
-                    }
-
-                    error = e;
+                if (name instanceof TwingTemplate) {
+                    return Promise.resolve(name);
                 } else {
-                    throw e;
+                    return this.loadTemplate(name, 0, from).catch((e) => {
+                        if (e instanceof TwingErrorLoader) {
+                            if (e.getSourceContext().getName() !== from.getName()) {
+                                throw e;
+                            }
+
+                            error = e;
+
+                            return loadTemplateAtIndex(index + 1);
+                        } else {
+                            throw e;
+                        }
+                    });
                 }
             }
-        }
+            else {
+                if (namesArray.length === 1) {
+                    throw error;
+                }
+                else {
+                    throw new TwingErrorLoader(`Unable to find one of the following templates: "${namesArray.join(', ')}".`, -1, from);
+                }
+            }
+        };
 
-        if (namesArray.length === 1) {
-            throw error;
-        }
-
-        throw new TwingErrorLoader(`Unable to find one of the following templates: "${namesArray.join(', ')}".`, -1, from);
+        return loadTemplateAtIndex(0);
     }
 
     setLexer(lexer: TwingLexer) {

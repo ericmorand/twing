@@ -50,7 +50,7 @@ export class TwingNodeExpressionGetAttr extends TwingNodeExpression {
             return;
         }
 
-        compiler.raw(`this.traceableMethod(this.getAttribute, ${this.getTemplateLine()}, this.getSource())(this.env, `);
+        compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.getTemplateLine()}, this.getSourceContext())(this.env, `);
 
         if (this.getAttribute('ignore_strict_check')) {
             this.getNode('node').setAttribute('ignore_strict_check', true);

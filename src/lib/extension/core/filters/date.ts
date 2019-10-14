@@ -27,11 +27,11 @@ export function date(env: TwingEnvironment, date: DateTime | Duration | string, 
         format = date instanceof Duration ? formats[1] : formats[0];
     }
 
-    date = createDate(env, date, timezone);
+    return createDate(env, date, timezone).then((date) => {
+        if (date instanceof Duration) {
+            return Promise.resolve(formatDuration(date, format));
+        }
 
-    if (date instanceof Duration) {
-        return Promise.resolve(formatDuration(date, format));
-    }
-
-    return Promise.resolve(formatDateTime(date, format));
+        return Promise.resolve(formatDateTime(date, format));
+    });
 }

@@ -10,9 +10,9 @@ import {TwingEnvironment} from "../../../environment";
  * @param {string} name The name of the constant
  * @param object The object to get the constant from
  *
- * @returns {any}
+ * @returns {Promise<any>}
  */
-export function constant(env: TwingEnvironment, name: string, object: any = null): any {
+export function constant(env: TwingEnvironment, name: string, object: any = null): Promise<any> {
     let candidate: any;
 
     if (object) {
@@ -21,5 +21,5 @@ export function constant(env: TwingEnvironment, name: string, object: any = null
         candidate = env;
     }
 
-    return candidate.constructor[name];
+    return Promise.resolve(candidate.constructor[name]);
 }

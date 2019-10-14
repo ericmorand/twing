@@ -446,89 +446,89 @@ export class TwingExtensionCore extends TwingExtension {
         ];
     }
 
-    // getFunctions() {
-    //     return [
-    //         new TwingFunction('constant', constant, [
-    //             {name: 'name'},
-    //             {name: 'object', defaultValue: null}
-    //         ], {
-    //             needs_environment: true
-    //         }),
-    //         new TwingFunction('cycle', cycle, [
-    //             {name: 'values'},
-    //             {name: 'position'}
-    //         ]),
-    //         new TwingFunction('date', dateFunction, [
-    //             {name: 'date'},
-    //             {name: 'timezone'}
-    //         ], {
-    //             needs_environment: true
-    //         }),
-    //         new TwingFunction('dump', dump, [], {
-    //             is_safe: ['html'],
-    //             needs_context: true
-    //         }),
-    //         new TwingFunction('include', include, [
-    //             {name: 'template'},
-    //             {name: 'variables', defaultValue: {}},
-    //             {name: 'with_context', defaultValue: true},
-    //             {name: 'ignore_missing', defaultValue: false},
-    //             {name: 'sandboxed', defaultValue: false}
-    //         ], {
-    //             needs_context: true,
-    //             needs_environment: true,
-    //             needs_source: true,
-    //             is_safe: ['all']
-    //         }),
-    //         new TwingFunction('max', max, []),
-    //         new TwingFunction('min', min, []),
-    //         new TwingFunction('random', random, [
-    //             {name: 'values', defaultValue: null},
-    //             {name: 'max', defaultValue: null}
-    //         ], {
-    //             needs_environment: true
-    //         }),
-    //         new TwingFunction('range', range, [
-    //             {name: 'low'},
-    //             {name: 'high'},
-    //             {name: 'step'}
-    //         ]),
-    //         new TwingFunction('source', source, [
-    //             {name: 'name'},
-    //             {name: 'ignore_missing', defaultValue: false}
-    //         ], {
-    //             needs_environment: true,
-    //             needs_source: true,
-    //             is_safe: ['all']
-    //         }),
-    //         new TwingFunction('template_from_string', templateFromString, [
-    //             {name: 'template'},
-    //             {name: 'name', defaultValue: null}
-    //         ], {
-    //             needs_environment: true
-    //         })
-    //     ];
-    // }
+    getFunctions() {
+        return [
+            new TwingFunction('constant', constant, [
+                {name: 'name'},
+                {name: 'object', defaultValue: null}
+            ], {
+                needs_environment: true
+            }),
+            new TwingFunction('cycle', cycle, [
+                {name: 'values'},
+                {name: 'position'}
+            ]),
+            new TwingFunction('date', dateFunction, [
+                {name: 'date'},
+                {name: 'timezone'}
+            ], {
+                needs_environment: true
+            }),
+            new TwingFunction('dump', dump, [], {
+                is_safe: ['html'],
+                needs_context: true
+            }),
+            new TwingFunction('include', include, [
+                {name: 'template'},
+                {name: 'variables', defaultValue: {}},
+                {name: 'with_context', defaultValue: true},
+                {name: 'ignore_missing', defaultValue: false},
+                {name: 'sandboxed', defaultValue: false}
+            ], {
+                needs_context: true,
+                needs_environment: true,
+                needs_source: true,
+                is_safe: ['all']
+            }),
+            new TwingFunction('max', max, []),
+            new TwingFunction('min', min, []),
+            new TwingFunction('random', random, [
+                {name: 'values', defaultValue: null},
+                {name: 'max', defaultValue: null}
+            ], {
+                needs_environment: true
+            }),
+            new TwingFunction('range', range, [
+                {name: 'low'},
+                {name: 'high'},
+                {name: 'step'}
+            ]),
+            new TwingFunction('source', source, [
+                {name: 'name'},
+                {name: 'ignore_missing', defaultValue: false}
+            ], {
+                needs_environment: true,
+                needs_source: true,
+                is_safe: ['all']
+            }),
+            new TwingFunction('template_from_string', templateFromString, [
+                {name: 'template'},
+                {name: 'name', defaultValue: null}
+            ], {
+                needs_environment: true
+            })
+        ];
+    }
 
     getTests(): Array<TwingTest> {
         return [
-            // new TwingTest('constant', null, [], {
-            //     expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-            //         return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
-            //     }
-            // }),
-            // new TwingTest('divisible by', divisibleBy, []),
-            // new TwingTest('defined', null, [], {
-            //     expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-            //         return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
-            //     }
-            // }),
-            // new TwingTest('empty', empty, []),
-            // new TwingTest('even', even, []),
-            // new TwingTest('iterable', iterable, []),
-            // new TwingTest('none', nullTest, []),
-            // new TwingTest('null', nullTest, []),
-            // new TwingTest('odd', odd, []),
+            new TwingTest('constant', null, [], {
+                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
+                    return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
+                }
+            }),
+            new TwingTest('divisible by', divisibleBy, []),
+            new TwingTest('defined', null, [], {
+                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
+                    return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
+                }
+            }),
+            new TwingTest('empty', empty, []),
+            new TwingTest('even', even, []),
+            new TwingTest('iterable', iterable, []),
+            new TwingTest('none', nullTest, []),
+            new TwingTest('null', nullTest, []),
+            new TwingTest('odd', odd, []),
             new TwingTest('same as', sameAs, []),
         ];
     }

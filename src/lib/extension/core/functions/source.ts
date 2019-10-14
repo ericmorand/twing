@@ -6,17 +6,19 @@ import {TwingErrorLoader} from "../../../error/loader";
  * Returns a template content without rendering it.
  *
  * @param {TwingEnvironment} env
- * @param {TwingSource} source
+ * @param {TwingSource} from
  * @param {string} name The template name
  * @param {boolean} ignoreMissing Whether to ignore missing templates or not
  *
- * @return string The template source
+ * @return {Promise<string>} The template source
  */
-export function source(env: TwingEnvironment, source: TwingSource, name: string, ignoreMissing: boolean = false) {
+export function source(env: TwingEnvironment, from: TwingSource, name: string, ignoreMissing: boolean = false): Promise<string> {
     let loader = env.getLoader();
 
     try {
-        return loader.getSourceContext(name, source).getCode();
+        return loader.getSourceContext(name, from).then((source) => {
+            return source.getCode()
+        });
     } catch (e) {
         if (e instanceof TwingErrorLoader) {
             if (!ignoreMissing) {
@@ -27,5 +29,5 @@ export function source(env: TwingEnvironment, source: TwingSource, name: string,
         }
     }
 
-    return null;
+    return Promise.resolve(null);
 }

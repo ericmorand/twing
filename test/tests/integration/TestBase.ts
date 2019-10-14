@@ -74,46 +74,46 @@ class TwingTestExtension extends TwingExtension {
         ];
     }
 
-    // getFunctions() {
-    //     return [
-    //         new TwingFunction('§', this.sectionFunction, []),
-    //         new TwingFunction('safe_br', this.br, [], {'is_safe': ['html']}),
-    //         new TwingFunction('unsafe_br', this.br, []),
-    //         new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
-    //         new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
-    //         new TwingFunction('*_path', dynamic_path, []),
-    //         new TwingFunction('*_foo_*_bar', dynamic_foo, []),
-    //         new TwingFunction('anon_foo', function (name: string) {
-    //             return '*' + name + '*';
-    //         }, []),
-    //     ];
-    // }
+    getFunctions() {
+        return [
+            new TwingFunction('§', this.sectionFunction, []),
+            new TwingFunction('safe_br', this.br, [], {'is_safe': ['html']}),
+            new TwingFunction('unsafe_br', this.br, []),
+            new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
+            new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
+            new TwingFunction('*_path', dynamic_path, []),
+            new TwingFunction('*_foo_*_bar', dynamic_foo, []),
+            new TwingFunction('anon_foo', function (name: string) {
+                return Promise.resolve('*' + name + '*');
+            }, []),
+        ];
+    }
 
-    // getTests() {
-    //     return [
-    //         new TwingTest('multi word', this.is_multi_word, []),
-    //         new TwingTest('test_*', this.dynamic_test, [])
-    //     ];
-    // }
+    getTests() {
+        return [
+            new TwingTest('multi word', this.is_multi_word, []),
+            new TwingTest('test_*', this.dynamic_test, [])
+        ];
+    }
 
     sectionFilter(value: string) {
         return Promise.resolve(`§${value}§`);
     }
 
     sectionFunction(value: string) {
-        return `§${value}§`;
+        return Promise.resolve(`§${value}§`);
     }
 
     br() {
-        return '<br />';
+        return Promise.resolve('<br />');
     }
 
     is_multi_word(value: string) {
-        return value.indexOf(' ') > -1;
+        return Promise.resolve(value.indexOf(' ') > -1);
     }
 
     dynamic_test(element: any, item: any) {
-        return element === item;
+        return Promise.resolve(element === item);
     }
 }
 
@@ -189,7 +189,8 @@ export default abstract class {
             // options
             let loader = new TwingLoaderArray(templates);
             let environment = new this._environmentConstructor(loader, Object.assign({}, {
-                cache: false,
+                cache: 'tmp/functions',
+                debug: true,
                 sandbox_policy: new TwingSandboxSecurityPolicy(this.getSandboxSecurityPolicyTags(), this.getSandboxSecurityPolicyFilters(), new Map(), new Map(), this.getSandboxSecurityPolicyFunctions()),
                 strict_variables: true
             } as TwingEnvironmentOptions, this.getEnvironmentOptions()));
@@ -207,7 +208,7 @@ export default abstract class {
 
             this.env.addGlobal('global', 'global');
 
-            let context = this.getContext();
+            let context = await this.getContext();
             let expected = this.getExpected();
             let expectedErrorMessage = this.getExpectedErrorMessage();
             let expectedDeprecationMessages = this.getExpectedDeprecationMessages();

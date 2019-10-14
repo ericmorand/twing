@@ -56,7 +56,7 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
             compiler
                 .raw('], ')
                 .repr(this.getTemplateLine())
-                .raw(', context, this.getSource())');
+                .raw(', context, this.getSourceContext())');
         }
     }
 }

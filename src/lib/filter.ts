@@ -13,10 +13,10 @@ export type TwingFilterOptions = TwingCallableWrapperOptions & {
     preserves_safety?: Array<string>
 }
 
-export class TwingFilter extends TwingCallableWrapper {
+export class TwingFilter extends TwingCallableWrapper<any> {
     readonly options: TwingFilterOptions;
 
-    constructor(name: string, callable: TwingCallable, acceptedArguments: TwingCallableArgument[], options: TwingFilterOptions = {}) {
+    constructor(name: string, callable: TwingCallable<any>, acceptedArguments: TwingCallableArgument[], options: TwingFilterOptions = {}) {
         super(name, callable, acceptedArguments);
 
         this.options.pre_escape = null;
