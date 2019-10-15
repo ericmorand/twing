@@ -25,11 +25,11 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
     compile(compiler: TwingCompiler) {
         if (this.getAttribute('is_defined_test')) {
             compiler
-                .raw('(typeof (aliases.proxy[')
+                .raw('(await aliases.proxy[')
                 .repr(this.getNode('node').getAttribute('name'))
-                .raw('][')
+                .raw('].hasMacro(')
                 .repr(this.getAttribute('method'))
-                .raw(']) === \'function\')')
+                .raw('))')
             ;
         }
         else {

@@ -46,43 +46,39 @@ export function include(env: TwingEnvironment, context: any, from: TwingSource, 
         templates = new Map([[0, templates]]);
     }
 
-    return env.resolveTemplate([...templates.values()], from)
-        .then((template) => {
-            let promise = template ? template.render(variables) : Promise.resolve('');
+    let restoreSandbox = (): void => {
+        if (sandboxed && !alreadySandboxed) {
+            env.disableSandbox();
+        }
+    };
 
-            return promise
-                .then((result) => {
-                    if (!alreadySandboxed) {
-                        env.disableSandbox();
-                    }
+    let resolveTemplate = (templates: Map<number, string | TwingTemplate>): Promise<TwingTemplate> => {
+        return env.resolveTemplate([...templates.values()], from).catch((e) => {
+            restoreSandbox();
 
-                    return result;
-                })
-                .catch((e) => {
-                    if (!alreadySandboxed) {
-                        env.disableSandbox();
-                    }
-
-                    throw e;
-                })
-        })
-        .catch((e) => {
             if (e instanceof TwingErrorLoader) {
-                if ((e.getSourceContext().getName() !== from.getName()) || !ignoreMissing) {
-                    if (sandboxed && !alreadySandboxed) {
-                        env.disableSandbox();
-                    }
-
+                if (!ignoreMissing) {
                     throw e;
                 } else {
                     return null;
                 }
             } else {
-                if (sandboxed && !alreadySandboxed) {
-                    env.disableSandbox();
-                }
-
                 throw e;
             }
         });
+    };
+
+    return resolveTemplate(templates).then((template) => {
+        let promise = template ? template.render(variables) : Promise.resolve('');
+
+        return promise.then((result) => {
+            restoreSandbox();
+
+            return result;
+        }).catch((e) => {
+            restoreSandbox();
+
+            throw e;
+        });
+    });
 }

@@ -99,5 +99,9 @@ export function date(env: TwingEnvironment, date: Date | DateTime | Duration | n
         return result;
     };
 
-    return Promise.resolve(_do());
+    try {
+        return Promise.resolve(_do());
+    } catch (e) {
+        return Promise.reject(e);
+    }
 }

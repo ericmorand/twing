@@ -84,8 +84,6 @@ export abstract class TwingCallableWrapper<T> {
                     }
                 }
 
-                console.warn('UP THERE');
-
                 throw e;
             });
         }

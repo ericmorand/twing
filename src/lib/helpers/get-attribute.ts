@@ -214,7 +214,11 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
         }
 
         return get(object, method).apply(object, [..._arguments.values()]);
-    }
+    };
 
-    return Promise.resolve(_do());
+    try {
+        return Promise.resolve(_do());
+    } catch (e) {
+        return Promise.reject(e);
+    }
 };

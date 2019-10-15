@@ -13,21 +13,17 @@ import {TwingErrorLoader} from "../../../error/loader";
  * @return {Promise<string>} The template source
  */
 export function source(env: TwingEnvironment, from: TwingSource, name: string, ignoreMissing: boolean = false): Promise<string> {
-    let loader = env.getLoader();
-
-    try {
-        return loader.getSourceContext(name, from).then((source) => {
-            return source.getCode()
-        });
-    } catch (e) {
+    return env.getLoader().getSourceContext(name, from).then((source) => {
+        return source.getCode();
+    }).catch((e) => {
         if (e instanceof TwingErrorLoader) {
             if (!ignoreMissing) {
                 throw e;
+            } else {
+                return null;
             }
         } else {
             throw e;
         }
-    }
-
-    return Promise.resolve(null);
+    });
 }

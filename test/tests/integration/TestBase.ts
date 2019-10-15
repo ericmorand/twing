@@ -189,7 +189,7 @@ export default abstract class {
             // options
             let loader = new TwingLoaderArray(templates);
             let environment = new this._environmentConstructor(loader, Object.assign({}, {
-                cache: 'tmp/functions',
+                cache: false,
                 debug: false,
                 sandbox_policy: new TwingSandboxSecurityPolicy(this.getSandboxSecurityPolicyTags(), this.getSandboxSecurityPolicyFilters(), new Map(), new Map(), this.getSandboxSecurityPolicyFunctions()),
                 strict_variables: true

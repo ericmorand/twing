@@ -24,7 +24,7 @@ import {getAttribute} from "./helpers/get-attribute";
 import {createRange} from "./helpers/create-range";
 import {cloneMap} from "./helpers/clone-map";
 import {parseRegex} from "./helpers/parse-regex";
-import {constant} from "./extension/core/functions/constant";
+import {constant} from "./helpers/constant";
 import {get} from "./helpers/get";
 import {include} from "./extension/core/functions/include";
 
@@ -116,13 +116,6 @@ export abstract class TwingTemplate {
                 } else {
                     return this.parents.get(parent);
                 }
-            })
-            .catch((e) => {
-                if (e instanceof TwingError) {
-                    e.setSourceContext(null);
-                }
-
-                throw e;
             });
     }
 
@@ -241,7 +234,7 @@ export abstract class TwingTemplate {
     protected renderBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map(), useBlocks = true): Promise<string> {
         obStart();
 
-        return this.displayBlock(name, context, new Map(), useBlocks).then(() => {
+        return this.displayBlock(name, context, blocks, useBlocks).then(() => {
             return obGetClean() as string;
         });
     }
@@ -255,7 +248,7 @@ export abstract class TwingTemplate {
      * @param {any} context The context
      * @param {TwingTemplateBlocksMap} blocks The active set of blocks
      *
-     * @returns {Promise<boolean>} true if the block exists, false otherwise
+     * @return {Promise<boolean>} true if the block exists, false otherwise
      */
     hasBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<boolean> {
         if (blocks.has(name)) {
@@ -275,6 +268,16 @@ export abstract class TwingTemplate {
                 }
             })
         }
+    }
+
+    /**
+     * @param {string} name The macro name
+     *
+     * @return {Promise<boolean>}
+     */
+    hasMacro(name: string): Promise<boolean> {
+        // @see https://github.com/twigphp/Twig/issues/3174 as to why we don't check macro existence in parents
+        return Promise.resolve(this.macroHandlers.has(name));
     }
 
     loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, line: number = null, index: number = 0): Promise<TwingTemplate> {
@@ -348,15 +351,16 @@ export abstract class TwingTemplate {
 
     protected displayWithErrorHandling(context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
         return this.doDisplay(context, blocks).catch((e) => {
+
             if (e instanceof TwingError) {
                 if (!e.getSourceContext()) {
                     e.setSourceContext(this.getSourceContext());
                 }
-
-                throw e;
+            } else {
+                e = new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSourceContext(), e);
             }
 
-            throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.getSourceContext(), e);
+            throw e;
         });
     }
 

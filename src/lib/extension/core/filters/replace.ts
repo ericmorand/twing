@@ -23,5 +23,9 @@ export function replace(str: string, from: any): Promise<string> {
         return strtr(str, from);
     };
 
-    return Promise.resolve(_do());
+    try {
+        return Promise.resolve(_do());
+    } catch (e) {
+        return Promise.reject(e);
+    }
 }
