@@ -198,7 +198,7 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * Sets the active cache implementation.
      *
-     * @param {TwingCacheInterface|string|string|false} cache A TwingCacheInterface implementation, a string or false to disable cache
+     * @param {TwingCacheInterface|string|false} cache A TwingCacheInterface implementation, a string or false to disable cache
      */
     setCache(cache: TwingCacheInterface | string | false) {
         if (typeof cache === 'string') {
@@ -207,10 +207,8 @@ export abstract class TwingEnvironment extends EventEmitter {
         } else if (cache === false) {
             this.originalCache = cache;
             this.cache = new TwingCacheNull();
-        } else if (cache.TwingCacheInterfaceImpl) {
-            this.originalCache = this.cache = cache;
         } else {
-            throw new Error(`Cache can only be a string, false or a TwingCacheInterface implementation.`);
+            this.originalCache = this.cache = cache;
         }
     }
 
@@ -357,67 +355,71 @@ export abstract class TwingEnvironment extends EventEmitter {
             if (this.loadedTemplates.has(templateHash)) {
                 return Promise.resolve(this.loadedTemplates.get(templateHash));
             } else {
-                let cache = this.cache as TwingCacheInterface;
+                let cache = this.cache;
 
-                cacheKey = cache.generateKey(name, mainTemplateHash);
+                return cache.generateKey(name, mainTemplateHash).then((cacheKey) => {
+                    return cache.getTimestamp(cacheKey).then((timestamp) => {
+                        let templateConstructor = this.templateConstructor;
 
-                let templateConstructor = this.templateConstructor;
-
-                let resolveTemplateConstructors = (): Promise<Map<number, TwingTemplateConstructor>> => {
-                    if (!this.isAutoReload()) {
-                        return this.isTemplateFresh(name, cache.getTimestamp(cacheKey), from).then((fresh) => {
-                            if (fresh) {
-                                return cache.load(cacheKey)(templateConstructor);
+                        let resolveTemplateConstructors = (): Promise<Map<number, TwingTemplateConstructor>> => {
+                            if (!this.isAutoReload()) {
+                                return this.isTemplateFresh(name, timestamp, from).then((fresh) => {
+                                    if (fresh) {
+                                        return cache.load(cacheKey).then((templatesModule) => templatesModule(templateConstructor));
+                                    } else {
+                                        return new Map();
+                                    }
+                                });
                             } else {
-                                return new Map();
+                                return Promise.resolve(new Map());
                             }
-                        });
-                    } else {
-                        return Promise.resolve(new Map());
-                    }
-                };
+                        };
 
-                let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<TwingTemplate> => {
-                    let mainTemplate: TwingTemplate;
+                        let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<TwingTemplate> => {
+                            let mainTemplate: TwingTemplate;
 
-                    let promises: Array<Promise<void>> = [];
+                            let promises: Array<Promise<void>> = [];
 
-                    for (let [index, constructor] of templates) {
-                        let template = new constructor(this);
+                            for (let [index, constructor] of templates) {
+                                let template = new constructor(this);
 
-                        if (index === 0) {
-                            mainTemplate = template;
-                        }
+                                if (index === 0) {
+                                    mainTemplate = template;
+                                }
 
-                        promises.push(this.getTemplateHash(name, index, from).then((hash) => {
-                            this.registerTemplate(template, hash);
-                        }));
-                    }
+                                promises.push(this.getTemplateHash(name, index, from).then((hash) => {
+                                    this.registerTemplate(template, hash);
+                                }));
+                            }
 
-                    return Promise.all(promises).then(() => Promise.resolve(mainTemplate));
-                };
+                            return Promise.all(promises).then(() => Promise.resolve(mainTemplate));
+                        };
 
-                return resolveTemplateConstructors().then((templates) => {
-                    if (!templates.has(index)) {
-                        return this.getLoader().getSourceContext(name, from).then((source) => {
-                            let content = this.compileSource(source);
-
-                            cache.write(cacheKey, content);
-
-                            templates = cache.load(cacheKey)(templateConstructor);
-
+                        return resolveTemplateConstructors().then((templates) => {
                             if (!templates.has(index)) {
-                                let templatesModule = this.getTemplatesModule(content);
+                                return this.getLoader().getSourceContext(name, from).then((source) => {
+                                    let content = this.compileSource(source);
 
-                                templates = templatesModule(templateConstructor);
+                                    return cache.write(cacheKey, content).then(() => {
+                                        return cache.load(cacheKey).then((templatesModule) => {
+                                            templates = templatesModule(templateConstructor);
+
+                                            if (!templates.has(index)) {
+                                                let templatesModule = this.getTemplatesModule(content);
+
+                                                templates = templatesModule(templateConstructor);
+                                            }
+
+                                            return resolveMainTemplateFromTemplateConstructors(templates);
+                                        });
+                                    });
+                                });
+                            } else {
+                                return resolveMainTemplateFromTemplateConstructors(templates);
                             }
-
-                            return resolveMainTemplateFromTemplateConstructors(templates);
-                        });
-                    } else {
-                        return resolveMainTemplateFromTemplateConstructors(templates);
-                    }
-                })
+                        })
+                    });
+                });
             }
         });
     }
@@ -509,12 +511,10 @@ export abstract class TwingEnvironment extends EventEmitter {
                         }
                     });
                 }
-            }
-            else {
+            } else {
                 if (namesArray.length === 1) {
                     throw error;
-                }
-                else {
+                } else {
                     throw new TwingErrorLoader(`Unable to find one of the following templates: "${namesArray.join(', ')}".`, -1, from);
                 }
             }
