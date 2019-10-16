@@ -186,7 +186,7 @@ export abstract class TwingTemplate {
      *
      * @returns {Promise<void>}
      */
-    protected displayParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
+    protected displayParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap): Promise<void> {
         return this.getTraits().then((traits) => {
             if (traits.has(name)) {
                 return traits.get(name)[0].displayBlock(traits.get(name)[1], context, blocks, false);
@@ -211,7 +211,7 @@ export abstract class TwingTemplate {
      *
      * @returns {Promise<string>} The rendered block
      */
-    protected renderParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap = new Map()): Promise<string> {
+    protected renderParentBlock(name: string, context: any, blocks: TwingTemplateBlocksMap): Promise<string> {
         obStart();
 
         return this.getBlocks().then((blocks) => {
@@ -324,14 +324,6 @@ export abstract class TwingTemplate {
     }
 
     protected doGetTraits(): Promise<TwingTemplateBlocksMap> {
-        return Promise.resolve(new Map());
-    }
-
-    protected doGetBlocks(): Promise<TwingTemplateBlocksMap> {
-        return Promise.resolve(new Map());
-    }
-
-    protected doGetMacros(): Promise<TwingTemplateMacrosMap> {
         return Promise.resolve(new Map());
     }
 

@@ -343,6 +343,15 @@ tape('loader filesystem', (test) => {
             test.same(await loader.getSourceContext(name, null), new TwingSource('named path\n', name, nodePath.resolve(fixturesPath, 'named/index.html')));
         }
 
+        try {
+            await loader.getSourceContext(null, null);
+
+            test.fail();
+        }
+        catch (e) {
+            test.true(e.message.startsWith('Unable to find template ""'));
+        }
+
         test.end();
     });
 

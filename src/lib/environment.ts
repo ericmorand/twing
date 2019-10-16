@@ -488,10 +488,6 @@ export abstract class TwingEnvironment extends EventEmitter {
                 } else {
                     return this.loadTemplate(name, 0, from).catch((e) => {
                         if (e instanceof TwingErrorLoader) {
-                            if (e.getSourceContext().getName() !== from.getName()) {
-                                throw e;
-                            }
-
                             error = e;
 
                             return loadTemplateAtIndex(index + 1);

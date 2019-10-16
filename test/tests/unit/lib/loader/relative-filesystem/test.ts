@@ -162,43 +162,6 @@ tape('loader filesystem', (test) => {
         test.end();
     });
 
-    // test.test('load-template-and-render-block-with-cache', (test) => {
-    //     let resolvePath = (path: string) => {
-    //         return nodePath.resolve(fixturesPath, path);
-    //     };
-    //
-    //     let loader = new TwingLoaderFilesystem();
-    //
-    //     let twing = new TwingEnvironmentNode(loader);
-    //
-    //     let template = twing.loadTemplate('../themes/theme1/blocks.html.twig', 0, new TwingSource('', '', resolvePath('normal/index.html')));
-    //
-    //     test.same(template.renderBlock('b1', {}), 'block from theme 1');
-    //
-    //     template = twing.loadTemplate('../themes/theme3/blocks.html.twig', 0, new TwingSource('', '', resolvePath('normal/index.html')));
-    //
-    //     test.same(template.renderBlock('b2', {}), 'block from theme 3');
-    //
-    //     test.end();
-    // });
-
-    // test.test('array-inheritance', (test) => {
-    //     let resolvePath = (path: string) => {
-    //         return nodePath.resolve(nodePath.join(fixturesPath, 'inheritance'), path);
-    //     };
-    //
-    //     for (let [testMessage, arrayInheritanceTest] of arrayInheritanceTests) {
-    //         let templateName = resolvePath(arrayInheritanceTest[0]);
-    //         let loader = new TwingLoaderFilesystem();
-    //         let twing = new TwingEnvironmentNode(loader);
-    //         let template = twing.loadTemplate(templateName);
-    //
-    //         test.same(template.renderBlock('body', {}), 'VALID Child', testMessage);
-    //     }
-    //
-    //     test.end();
-    // });
-
     test.test('should normalize template name', async (test) => {
         let resolvePath = (path: string) => {
             return nodePath.resolve(fixturesPath, path);
@@ -223,6 +186,15 @@ tape('loader filesystem', (test) => {
 
         for (let name of names) {
             test.same(await loader.getSourceContext(name, new TwingSource('', '', resolvePath('foo.html'))), new TwingSource('named path\n', resolvePath('named/index.html'), resolvePath('named/index.html')));
+        }
+
+        try {
+            await loader.getSourceContext(null, null);
+
+            test.fail();
+        }
+        catch (e) {
+            test.true(e.message.startsWith('Unable to find template ""'));
         }
 
         test.end();

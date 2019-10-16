@@ -44,6 +44,21 @@ tape('cache filesystem', (test: Test) => {
 
         writeFileStub.restore();
 
+        let renameStub = stub(fs, 'rename').callsFake((oldPath, newPath, cb) => {
+            return cb(new Error('foo'));
+        });
+
+        try {
+            await cache.write('foo', null);
+
+            test.fail();
+        }
+        catch (e) {
+            test.same(e.message, 'Failed to write cache file "foo".');
+        }
+
+        renameStub.restore();
+
         test.end();
     });
 
