@@ -28,11 +28,11 @@ import {constant} from "./helpers/constant";
 import {get} from "./helpers/get";
 import {include} from "./extension/core/functions/include";
 
-type TwingTemplateBlocksMap = Map<string, [TwingTemplate, string]>;
 type TwingTemplateMacrosMap = Map<string, TwingTemplateMacroHandler>;
 type TwingTemplateAliasesMap = TwingContext<string, TwingTemplate>;
 type TwingTemplateTraceableMethod<T> = (...args: Array<any>) => Promise<T>;
 
+export type TwingTemplateBlocksMap = Map<string, [TwingTemplate, string]>;
 export type TwingTemplateBlockHandler = (context: any, blocks: TwingTemplateBlocksMap) => Promise<void>;
 export type TwingTemplateMacroHandler = (...args: Array<any>) => Promise<string>;
 

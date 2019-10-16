@@ -209,7 +209,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
                 return parameter instanceof TwingNode;
             });
 
-            throw new TwingErrorSyntax(`Unknown argument${parameters.size > 1 ? 's' : ''} "${[...parameters.keys()].join('", "')}" for ${callType} "${callName}(${names.join(', ')})".`, unknownParameter ? unknownParameter.getTemplateLine() : this.getTemplateLine(), new TwingSource('', this.getTemplateName()));
+            throw new TwingErrorSyntax(`Unknown argument${parameters.size > 1 ? 's' : ''} "${[...parameters.keys()].join('", "')}" for ${callType} "${callName}(${names.join(', ')})".`, unknownParameter ? unknownParameter.getTemplateLine() : this.getTemplateLine());
         }
 
         return arguments_;

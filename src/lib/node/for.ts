@@ -131,7 +131,7 @@ export class TwingNodeFor extends TwingNode {
         }
 
         compiler
-            .write("await (async () => {\n")
+            .write("(() => {\n")
             .indent()
             .write(`let parent = context.get('_parent');\n`)
         ;

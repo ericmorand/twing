@@ -42,9 +42,9 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
 
     isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
         return this.findTemplate(name, true, from).then((name) => {
-            return new Promise((resolve, reject) => {
+            return new Promise((resolve) => {
                 fsStat(name, (err, stat) => {
-                    return stat.mtime.getTime() < time;
+                    resolve(stat.mtime.getTime() < time);
                 });
             });
         });

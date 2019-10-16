@@ -5,7 +5,8 @@ export type IterateCallback = (k: any, v: any) => Promise<void>;
  *
  * @param {*} it An iterable
  * @param {IterateCallback} cb Callback to execute for each element, taking a key and a value as arguments
- * @return void
+ *
+ * @return {void}
  */
 export async function iterate(it: any, cb: IterateCallback): Promise<void> {
     if (it.entries) {

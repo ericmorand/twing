@@ -284,15 +284,7 @@ export class TwingNodeModule extends TwingNode {
         ;
 
         if (this.hasNode('parent')) {
-            let parent = this.getNode('parent');
-
-            // if (parent.getType() === TwingNodeType.EXPRESSION_CONSTANT) {
-            //     compiler.write('await this.parent');
-            // } else {
-            compiler.write('await (await this.getParent(context))');
-            // }
-
-            compiler.raw(".display(context, this.merge(await this.getBlocks(), blocks));\n");
+            compiler.write('await (await this.getParent(context)).display(context, this.merge(await this.getBlocks(), blocks));\n');
         }
 
         compiler
