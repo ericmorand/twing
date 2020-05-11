@@ -26,7 +26,7 @@ import {TwingNodeExpressionParent} from "./node/expression/parent";
 import {TwingNodeExpressionBlockReference} from "./node/expression/block-reference";
 import {TwingNodeExpressionGetAttribute} from "./node/expression/get-attribute";
 import {TwingTemplate} from "./template";
-import {TwingNodeExpressionArray, type as arrayType} from "./node/expression/array";
+import {Nodes as ArrayNodes, TwingNodeExpressionArray, type as arrayType} from "./node/expression/array";
 import {TwingNodeExpressionMethodCall} from "./node/expression/method-call";
 import {TwingNodeExpressionHash} from "./node/expression/hash";
 import {TwingTest} from "./test";
@@ -318,11 +318,7 @@ export class TwingParser {
     }
 
     setBlock(name: string, value: TwingNodeBlock) {
-        let bodyNodes = new Map();
-
-        bodyNodes.set(0, value);
-
-        this.blocks.set(name, new TwingNodeBody(bodyNodes, new Map(), value.getTemplateLine()));
+        this.blocks.set(name, new TwingNodeBody(value, value.getTemplateLine(), value.getTemplateColumn()));
     }
 
     addTrait(trait: TwingNode) {
@@ -748,7 +744,7 @@ export class TwingParser {
                     throw new TwingErrorSyntax('The "block" function takes one argument (the block name).', line, this.getStream().getSourceContext());
                 }
 
-                return new TwingNodeExpressionBlockReference(blockArgs.getNode(0), blockArgs.getNodes().size > 1 ? blockArgs.getNode(1) : null, line, column);
+                return new TwingNodeExpressionBlockReference(blockArgs.getChild(0), blockArgs.getNodes().size > 1 ? blockArgs.getChild(1) : null, line, column);
             case 'attribute':
                 let attributeArgs = this.parseArguments();
 
@@ -756,7 +752,7 @@ export class TwingParser {
                     throw new TwingErrorSyntax('The "attribute" function takes at least two arguments (the variable and the attributes).', line, this.getStream().getSourceContext());
                 }
 
-                return new TwingNodeExpressionGetAttribute(<TwingNodeExpression>attributeArgs.getNode(0), <TwingNodeExpression>attributeArgs.getNode(1), attributeArgs.getNodes().size > 2 ? <TwingNodeExpression>attributeArgs.getNode(2) : null, TwingTemplate.ANY_CALL, line, column);
+                return new TwingNodeExpressionGetAttribute(<TwingNodeExpression>attributeArgs.getChild(0), <TwingNodeExpression>attributeArgs.getChild(1), attributeArgs.getNodes().size > 2 ? <TwingNodeExpression>attributeArgs.getChild(2) : null, TwingTemplate.ANY_CALL, line, column);
             default:
                 let alias = this.getImportedSymbol('function', name);
 
@@ -781,16 +777,16 @@ export class TwingParser {
         }
     }
 
-    parseArrayExpression(): TwingNodeExpression {
+    parseArrayExpression(): TwingNodeExpressionArray {
         let stream = this.getStream();
 
         stream.expect(TokenType.PUNCTUATION, '[', 'An array element was expected');
 
-        let node = new TwingNodeExpressionArray(new Map(), stream.getCurrent().line, stream.getCurrent().column);
-        let first = true;
+        let index: number = 0;
+        let elements: ArrayNodes = {};
 
         while (!stream.test(TokenType.PUNCTUATION, ']')) {
-            if (!first) {
+            if (index !== 0) {
                 stream.expect(TokenType.PUNCTUATION, ',', 'An array element must be followed by a comma');
 
                 // trailing ,?
@@ -799,14 +795,14 @@ export class TwingParser {
                 }
             }
 
-            first = false;
+            elements[index] = this.parseExpression();
 
-            node.addElement(this.parseExpression());
+            index++;
         }
 
         stream.expect(TokenType.PUNCTUATION, ']', 'An opened array is not properly closed');
 
-        return node;
+        return new TwingNodeExpressionArray(elements, stream.getCurrent().line, stream.getCurrent().column);
     }
 
     parseHashExpression(): TwingNodeExpression {
@@ -1170,7 +1166,7 @@ export class TwingParser {
             return false;
         }
 
-        for (let [k, n] of node.getNodes()) {
+        for (let n of node.children.values()) {
             if (!this.checkConstantExpression(n)) {
                 return false;
             }

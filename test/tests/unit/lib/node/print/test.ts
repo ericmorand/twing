@@ -8,7 +8,7 @@ tape('node/print', (test) => {
         let expr = new TwingNodeExpressionConstant('foo', 1, 1);
         let node = new TwingNodePrint(expr, 1, 1);
 
-        test.same(node.getNode('expr'), expr);
+        test.same(node.getChild('expr'), expr);
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);

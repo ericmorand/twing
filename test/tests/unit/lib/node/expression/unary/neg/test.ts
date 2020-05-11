@@ -8,7 +8,7 @@ tape('node/expression/unary/neg', (test) => {
         let expr = new TwingNodeExpressionConstant(1, 1, 1);
         let node = new TwingNodeExpressionUnaryNeg(expr, 1, 1);
 
-        test.same(node.getNode('node'), expr);
+        test.same(node.getChild('node'), expr);
         test.same(node.type, type);
 
         test.end();

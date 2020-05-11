@@ -12,9 +12,9 @@ export class TwingNodeExpressionBinaryMatches extends TwingNodeExpressionBinary 
     compile(compiler: TwingCompiler) {
         compiler
             .raw('this.parseRegExp(')
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw(').test(')
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw(')')
         ;
     }

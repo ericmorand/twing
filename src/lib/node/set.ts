@@ -33,10 +33,10 @@ export class TwingNodeSet extends TwingNode implements TwingNodeCaptureInterface
         if (this.getAttribute('capture')) {
             this.setAttribute('safe', true);
 
-            let values = this.getNode('values');
+            let values = this.getChild('values');
 
             if (values.is(textType)) {
-                this.setNode('values', new TwingNodeExpressionConstant(values.getAttribute('data'), values.getTemplateLine(), values.getTemplateColumn()));
+                this.setChild('values', new TwingNodeExpressionConstant(values.getAttribute('data'), values.getTemplateLine(), values.getTemplateColumn()));
                 this.setAttribute('capture', false);
             }
         }
@@ -47,10 +47,10 @@ export class TwingNodeSet extends TwingNode implements TwingNodeCaptureInterface
     }
 
     compile(compiler: TwingCompiler) {
-        if (this.getNode('names').getNodes().size > 1) {
+        if (this.getChild('names').getNodes().size > 1) {
             compiler.write('[');
 
-            for (let [idx, node] of this.getNode('names').getNodes()) {
+            for (let [idx, node] of this.getChild('names').getNodes()) {
                 if (idx > 0) {
                     compiler.raw(', ');
                 }
@@ -65,11 +65,11 @@ export class TwingNodeSet extends TwingNode implements TwingNodeCaptureInterface
             if (this.getAttribute('capture')) {
                 compiler
                     .write("outputBuffer.start();\n")
-                    .subcompile(this.getNode('values'))
+                    .subcompile(this.getChild('values'))
                 ;
             }
 
-            compiler.subcompile(this.getNode('names'), false);
+            compiler.subcompile(this.getChild('names'), false);
 
             if (this.getAttribute('capture')) {
                 compiler
@@ -81,10 +81,10 @@ export class TwingNodeSet extends TwingNode implements TwingNodeCaptureInterface
         if (!this.getAttribute('capture')) {
             compiler.raw(' = ');
 
-            if (this.getNode('names').getNodes().size > 1) {
+            if (this.getChild('names').getNodes().size > 1) {
                 compiler.raw('[');
 
-                for (let [idx, value] of this.getNode('values').getNodes()) {
+                for (let [idx, value] of this.getChild('values').getNodes()) {
                     if (idx > 0) {
                         compiler.raw(', ');
                     }
@@ -99,11 +99,11 @@ export class TwingNodeSet extends TwingNode implements TwingNodeCaptureInterface
                 if (this.getAttribute('safe')) {
                     compiler
                         .raw("await (async () => {let tmp = ")
-                        .subcompile(this.getNode('values'))
+                        .subcompile(this.getChild('values'))
                         .raw("; return tmp === '' ? '' : new this.Markup(tmp, this.environment.getCharset());})()")
                     ;
                 } else {
-                    compiler.subcompile(this.getNode('values'));
+                    compiler.subcompile(this.getChild('values'));
                 }
             }
         }

@@ -10,8 +10,8 @@ tape('node/import', (test) => {
         let var_ = new TwingNodeExpressionAssignName('macro', 1, 1);
         let node = new TwingNodeImport(macro, var_, 1, 1);
 
-        test.same(node.getNode('expr'), macro);
-        test.same(node.getNode('var'), var_);
+        test.same(node.getChild('expr'), macro);
+        test.same(node.getChild('var'), var_);
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);

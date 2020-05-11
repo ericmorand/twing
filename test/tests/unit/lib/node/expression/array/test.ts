@@ -14,7 +14,7 @@ tape('node/expression/array', (test) => {
 
         let node = new TwingNodeExpressionArray(elements, 1, 1);
 
-        test.same(node.getNode(1), foo);
+        test.same(node.getChild(1), foo);
         test.same(node.type, type);
         test.end();
     });

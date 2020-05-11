@@ -13,10 +13,10 @@ export class TwingNodeExpressionBinaryEndsWith extends TwingNodeExpressionBinary
         compiler
             .raw('await (async () => {')
             .raw(`let left = `)
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw('; ')
             .raw(`let right = `)
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw('; ')
             .raw(`return typeof left === 'string' && typeof right === 'string' && (right.length < 1 || left.endsWith(right));`)
             .raw('})()')

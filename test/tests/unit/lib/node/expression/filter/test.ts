@@ -29,9 +29,9 @@ tape('node/expression/filter', (test) => {
         let args = new TwingNode();
         let node = new TwingNodeExpressionFilter(expr, name, args, 1, 1);
 
-        test.same(node.getNode('node'), expr);
-        test.same(node.getNode('filter'), name);
-        test.same(node.getNode('arguments'), args);
+        test.same(node.getChild('node'), expr);
+        test.same(node.getChild('filter'), name);
+        test.same(node.getChild('arguments'), args);
 
         test.end();
     });

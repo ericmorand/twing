@@ -2,10 +2,23 @@ import {TwingNode} from "../node";
 import {TwingSource} from "../source";
 import {TwingCompiler} from "../compiler";
 import {type as constantType} from "./expression/constant";
-import {type as bodyType} from "./body";
+import {TwingNodeBody, type as bodyType} from "./body";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('module');
+
+export type Children = {
+    blocks: TwingNode,
+    body: TwingNodeBody,
+    class_end: TwingNode,
+    constructor_end: TwingNode,
+    constructor_start: TwingNode,
+    display_end: TwingNode,
+    display_start: TwingNode,
+    macros: TwingNode,
+    parent: TwingNodeModule,
+    traits: TwingNode
+};
 
 /**
  * Represents a module node that compiles into a JavaScript module.
@@ -102,7 +115,7 @@ export class TwingNodeModule extends TwingNode {
         compiler
             .write('constructor(environment) {\n')
             .indent()
-            .subcompile(this.getNode('constructor_start'))
+            .subcompile(this.getChild('constructor_start'))
             .write('super(environment);\n\n')
             .write('this._source = new this.Source(')
             .string(compiler.getEnvironment().isDebug() || compiler.getEnvironment().isSourceMap() ? this.source.getCode() : '')
@@ -115,7 +128,7 @@ export class TwingNodeModule extends TwingNode {
         ;
 
         // block handlers
-        let count: number = this.getNode('blocks').getNodes().size;
+        let count: number = this.getChild('blocks').getNodes().size;
 
         if (count > 0) {
             compiler
@@ -123,7 +136,7 @@ export class TwingNodeModule extends TwingNode {
                 .write('this.blockHandlers = new Map([\n')
                 .indent();
 
-            for (let [name, node] of this.getNode('blocks').getNodes()) {
+            for (let [name, node] of this.getChild('blocks').getNodes()) {
                 count--;
 
                 compiler.write(`['${name}', `)
@@ -143,7 +156,7 @@ export class TwingNodeModule extends TwingNode {
         }
 
         // macro handlers
-        count = this.getNode('macros').getNodes().size;
+        count = this.getChild('macros').getNodes().size;
 
         if (count > 0) {
             compiler
@@ -151,7 +164,7 @@ export class TwingNodeModule extends TwingNode {
                 .write('this.macroHandlers = new Map([\n')
                 .indent();
 
-            for (let [name, node] of this.getNode('macros').getNodes()) {
+            for (let [name, node] of this.getChild('macros').getNodes()) {
                 count--;
 
                 compiler.write(`['${name}', `)
@@ -171,13 +184,13 @@ export class TwingNodeModule extends TwingNode {
         }
 
         compiler
-            .subcompile(this.getNode('constructor_end'))
+            .subcompile(this.getChild('constructor_end'))
             .outdent()
             .write('}\n\n');
     }
 
     protected compileDoGetTraits(compiler: TwingCompiler) {
-        let count = this.getNode('traits').getNodes().size;
+        let count = this.getChild('traits').getNodes().size;
 
         if (count > 0) {
             compiler
@@ -185,7 +198,7 @@ export class TwingNodeModule extends TwingNode {
                 .indent()
                 .write('let traits = new Map();\n\n');
 
-            for (let [i, trait] of this.getNode('traits').getNodes()) {
+            for (let [i, trait] of this.getChild('traits').getNodes()) {
                 let node = trait.getNode('template');
 
                 compiler
@@ -249,8 +262,8 @@ export class TwingNodeModule extends TwingNode {
     }
 
     protected compileDoGetParent(compiler: TwingCompiler) {
-        if (this.hasNode('parent')) {
-            let parent = this.getNode('parent');
+        if (this.hasChild('parent')) {
+            let parent = this.getChild('parent');
 
             compiler
                 .write("doGetParent(context) {\n")
@@ -287,16 +300,16 @@ export class TwingNodeModule extends TwingNode {
             .indent()
             .write('let aliases = this.aliases.clone();\n\n')
             .addSourceMapEnter(this)
-            .subcompile(this.getNode('display_start'))
-            .subcompile(this.getNode('body'))
+            .subcompile(this.getChild('display_start'))
+            .subcompile(this.getChild('body'))
         ;
 
-        if (this.hasNode('parent')) {
+        if (this.hasChild('parent')) {
             compiler.write('await (await this.getParent(context)).display(context, this.merge(await this.getBlocks(), blocks), outputBuffer);\n');
         }
 
         compiler
-            .subcompile(this.getNode('display_end'))
+            .subcompile(this.getChild('display_end'))
             .addSourceMapLeave()
             .outdent()
             .write("}\n\n")
@@ -311,13 +324,13 @@ export class TwingNodeModule extends TwingNode {
         //
         // Put another way, a template can be used as a trait if it
         // only contains blocks and use statements.
-        let traitable = !this.hasNode('parent') && (this.getNode('macros').getNodes().size === 0);
+        let traitable = !this.hasChild('parent') && (this.getChild('macros').getNodes().size === 0);
 
         if (traitable) {
-            let node: TwingNode = this.getNode('body');
+            let node: TwingNode = this.getChild('body');
 
             if (node.is(bodyType)) {
-                node = node.getNode(0);
+                node = node.getChild(0);
             }
 
             if (!node.getNodes().size) {
@@ -354,7 +367,7 @@ export class TwingNodeModule extends TwingNode {
 
     protected compileClassfooter(compiler: TwingCompiler) {
         compiler
-            .subcompile(this.getNode('class_end'))
+            .subcompile(this.getChild('class_end'))
             .outdent()
             .write(`}],\n`)
         ;

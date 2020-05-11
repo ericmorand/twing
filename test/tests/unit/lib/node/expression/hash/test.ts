@@ -14,7 +14,7 @@ tape('node/expression/hash', (test) => {
 
         let node = new TwingNodeExpressionHash(elements, 1, 1);
 
-        test.same(node.getNode('1'), barNode);
+        test.same(node.getChild('1'), barNode);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);
 

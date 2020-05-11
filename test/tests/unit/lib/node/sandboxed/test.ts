@@ -8,7 +8,7 @@ tape('node/sandboxed', (test) => {
         let body = new TwingNodeText('foo', 1, 1);
         let node = new TwingNodeSandbox(body, 1, 1);
 
-        test.same(node.getNode('body'), body);
+        test.same(node.getChild('body'), body);
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);

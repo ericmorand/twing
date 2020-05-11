@@ -12,9 +12,9 @@ export class TwingNodeExpressionBinaryNotEqual extends TwingNodeExpressionBinary
     compile(compiler: TwingCompiler) {
         compiler
             .raw('!this.compare(')
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw(', ')
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw(')')
         ;
     }

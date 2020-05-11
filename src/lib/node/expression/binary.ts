@@ -2,18 +2,20 @@ import {TwingNodeExpression} from "../expression";
 import {TwingNode} from "../../node";
 import {TwingCompiler} from "../../compiler";
 
-export abstract class TwingNodeExpressionBinary extends TwingNodeExpression {
+export type Nodes = {
+    left: TwingNode,
+    right: TwingNode
+};
+
+export abstract class TwingNodeExpressionBinary extends TwingNodeExpression<Nodes> {
     constructor(nodes: [TwingNode, TwingNode], lineno: number, columno: number) {
-        super(new Map([
-            ['left', nodes[0]],
-            ['right', nodes[1]]
-        ]), new Map(), lineno, columno);
+        super({left: nodes[0], right: nodes[1]}, {}, lineno, columno);
     }
 
     compile(compiler: TwingCompiler) {
         compiler
             .raw('(')
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw(' ')
         ;
 
@@ -21,7 +23,7 @@ export abstract class TwingNodeExpressionBinary extends TwingNodeExpression {
 
         compiler
             .raw(' ')
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw(')')
         ;
     }

@@ -32,24 +32,24 @@ export class TwingNodeImport extends TwingNode {
     compile(compiler: TwingCompiler) {
         compiler
             .write('aliases.proxy[')
-            .repr(this.getNode('var').getAttribute('name'))
+            .repr(this.getChild('var').getAttribute('name'))
             .raw('] = ')
         ;
 
         if (this.getAttribute('global')) {
             compiler
                 .raw('this.aliases.proxy[')
-                .repr(this.getNode('var').getAttribute('name'))
+                .repr(this.getChild('var').getAttribute('name'))
                 .raw('] = ')
             ;
         }
 
-        if (this.getNode('expr').is(nameType) && this.getNode('expr').getAttribute('name') === '_self') {
+        if (this.getChild('expr').is(nameType) && this.getChild('expr').getAttribute('name') === '_self') {
             compiler.raw('this');
         } else {
             compiler
                 .raw('await this.loadTemplate(')
-                .subcompile(this.getNode('expr'))
+                .subcompile(this.getChild('expr'))
                 .raw(', ')
                 .repr(this.getTemplateLine())
                 .raw(')')

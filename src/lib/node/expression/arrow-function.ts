@@ -5,17 +5,17 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_arrow_function');
 
+export type Nodes = {
+  expr: TwingNodeExpression,
+  names: TwingNode
+};
+
 /**
  * Represents an arrow function.
  */
-export class TwingNodeExpressionArrowFunction extends TwingNodeExpression {
+export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<Nodes> {
     constructor(expr: TwingNodeExpression, names: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map([
-            ['expr', expr],
-            ['names', names]
-        ]);
-
-        super(nodes, new Map(), lineno, columnno, tag);
+        super({expr: expr, names: names}, {}, lineno, columnno, tag);
     }
 
     get type() {
@@ -27,7 +27,7 @@ export class TwingNodeExpressionArrowFunction extends TwingNodeExpression {
 
         let i: number = 0;
 
-        for (let [k, name] of this.getNode('names').getNodes()) {
+        for (let name of this.getChild('names').children.values()) {
             if (i > 0) {
                 compiler.raw(', ');
             }
@@ -44,7 +44,7 @@ export class TwingNodeExpressionArrowFunction extends TwingNodeExpression {
             .raw(') => {')
         ;
 
-        for (let [k, name] of this.getNode('names').getNodes()) {
+        for (let name of this.getChild('names').children.values()) {
             compiler
                 .raw('context.proxy[\'')
                 .raw(name.getAttribute('name'))
@@ -55,7 +55,7 @@ export class TwingNodeExpressionArrowFunction extends TwingNodeExpression {
 
         compiler
             .raw('return ')
-            .subcompile(this.getNode('expr'))
+            .subcompile(this.getChild('expr'))
             .raw(';}');
     }
 }

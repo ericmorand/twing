@@ -4,14 +4,19 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_temp_name');
 
-export class TwingNodeExpressionTempName extends TwingNodeExpression {
+export type Attributes = {
+    declaration: boolean,
+    name: string
+};
+
+export class TwingNodeExpressionTempName extends TwingNodeExpression<{}, Attributes> {
     constructor(name: string, declaration: boolean, lineno: number, columno: number) {
-        let attributes = new Map();
+        let attributes = {
+            declaration: declaration,
+            name: name
+        };
 
-        attributes.set('name', name);
-        attributes.set('declaration', declaration);
-
-        super(new Map(), attributes, lineno, columno);
+        super({}, attributes, lineno, columno);
     }
 
     get type() {

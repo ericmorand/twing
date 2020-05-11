@@ -22,10 +22,10 @@ tape('node/module', (test) => {
         let source = new TwingSource('{{ foo }}', 'foo.twig');
         let node = new TwingNodeModule(body, parent, blocks, macros, traits, [], source);
 
-        test.same(node.getNode('body'), body);
-        test.same(node.getNode('blocks'), blocks);
-        test.same(node.getNode('macros'), macros);
-        test.same(node.getNode('parent'), parent);
+        test.same(node.getChild('body'), body);
+        test.same(node.getChild('blocks'), blocks);
+        test.same(node.getChild('macros'), macros);
+        test.same(node.getChild('parent'), parent);
         test.same(node.getTemplateName(), source.getName());
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);

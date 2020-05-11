@@ -5,25 +5,35 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_get_attribute');
 
-export class TwingNodeExpressionGetAttribute extends TwingNodeExpression {
+export type Nodes = {
+    node: TwingNodeExpression,
+    attribute: TwingNodeExpression,
+    arguments: TwingNodeExpression
+};
+
+export type Attributes = {
+    ignore_strict_check: boolean,
+    is_defined_test: boolean,
+    optimizable: boolean,
+    type: string
+};
+
+export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<Nodes, Attributes> {
     constructor(node: TwingNodeExpression, attribute: TwingNodeExpression, methodArguments: TwingNodeExpression, type: string, lineno: number, columnno: number) {
-        let nodes = new Map();
+        const nodes = {
+            node: node,
+            attribute: attribute,
+            arguments: methodArguments
+        };
 
-        nodes.set('node', node);
-        nodes.set('attribute', attribute);
+        const attributes = {
+            type: type,
+            is_defined_test: false,
+            ignore_strict_check: false,
+            optimizable: true
+        };
 
-        if (methodArguments) {
-            nodes.set('arguments', methodArguments);
-        }
-
-        let nodeAttributes = new Map();
-
-        nodeAttributes.set('type', type);
-        nodeAttributes.set('is_defined_test', false);
-        nodeAttributes.set('ignore_strict_check', false);
-        nodeAttributes.set('optimizable', true);
-
-        super(nodes, nodeAttributes, lineno, columnno);
+        super(nodes, attributes, lineno, columnno);
     }
 
     get type() {
@@ -41,9 +51,9 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression {
 
             compiler
                 .raw('await (async () => {let object = ')
-                .subcompile(this.getNode('node'))
+                .subcompile(this.getChild('node'))
                 .raw('; return this.get(object, ')
-                .subcompile(this.getNode('attribute'))
+                .subcompile(this.getChild('attribute'))
                 .raw(');})()')
             ;
 
@@ -53,15 +63,15 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression {
         compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.getTemplateLine()}, this.source)(this.environment, `);
 
         if (this.getAttribute('ignore_strict_check')) {
-            this.getNode('node').setAttribute('ignore_strict_check', true);
+            this.getChild('node').setAttribute('ignore_strict_check', true);
         }
 
-        compiler.subcompile(this.getNode('node'));
+        compiler.subcompile(this.getChild('node'));
 
-        compiler.raw(', ').subcompile(this.getNode('attribute'));
+        compiler.raw(', ').subcompile(this.getChild('attribute'));
 
-        if (this.hasNode('arguments')) {
-            compiler.raw(', ').subcompile(this.getNode('arguments'));
+        if (this.hasChild('arguments')) {
+            compiler.raw(', ').subcompile(this.getChild('arguments'));
         } else {
             compiler.raw(', new Map()');
         }

@@ -17,8 +17,8 @@ tape('node/macro', (test) => {
         let arguments_ = new TwingNode(argumentsNode, new Map(), 1, 1);
         let node = new TwingNodeMacro('foo', body, arguments_, 1, 1);
 
-        test.same(node.getNode('body'), body);
-        test.same(node.getNode('arguments'), arguments_);
+        test.same(node.getChild('body'), body);
+        test.same(node.getChild('arguments'), arguments_);
         test.same(node.getAttribute('name'), 'foo');
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);

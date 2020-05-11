@@ -12,9 +12,9 @@ export class TwingNodeExpressionBinaryIn extends TwingNodeExpressionBinary {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('this.isIn(')
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw(', ')
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw(')')
         ;
     }

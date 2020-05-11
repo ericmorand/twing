@@ -99,19 +99,19 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
             this.setSafe(node, ['all']);
         } else if (node.is(conditionalType)) {
             // intersect safeness of both operands
-            let safe = this.intersectSafe(this.getSafe(node.getNode('expr2')), this.getSafe(node.getNode('expr3')));
+            let safe = this.intersectSafe(this.getSafe(node.getChild('expr2')), this.getSafe(node.getChild('expr3')));
             this.setSafe(node, safe);
         } else if (node.is(filterType)) {
             // filter expression is safe when the filter is safe
-            let name = node.getNode('filter').getAttribute('value');
-            let filterArgs = node.getNode('arguments');
+            let name = node.getChild('filter').getAttribute('value');
+            let filterArgs = node.getChild('arguments');
             let filter = env.getFilter(name);
 
             if (filter) {
                 let safe = filter.getSafe(filterArgs);
 
                 if (safe.length < 1) {
-                    safe = this.intersectSafe(this.getSafe(node.getNode('node')), filter.getPreservesSafety());
+                    safe = this.intersectSafe(this.getSafe(node.getChild('node')), filter.getPreservesSafety());
                 }
 
                 this.setSafe(node, safe);
@@ -121,7 +121,7 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
         } else if (node.is(functionType)) {
             // function expression is safe when the function is safe
             let name = node.getAttribute('name');
-            let functionArgs = node.getNode('arguments');
+            let functionArgs = node.getChild('arguments');
             let functionNode = env.getFunction(name);
 
             if (functionNode) {
@@ -135,8 +135,8 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
             } else {
                 this.setSafe(node, []);
             }
-        } else if (node.is(getAttrType) && node.getNode('node').is(nameType)) {
-            let name = node.getNode('node').getAttribute('name');
+        } else if (node.is(getAttrType) && node.getChild('node').is(nameType)) {
+            let name = node.getChild('node').getAttribute('name');
 
             if (this.safeVars.includes(name)) {
                 this.setSafe(node, ['all']);

@@ -23,8 +23,8 @@ tape('node/set', (test) => {
 
         let node = new TwingNodeSet(false, namesNode, valuesNode, 1, 1);
 
-        test.same(node.getNode('names'), namesNode);
-        test.same(node.getNode('values'), valuesNode);
+        test.same(node.getChild('names'), namesNode);
+        test.same(node.getChild('values'), valuesNode);
         test.false(node.getAttribute('capture'));
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);

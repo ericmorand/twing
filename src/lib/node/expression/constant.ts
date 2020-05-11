@@ -1,13 +1,17 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingNode} from "../../node";
 import {TwingCompiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
+import {Children} from "../../node";
 
 export const type = new TwingNodeType('expression_constant');
 
-export class TwingNodeExpressionConstant extends TwingNodeExpression {
-    constructor(value: TwingNode | string | number | boolean, lineno: number, columnno: number) {
-        super(new Map(), new Map([['value', value]]), lineno, columnno);
+export type Attributes<T> = {
+    value: T
+};
+
+export abstract class TwingNodeExpressionConstant<T> extends TwingNodeExpression<Children, Attributes<T>> {
+    constructor(value: T, lineno: number, columnno: number) {
+        super({}, {value: value}, lineno, columnno);
     }
 
     get type() {

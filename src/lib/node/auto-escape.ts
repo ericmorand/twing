@@ -25,6 +25,6 @@ export class TwingNodeAutoEscape extends TwingNode {
     }
 
     compile(compiler: TwingCompiler) {
-        compiler.subcompile(this.getNode('body'));
+        compiler.subcompile(this.getChild('body'));
     }
 }

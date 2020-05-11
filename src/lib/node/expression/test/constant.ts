@@ -12,14 +12,14 @@ export class TwingNodeExpressionTestConstant extends TwingNodeExpressionTest {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('(')
-            .subcompile(this.getNode('node'))
+            .subcompile(this.getChild('node'))
             .raw(' === this.constant(')
-            .subcompile(this.getNode('arguments').getNode(0));
+            .subcompile(this.getChild('arguments').getChild(0));
 
-        if (this.getNode('arguments').hasNode(1)) {
+        if (this.getChild('arguments').hasChild(1)) {
             compiler
                 .raw(', ')
-                .subcompile(this.getNode('arguments').getNode(1));
+                .subcompile(this.getChild('arguments').getChild(1));
         }
 
         compiler.raw('))');

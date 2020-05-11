@@ -4,18 +4,25 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_name');
 
-export class TwingNodeExpressionName extends TwingNodeExpression {
+export type Attributes = {
+    always_defined: boolean,
+    ignore_strict_check: boolean,
+    is_defined_test: boolean,
+    name: string,
+}
+
+export class TwingNodeExpressionName extends TwingNodeExpression<{}, Attributes> {
     private specialVars: Map<string, string>;
 
     constructor(name: string, lineno: number, columnno: number) {
-        let attributes = new Map();
+        let attributes = {
+            always_defined: false,
+            ignore_strict_check: false,
+            is_defined_test: false,
+            name: name,
+        };
 
-        attributes.set('name', name);
-        attributes.set('is_defined_test', false);
-        attributes.set('ignore_strict_check', false);
-        attributes.set('always_defined', false);
-
-        super(new Map(), attributes, lineno, columnno);
+        super({}, attributes, lineno, columnno);
 
         this.specialVars = new Map([
             ['_self', 'this.templateName'],

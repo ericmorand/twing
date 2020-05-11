@@ -5,20 +5,27 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_block_reference');
 
-export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
+export type Nodes = {
+    name: TwingNode,
+    template: TwingNode
+}
+
+export type Attributes = {
+    is_defined_test: boolean,
+    output: boolean
+}
+
+export class TwingNodeExpressionBlockReference extends TwingNodeExpression<Nodes, Attributes> {
     constructor(name: TwingNode, template: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map();
+        let nodes: Nodes = {
+            name: name,
+            template: template
+        };
 
-        nodes.set('name', name);
-
-        if (template) {
-            nodes.set('template', template);
-        }
-
-        let attributes = new Map([
-            ['is_defined_test', false],
-            ['output', false]
-        ]);
+        let attributes = {
+            is_defined_test: false,
+            output: false
+        };
 
         super(nodes, attributes, lineno, columnno, tag);
     }
@@ -38,12 +45,12 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
     compileTemplateCall(compiler: TwingCompiler, method: string, needsOutputBuffer: boolean): TwingCompiler {
         compiler.write('await ');
 
-        if (!this.hasNode('template')) {
+        if (!this.hasChild('template')) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('(await this.loadTemplate(')
-                .subcompile(this.getNode('template'))
+                .subcompile(this.getChild('template'))
                 .raw(', ')
                 .repr(this.getTemplateLine())
                 .raw('))')
@@ -60,14 +67,14 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
     compileBlockArguments(compiler: TwingCompiler, needsOutputBuffer: boolean) {
         compiler
             .raw('(')
-            .subcompile(this.getNode('name'))
+            .subcompile(this.getChild('name'))
             .raw(', context.clone()');
 
         if (needsOutputBuffer) {
             compiler.raw(', outputBuffer');
         }
 
-        if (!this.hasNode('template')) {
+        if (!this.hasChild('template')) {
             compiler.raw(', blocks');
         }
 

@@ -32,8 +32,8 @@ export class TwingNodeInclude extends TwingNode {
 
         compiler.raw(', ');
 
-        if (this.hasNode('variables')) {
-            compiler.subcompile(this.getNode('variables'));
+        if (this.hasChild('variables')) {
+            compiler.subcompile(this.getChild('variables'));
         }
         else {
             compiler.repr(undefined)
@@ -51,6 +51,6 @@ export class TwingNodeInclude extends TwingNode {
     }
 
     protected addGetTemplate(compiler: TwingCompiler) {
-        compiler.subcompile(this.getNode('expr'));
+        compiler.subcompile(this.getChild('expr'));
     }
 }

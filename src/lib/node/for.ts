@@ -63,7 +63,7 @@ export class TwingNodeFor extends TwingNode {
             .write('await (async () => {\n')
             .indent()
             .write('let c = this.ensureTraversable(')
-            .subcompile(this.getNode('seq'))
+            .subcompile(this.getChild('seq'))
             .raw(");\n\n")
             .write('if (c === context) {\n')
             .indent()
@@ -79,7 +79,7 @@ export class TwingNodeFor extends TwingNode {
             .write("})();\n\n")
         ;
 
-        if (this.hasNode('else')) {
+        if (this.hasChild('else')) {
             compiler.write("context.set('_iterated', false);\n");
         }
 
@@ -109,27 +109,27 @@ export class TwingNodeFor extends TwingNode {
             }
         }
 
-        this.loop.setAttribute('else', this.hasNode('else'));
+        this.loop.setAttribute('else', this.hasChild('else'));
         this.loop.setAttribute('with_loop', this.getAttribute('with_loop'));
         this.loop.setAttribute('ifexpr', this.getAttribute('ifexpr'));
 
         compiler
             .write("await this.iterate(context.get('_seq'), async (__key__, __value__) => {\n")
             .indent()
-            .subcompile(this.getNode('key_target'), false)
+            .subcompile(this.getChild('key_target'), false)
             .raw(' = __key__;\n')
-            .subcompile(this.getNode('value_target'), false)
+            .subcompile(this.getChild('value_target'), false)
             .raw(' = __value__;\n')
-            .subcompile(this.getNode('body'))
+            .subcompile(this.getChild('body'))
             .outdent()
             .write("});\n")
         ;
 
-        if (this.hasNode('else')) {
+        if (this.hasChild('else')) {
             compiler
                 .write("if (context.get('_iterated') === false) {\n")
                 .indent()
-                .subcompile(this.getNode('else'))
+                .subcompile(this.getChild('else'))
                 .outdent()
                 .write("}\n")
             ;
@@ -145,8 +145,8 @@ export class TwingNodeFor extends TwingNode {
         compiler
             .write('context.delete(\'_seq\');\n')
             .write('context.delete(\'_iterated\');\n')
-            .write('context.delete(\'' + this.getNode('key_target').getAttribute('name') + '\');\n')
-            .write('context.delete(\'' + this.getNode('value_target').getAttribute('name') + '\');\n')
+            .write('context.delete(\'' + this.getChild('key_target').getAttribute('name') + '\');\n')
+            .write('context.delete(\'' + this.getChild('value_target').getAttribute('name') + '\');\n')
             .write('context.delete(\'_parent\');\n')
             .write('context.delete(\'loop\');\n')
         ;

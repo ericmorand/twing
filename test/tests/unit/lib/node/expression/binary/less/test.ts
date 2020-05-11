@@ -9,8 +9,8 @@ tape('node/expression/binary/less', (test) => {
         let right = new TwingNodeExpressionConstant(2, 1, 1);
         let node = new TwingNodeExpressionBinaryLess([left, right], 1, 1);
 
-        test.same(node.getNode('left'), left);
-        test.same(node.getNode('right'), right);
+        test.same(node.getChild('left'), left);
+        test.same(node.getChild('right'), right);
         test.same(node.type, type);
 
         test.end();

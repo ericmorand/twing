@@ -23,13 +23,13 @@ tape('node/for', (test) => {
 
         let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifExpr, body, else_, 1, 1);
 
-        test.same(node.getNode('key_target'), keyTarget);
-        test.same(node.getNode('value_target'), valueTarget);
-        test.same(node.getNode('seq'), seq);
+        test.same(node.getChild('key_target'), keyTarget);
+        test.same(node.getChild('value_target'), valueTarget);
+        test.same(node.getChild('seq'), seq);
         test.true(node.getAttribute('ifexpr'));
-        test.same(node.getNode('body').constructor.name, 'TwingNodeIf');
-        test.same(node.getNode('body').getNode('tests').getNode(1).getNode(0), body);
-        test.false(node.hasNode('else'));
+        test.same(node.getChild('body').constructor.name, 'TwingNodeIf');
+        test.same(node.getChild('body').getNode('tests').getNode(1).getNode(0), body);
+        test.false(node.hasChild('else'));
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);
 
@@ -37,7 +37,7 @@ tape('node/for', (test) => {
         node = new TwingNodeFor(keyTarget, valueTarget, seq, ifExpr, body, else_, 1, 1);
         node.setAttribute('with_loop', false);
 
-        test.same(node.getNode('else'), else_);
+        test.same(node.getChild('else'), else_);
         test.same(node.type, type);
 
         test.end();

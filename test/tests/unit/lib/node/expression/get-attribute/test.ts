@@ -15,9 +15,9 @@ tape('node/expression/get-attribute', (test) => {
         args.addElement(new TwingNodeExpressionConstant('bar', 1, 1));
         let node = new TwingNodeExpressionGetAttribute(expr, attr, args, TwingTemplate.ARRAY_CALL, 1, 1);
 
-        test.same(node.getNode('node'), expr);
-        test.same(node.getNode('attribute'), attr);
-        test.same(node.getNode('arguments'), args);
+        test.same(node.getChild('node'), expr);
+        test.same(node.getChild('attribute'), attr);
+        test.same(node.getChild('arguments'), args);
         test.same(node.getAttribute('type'), TwingTemplate.ARRAY_CALL);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(),1);

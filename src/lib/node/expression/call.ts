@@ -2,9 +2,9 @@ import {TwingNodeExpression} from "../expression";
 import {TwingNode} from "../../node";
 import {TwingErrorSyntax} from "../../error/syntax";
 import {TwingNodeExpressionConstant} from "./constant";
-import {TwingNodeExpressionArray} from "./array";
+import {TwingNodeExpressionHash, Nodes as HashNodes} from "./hash";
 import {TwingCompiler} from "../../compiler";
-import {TwingCallableArgument} from "../../callable-wrapper";
+import {TwingCallable, TwingCallableArgument, TwingCallableWrapper} from "../../callable-wrapper";
 import {TwingNodeType} from "../../node-type";
 
 const array_merge = require('locutus/php/array/array_merge');
@@ -13,9 +13,48 @@ const capitalize = require('capitalize');
 
 export const type = new TwingNodeType('expression_call');
 
-export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
+export type Nodes = Partial<{
+    arguments: TwingNode,
+    node?: TwingNode
+}>;
+
+export type Attributes = Partial<{
+    accepted_arguments: Array<TwingCallableArgument>,
+    arguments: Array<string>,
+    callable: TwingCallable<any>,
+    is_defined_test: boolean,
+    is_variadic: boolean,
+    name: string,
+    needs_context: boolean,
+    needs_output_buffer: boolean,
+    needs_template: boolean,
+    type: string
+}>;
+
+export abstract class TwingNodeExpressionCall<N extends Nodes = Nodes> extends TwingNodeExpression<N, Attributes> {
+    constructor(nodes: N, type: string, name: string, lineno: number, columnno: number) {
+        super(nodes, {type: type, name: name}, lineno, columnno);
+    }
+
     get type() {
         return type;
+    }
+
+    protected abstract getCallableWrapper(name: string, compiler: TwingCompiler): TwingCallableWrapper<any>;
+
+    compile(compiler: TwingCompiler): void {
+        let callableWrapper = this.getCallableWrapper(this.getAttribute('name'), compiler);
+        let callable = callableWrapper.getCallable();
+
+        this.setAttribute('needs_template', callableWrapper.needsTemplate());
+        this.setAttribute('needs_context', callableWrapper.needsContext());
+        this.setAttribute('needs_output_buffer', callableWrapper.needsOutputBuffer());
+        this.setAttribute('arguments', callableWrapper.getArguments());
+        this.setAttribute('callable', callable);
+        this.setAttribute('is_variadic', callableWrapper.isVariadic());
+        this.setAttribute('accepted_arguments', callableWrapper.getAcceptedArgments());
+
+        this.compileCallable(compiler);
     }
 
     protected compileCallable(compiler: TwingCompiler) {
@@ -75,19 +114,19 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
             }
         }
 
-        if (this.hasNode('node')) {
+        if (this.hasChild('node')) {
             if (!first) {
                 compiler.raw(', ');
             }
 
-            compiler.subcompile(this.getNode('node'));
+            compiler.subcompile(this.getChild('node'));
 
             first = false;
         }
 
-        if (this.hasNode('arguments')) {
+        if (this.hasChild('arguments')) {
             let callable = this.getAttribute('callable');
-            let arguments_ = this.getArguments(callable, this.getNode('arguments'));
+            let arguments_ = this.getArguments(callable, this.getChild('arguments'));
 
             for (let node of arguments_) {
                 if (!first) {
@@ -105,16 +144,18 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
         let callType = this.getAttribute('type');
         let callName = this.getAttribute('name');
 
-        let parameters: Map<string | number, TwingNode> = new Map();
+        let namedParameters: Map<string, TwingNode> = new Map();
+        let parameters: Map<number, TwingNode> = new Map();
         let named = false;
 
-        for (let [name, node] of argumentsNode.getNodes()) {
-            if (typeof name !== 'number') {
-                named = true;
+        for (let [name, node] of argumentsNode.children) {
+            // if (!isNumber(name)) {
+            //     named = true;
                 name = this.normalizeName(name);
-            } else if (named) {
-                throw new TwingErrorSyntax(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, this.getTemplateLine());
-            }
+            // } else if (named) {
+            //     // todo: should be at parser level!!!
+            //     throw new TwingErrorSyntax(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, this.getTemplateLine());
+            // }
 
             parameters.set(name, node);
         }
@@ -137,7 +178,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
             throw new Error(message);
         }
 
-        let callableParameters: TwingCallableArgument[] = this.hasAttribute('accepted_arguments') ? this.getAttribute('accepted_arguments') : [];
+        let callableParameters = this.hasAttribute('accepted_arguments') ? this.getAttribute('accepted_arguments') : [];
 
         let arguments_: Array<TwingNode> = [];
 
@@ -146,7 +187,7 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
         let pos = 0;
 
         for (let callableParameter of callableParameters) {
-            let name = '' + this.normalizeName(callableParameter.name);
+            let name = this.normalizeName(callableParameter.name);
 
             names.push(name);
 
@@ -173,18 +214,16 @@ export abstract class TwingNodeExpressionCall extends TwingNodeExpression {
         }
 
         if (isVariadic) {
-            let arbitraryArguments = new TwingNodeExpressionArray(new Map(), -1, -1);
+            let elements: HashNodes = {};
             let resolvedKeys: Array<any> = [];
 
             for (let [key, value] of parameters) {
-                if (Number.isInteger(key as number)) {
-                    arbitraryArguments.addElement(value);
-                } else {
-                    arbitraryArguments.addElement(value, new TwingNodeExpressionConstant(key, -1, -1));
-                }
+                elements[key] = value;
 
                 resolvedKeys.push(key);
             }
+
+            let arbitraryArguments = new TwingNodeExpressionHash(elements, -1, -1);
 
             for (let key of resolvedKeys) {
                 parameters.delete(key);

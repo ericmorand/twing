@@ -43,8 +43,8 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
             }
 
             // look for filters
-            if (node.is(filterType) && !this.filters.has(node.getNode('filter').getAttribute('value'))) {
-                this.filters.set(node.getNode('filter').getAttribute('value'), node);
+            if (node.is(filterType) && !this.filters.has(node.getChild('filter').getAttribute('value'))) {
+                this.filters.set(node.getChild('filter').getAttribute('value'), node);
             }
 
             // look for functions
@@ -98,9 +98,9 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
             let i: number = 0;
 
             nodes.set(i++, new TwingNodeCheckSecurity(this.filters, this.tags, this.functions));
-            nodes.set(i++, node.getNode('display_start'));
+            nodes.set(i++, node.getChild('display_start'));
 
-            node.getNode('constructor_end').setNode('_security_check', new TwingNode(nodes));
+            node.getChild('constructor_end').setNode('_security_check', new TwingNode(nodes));
         } else {
             if (node.is(printType) || node.is(setType)) {
                 this.needsToStringWrap = false;
@@ -111,15 +111,15 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
     }
 
     private wrapNode(node: TwingNode, name: string) {
-        let expr = node.getNode(name);
+        let expr = node.getChild(name);
 
         if (expr.is(nameType) || expr.is(getAttrType)) {
-            node.setNode(name, new TwingNodeCheckToString(expr));
+            node.setChild(name, new TwingNodeCheckToString(expr));
         }
     }
 
     private wrapArrayNode(node: TwingNode, name: string) {
-        let args = node.getNode(name);
+        let args = node.getChild(name);
 
         for (let [name] of args.getNodes()) {
             this.wrapNode(args, name as string);

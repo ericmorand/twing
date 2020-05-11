@@ -27,7 +27,7 @@ export class TwingNodePrint extends TwingNode implements TwingNodeOutputInterfac
         compiler
             .addSourceMapEnter(this)
             .write('outputBuffer.echo(')
-            .subcompile(this.getNode('expr'))
+            .subcompile(this.getChild('expr'))
             .raw(');\n')
             .addSourceMapLeave()
         ;

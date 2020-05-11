@@ -3,33 +3,113 @@ import {TwingNodeType} from "./node-type";
 
 const var_export = require('locutus/php/var/var_export');
 
-export class TwingNode {
-    protected nodes: Map<number | string, TwingNode>;
-    protected attributes: Map<string, any>;
+export type Children = Partial<{
+    [k: string]: TwingNode
+}>;
+
+export type Attributes = Partial<{
+    [k: string]: number | string | boolean
+}>;
+
+export class TwingNode<C extends Children = Children, A extends Attributes = Attributes> {
     protected lineno: number;
     protected columnno: number;
     protected tag: string;
+
     private name: string = null;
+    private readonly _children: Map<keyof C, TwingNode>;
+    private readonly _attributes: Map<keyof A, number | string | boolean>;
 
     /**
      * Constructor.
      *
-     * The nodes are automatically made available as properties ($this->node).
-     * The attributes are automatically made available as array items ($this['name']).
-     *
-     * @param nodes Map<string | number, TwingNode>  A map of named nodes
-     * @param attributes Map<string, any> A map of attributes (should not be nodes)
-     * @param lineno number The line number
-     * @param columnno number The column number
-     * @param tag string The tag name associated with the Node
+     * @param children A map of named nodes
+     * @param attributes A map of attributes (should not be nodes)
+     * @param lineno The line number
+     * @param columnno The column number
+     * @param tag The tag name associated with the Node
      */
-    constructor(nodes: Map<string | number, TwingNode> = new Map(), attributes: Map<string, any> = new Map(), lineno: number = 0, columnno: number = 0, tag: string = null) {
-        this.nodes = nodes;
-        this.attributes = attributes;
+    constructor(children: C = null, attributes: A = null, lineno: number = 0, columnno: number = 0, tag: string = null) {
+        // attributes
+        this._attributes = new Map();
+
+        for (let key in attributes) {
+            this._attributes.set(key, attributes[key]);
+        }
+
+        // children
+        this._children = new Map();
+
+        for (let key in children) {
+            this._children.set(key, children[key]);
+        }
+
         this.lineno = lineno;
         this.columnno = columnno;
         this.tag = tag;
     }
+
+    get attributes(): Map<keyof A, any> {
+        return this._attributes;
+    }
+
+    /**
+     * @returns boolean
+     */
+    hasAttribute<K extends keyof A>(name: K) {
+        return this.attributes.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @param {*} value
+     */
+    setAttribute<K extends keyof A>(name: K, value: any): void {
+        this.attributes.set(name, value);
+    }
+
+    /**
+     *
+     * @param {string} name
+     * @returns any
+     */
+    getAttribute<K extends keyof A>(name: K): A[K] {
+        if (!this._attributes.has(name)) {
+            throw new Error(`Attribute "${name}" does not exist for Node "${this.constructor.name}".`);
+        }
+
+        return this._attributes.get(name);
+    }
+
+    get children(): Map<keyof C, TwingNode> {
+        return this._children;
+    }
+
+    /**
+     * @return bool
+     */
+    hasChild<K extends keyof C>(name: K) {
+        return this.children.has(name);
+    }
+
+    /**
+     * @return TwingNode
+     */
+    getChild<K extends keyof C>(name: K): C[K] {
+        if (!this.children.has(name)) {
+            throw new Error(`Node "${name}" does not exist for Node "${this.constructor.name}".`);
+        }
+
+        return this._children.get(name);
+    }
+
+    setChild<K extends keyof C>(name: K, node: TwingNode) {
+        this.children.set(name, node);
+    }
+
+    // removeNode(name: string) {
+    //     delete this.nodes[name];
+    // }
 
     /**
      * @returns {TwingNode}
@@ -38,7 +118,7 @@ export class TwingNode {
         let result: TwingNode = Reflect.construct(this.constructor, []);
 
         for (let [name, node] of this.getNodes()) {
-            result.setNode(name as string, node.clone());
+            result.setChild(name as string, node.clone());
         }
 
         for (let [name, node] of this.attributes) {
@@ -76,8 +156,8 @@ export class TwingNode {
 
         let repr = [this.constructor.name + '(' + attributes.join(', ')];
 
-        if (this.nodes.size > 0) {
-            for (let [name, node] of this.nodes) {
+        if (this.children.size > 0) {
+            for (let [name, node] of this.children) {
                 let len = ('' + name).length + 4;
                 let nodeRepr = [];
 
@@ -105,7 +185,7 @@ export class TwingNode {
     }
 
     compile(compiler: TwingCompiler): void {
-        for (let node of this.nodes.values()) {
+        for (let node of this.children.values()) {
             node.compile(compiler);
         }
     }
@@ -122,81 +202,19 @@ export class TwingNode {
         return this.tag;
     }
 
-    /**
-     * @returns booleqn
-     */
-    hasAttribute(name: string) {
-        return this.attributes.has(name);
-    }
-
-    /**
-     *
-     * @param {string} name
-     * @returns any
-     */
-    getAttribute(name: string): any {
-        if (!this.attributes.has(name)) {
-            throw new Error(`Attribute "${name}" does not exist for Node "${this.constructor.name}".`);
-        }
-
-        return this.attributes.get(name);
-    }
-
-    /**
-     * @param {string} name
-     * @param {*} value
-     */
-    setAttribute(name: string, value: any) {
-        this.attributes.set(name, value);
-    }
-
-    removeAttribute(name: string) {
-        this.attributes.delete(name);
-    }
-
-    /**
-     * @return bool
-     */
-    hasNode(name: any) {
-        return this.nodes.has(name);
-    }
-
-    /**
-     * @return TwingNode
-     */
-    getNode(name: string | number): TwingNode {
-        if (!this.nodes.has(name)) {
-            throw new Error(`Node "${name}" does not exist for Node "${this.constructor.name}".`);
-        }
-
-        return this.nodes.get(name);
-    }
-
-    setNode(name: string | number, node: TwingNode) {
-        this.nodes.set(name, node);
-    }
-
-    removeNode(name: string | number) {
-        this.nodes.delete(name);
-    }
-
     count() {
-        return this.nodes.size;
+        return this.children.size;
     }
 
     setTemplateName(name: string) {
         this.name = name;
 
-        for (let [k, node] of this.nodes) {
+        for (let [k, node] of this.children) {
             node.setTemplateName(name);
         }
     }
 
     getTemplateName() {
         return this.name;
-    }
-
-    getNodes() {
-        return this.nodes;
     }
 }

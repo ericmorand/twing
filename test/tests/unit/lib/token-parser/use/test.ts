@@ -62,7 +62,7 @@ tape('token-parser/use', (test) => {
 
             tokenParser.parse(new Token(TokenType.NAME, 'set', 1, 1));
 
-            test.equals(trait.getNode('targets').getNodes().size, 2);
+            test.equals(trait.getChild('targets').getNodes().size, 2);
 
             test.end();
         });

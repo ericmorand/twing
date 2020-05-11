@@ -22,7 +22,7 @@ export class TwingNodeIf extends TwingNode {
     }
 
     compile(compiler: TwingCompiler) {
-        let count = this.getNode('tests').getNodes().size;
+        let count = this.getChild('tests').getNodes().size;
 
         for (let i = 0; i < count; i += 2) {
             if (i > 0) {
@@ -38,20 +38,20 @@ export class TwingNodeIf extends TwingNode {
             }
 
             compiler
-                .subcompile(this.getNode('tests').getNode(i))
+                .subcompile(this.getChild('tests').getNode(i))
                 .raw(") {\n")
                 .indent()
-                .subcompile(this.getNode('tests').getNode(i + 1))
+                .subcompile(this.getChild('tests').getNode(i + 1))
             ;
         }
 
-        if (this.hasNode('else')) {
+        if (this.hasChild('else')) {
             compiler
                 .outdent()
                 .write("}\n")
                 .write("else {\n")
                 .indent()
-                .subcompile(this.getNode('else'))
+                .subcompile(this.getChild('else'))
             ;
         }
 

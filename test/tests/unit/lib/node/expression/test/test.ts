@@ -22,8 +22,8 @@ tape('node/expression/test', (test) => {
         let args = new TwingNode();
         let node = new TwingNodeExpressionTest(expr, name, args, 1, 1);
 
-        test.same(node.getNode('node'), expr);
-        test.same(node.getNode('arguments'), args);
+        test.same(node.getChild('node'), expr);
+        test.same(node.getChild('arguments'), args);
         test.same(node.getAttribute('name'), name);
         test.same(node.type, type);
 

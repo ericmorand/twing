@@ -46,8 +46,8 @@ export class TwingNodeExpressionNullCoalesce extends TwingNodeExpressionConditio
     }
 
     compile(compiler: TwingCompiler) {
-        if (this.getNode('expr2').is(nameType)) {
-            this.getNode('expr2').setAttribute('always_defined', true);
+        if (this.getChild('expr2').is(nameType)) {
+            this.getChild('expr2').setAttribute('always_defined', true);
         }
 
         return super.compile(compiler);

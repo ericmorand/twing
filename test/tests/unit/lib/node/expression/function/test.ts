@@ -30,7 +30,7 @@ tape('node/expression/function', (test) => {
         let node = new TwingNodeExpressionFunction(name, args, 1, 1);
 
         test.same(node.getAttribute('name'), name);
-        test.same(node.getNode('arguments'), args);
+        test.same(node.getChild('arguments'), args);
 
         test.end();
     });

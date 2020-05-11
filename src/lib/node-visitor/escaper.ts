@@ -45,7 +45,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         } else if (node.is(blockType)) {
             this.statusStack.push(this.blocks.has(node.getAttribute('name')) ? this.blocks.get(node.getAttribute('name')) : this.needEscaping());
         } else if (node.is(importType)) {
-            this.safeVars.push(node.getNode('var').getAttribute('name'));
+            this.safeVars.push(node.getChild('var').getAttribute('name'));
         }
 
         return node;
@@ -62,7 +62,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
             let type = this.needEscaping();
 
             if (type !== false) {
-                let expression: TwingNodeExpression = node.getNode('expr');
+                let expression: TwingNodeExpression = node.getChild('expr');
 
                 if ((expression.is(conditionalType)) && this.shouldUnwrapConditional(expression, env, type)) {
                     return new TwingNodeDo(this.unwrapConditional(expression, env, type), expression.getTemplateLine(), expression.getTemplateColumn());
@@ -82,15 +82,15 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
     }
 
     private shouldUnwrapConditional(expression: TwingNodeExpressionConditional, env: TwingEnvironment, type: any) {
-        let expr2Safe = this.isSafeFor(type, expression.getNode('expr2'), env);
-        let expr3Safe = this.isSafeFor(type, expression.getNode('expr3'), env);
+        let expr2Safe = this.isSafeFor(type, expression.getChild('expr2'), env);
+        let expr3Safe = this.isSafeFor(type, expression.getChild('expr3'), env);
 
         return expr2Safe !== expr3Safe;
     }
 
     private unwrapConditional(expression: TwingNodeExpressionConditional, env: TwingEnvironment, type: any): TwingNodeExpressionConditional {
         // convert "echo a ? b : c" to "a ? echo b : echo c" recursively
-        let expr2: TwingNodeExpression = expression.getNode('expr2');
+        let expr2: TwingNodeExpression = expression.getChild('expr2');
 
         if ((expr2.is(conditionalType)) && this.shouldUnwrapConditional(expr2, env, type)) {
             expr2 = this.unwrapConditional(expr2, env, type);
@@ -98,7 +98,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
             expr2 = this.escapeInlinePrintNode(new TwingNodeInlinePrint(expr2, expr2.getTemplateLine(), expr2.getTemplateColumn()), env, type);
         }
 
-        let expr3: TwingNodeExpression = expression.getNode('expr3');
+        let expr3: TwingNodeExpression = expression.getChild('expr3');
 
         if ((expr3.is(conditionalType)) && this.shouldUnwrapConditional(expr3, env, type)) {
             expr3 = this.unwrapConditional(expr3, env, type);
@@ -106,11 +106,11 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
             expr3 = this.escapeInlinePrintNode(new TwingNodeInlinePrint(expr3, expr3.getTemplateLine(), expr3.getTemplateColumn()), env, type);
         }
 
-        return new TwingNodeExpressionConditional(expression.getNode('expr1'), expr2, expr3, expression.getTemplateLine(), expression.getTemplateColumn());
+        return new TwingNodeExpressionConditional(expression.getChild('expr1'), expr2, expr3, expression.getTemplateLine(), expression.getTemplateColumn());
     }
 
     private escapeInlinePrintNode(node: TwingNodeInlinePrint, env: TwingEnvironment, type: any): TwingNode {
-        let expression: TwingNode = node.getNode('node');
+        let expression: TwingNode = node.getChild('node');
 
         if (this.isSafeFor(type, expression, env)) {
             return node;
@@ -120,7 +120,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
     }
 
     private escapePrintNode(node: TwingNodePrint, env: TwingEnvironment, type: any) {
-        let expression = node.getNode('expr');
+        let expression = node.getChild('expr');
 
         if (this.isSafeFor(type, expression, env)) {
             return node;
@@ -130,7 +130,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
     }
 
     private preEscapeFilterNode(filter: TwingNodeExpressionFilter, env: TwingEnvironment) {
-        let name = filter.getNode('filter').getAttribute('value');
+        let name = filter.getChild('filter').getAttribute('value');
 
         let type = env.getFilter(name).getPreEscape();
 
@@ -138,13 +138,13 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
             return filter;
         }
 
-        let node = filter.getNode('node');
+        let node = filter.getChild('node');
 
         if (this.isSafeFor(type, node, env)) {
             return filter;
         }
 
-        filter.setNode('node', this.getEscaperFilter(type, node));
+        filter.setChild('node', this.getEscaperFilter(type, node));
 
         return filter;
     }

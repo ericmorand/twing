@@ -12,9 +12,9 @@ export class TwingNodeExpressionBinaryPower extends TwingNodeExpressionBinary {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('Math.pow(')
-            .subcompile(this.getNode('left'))
+            .subcompile(this.getChild('left'))
             .raw(', ')
-            .subcompile(this.getNode('right'))
+            .subcompile(this.getChild('right'))
             .raw(')')
         ;
     }

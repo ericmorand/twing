@@ -10,7 +10,7 @@ tape('node/embed', (test) => {
         let variables = new TwingNodeExpressionConstant('foo', 1, 1);
         let node = new TwingNodeEmbed('foo', 1, variables, false, false, 1, 1, 'embed');
 
-        test.same(node.getNode('variables'), variables);
+        test.same(node.getChild('variables'), variables);
         test.same(node.type, type);
 
         test.end();

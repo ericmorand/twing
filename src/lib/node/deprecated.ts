@@ -21,7 +21,7 @@ export class TwingNodeDeprecated extends TwingNode {
     }
 
     compile(compiler: TwingCompiler) {
-        let expr = this.getNode('expr');
+        let expr = this.getChild('expr');
 
         compiler
             .write('{\n')

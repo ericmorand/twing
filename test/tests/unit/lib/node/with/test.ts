@@ -11,8 +11,8 @@ tape('node/with', (test) => {
     test.test('constructor', (test) => {
         let node = new TwingNodeWith(bodyNode, variablesNode, false, 1, 1);
 
-        test.same(node.getNode('body'), bodyNode);
-        test.same(node.getNode('variables'), variablesNode);
+        test.same(node.getChild('body'), bodyNode);
+        test.same(node.getChild('variables'), variablesNode);
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);

@@ -59,7 +59,7 @@ export class TwingTokenParserBlock extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        block.setNode('body', body);
+        block.setChild('body', body);
 
         this.parser.popBlockStack();
         this.parser.popLocalScope();

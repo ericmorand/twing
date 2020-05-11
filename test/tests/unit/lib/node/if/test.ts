@@ -17,13 +17,13 @@ tape('node/if', (test) => {
         let else_ = null;
         let node = new TwingNodeIf(t, else_, 1, 1);
 
-        test.same(node.getNode('tests'), t);
-        test.false(node.hasNode('else'));
+        test.same(node.getChild('tests'), t);
+        test.false(node.hasChild('else'));
 
         else_ = new TwingNodePrint(new TwingNodeExpressionName('bar', 1, 1), 1, 1);
         node = new TwingNodeIf(t, else_, 1, 1);
 
-        test.same(node.getNode('else'), else_);
+        test.same(node.getChild('else'), else_);
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);
         test.same(node.getTemplateColumn(), 1);

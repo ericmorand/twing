@@ -13,7 +13,7 @@ tape('node/autoescape', (test) => {
         let body = new TwingNode(bodyNodes);
         let node = new TwingNodeAutoEscape(true, body, 1, 1);
 
-        test.same(node.getNode('body'), body);
+        test.same(node.getChild('body'), body);
         test.true(node.getAttribute('value'));
         test.same(node.type, type);
 

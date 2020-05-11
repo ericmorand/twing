@@ -2,13 +2,13 @@ import {TwingNodeExpression} from "../expression";
 import {TwingNode} from "../../node";
 import {TwingCompiler} from "../../compiler";
 
-export abstract class TwingNodeExpressionUnary extends TwingNodeExpression {
-    constructor(expr: TwingNode, lineno: number, columno: number) {
-        let nodes = new Map();
+export type Nodes = {
+    node: TwingNode
+};
 
-        nodes.set('node', expr);
-
-        super(nodes, new Map(), lineno, columno);
+export abstract class TwingNodeExpressionUnary extends TwingNodeExpression<Nodes> {
+    constructor(node: TwingNode, lineno: number, columno: number) {
+        super({node: node}, {}, lineno, columno);
     }
 
     compile(compiler: TwingCompiler) {
@@ -16,7 +16,7 @@ export abstract class TwingNodeExpressionUnary extends TwingNodeExpression {
 
         compiler
             .raw('(')
-            .subcompile(this.getNode('node'))
+            .subcompile(this.getChild('node'))
             .raw(')');
     }
 

@@ -10,9 +10,9 @@ tape('node/expression/conditional', (test) => {
         let expr3 = new TwingNodeExpressionConstant(3, 1, 1);
         let node = new TwingNodeExpressionConditional(expr1, expr2, expr3, 1, 1);
 
-        test.same(node.getNode('expr1'), expr1);
-        test.same(node.getNode('expr2'), expr2);
-        test.same(node.getNode('expr3'), expr3);
+        test.same(node.getChild('expr1'), expr1);
+        test.same(node.getChild('expr2'), expr2);
+        test.same(node.getChild('expr3'), expr3);
 
         test.end();
     });

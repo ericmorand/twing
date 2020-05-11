@@ -8,7 +8,7 @@ tape('node/do', (test) => {
         let expr = new TwingNodeExpressionConstant('foo', 1, 1);
         let node = new TwingNodeDo(expr, 1, 1);
 
-        test.same(node.getNode('expr'), expr);
+        test.same(node.getChild('expr'), expr);
         test.same(node.type, type);
 
         test.end();

@@ -24,15 +24,15 @@ export class TwingNodeVisitorMacroAutoImport extends TwingBaseNodeVisitor {
     public doLeaveNode(node: TwingNode, env: TwingEnvironment) {
         if (node.type == moduleType) {
             if (this.hasMacroCalls) {
-                node.getNode('constructor_end').setNode('_auto_macro_import', new TwingNodeImport(new TwingNodeExpressionName('_self', 0, 0), new TwingNodeExpressionAssignName('_self', 0, 0), 0, 0, 'import', true));
+                node.getChild('constructor_end').setNode('_auto_macro_import', new TwingNodeImport(new TwingNodeExpressionName('_self', 0, 0), new TwingNodeExpressionAssignName('_self', 0, 0), 0, 0, 'import', true));
             }
         } else {
-            if ((node.type == getAttrType) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === '_self') && (node.getNode('attribute').is(constantType))) {
+            if ((node.type == getAttrType) && (node.getChild('node').is(nameType)) && (node.getChild('node').getAttribute('name') === '_self') && (node.getChild('attribute').is(constantType))) {
                 this.hasMacroCalls = true;
 
-                let name = node.getNode('attribute').getAttribute('value');
+                let name = node.getChild('attribute').getAttribute('value');
 
-                node = new TwingNodeExpressionMethodCall(node.getNode('node'), name, node.getNode('arguments') as TwingNodeExpressionArray, node.getTemplateLine(), node.getTemplateColumn());
+                node = new TwingNodeExpressionMethodCall(node.getChild('node'), name, node.getChild('arguments') as TwingNodeExpressionArray, node.getTemplateLine(), node.getTemplateColumn());
                 node.setAttribute('safe', true);
             }
         }

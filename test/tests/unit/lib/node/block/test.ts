@@ -8,7 +8,7 @@ tape('node/block', (test) => {
         let body = new TwingNodeText('foo', 1, 1, null);
         let node = new TwingNodeBlock('foo', body, 1, 1);
 
-        test.same(node.getNode('body'), body);
+        test.same(node.getChild('body'), body);
         test.same(node.getAttribute('name'), 'foo');
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);

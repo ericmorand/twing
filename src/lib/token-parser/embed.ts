@@ -41,7 +41,7 @@ export class TwingTokenParserEmbed extends TwingTokenParserInclude {
 
         // override the parent with the correct one
         if (fakeParentToken === parentToken) {
-            module.setNode('parent', parent);
+            module.setChild('parent', parent);
         }
 
         this.parser.embedTemplate(module as TwingNodeModule);

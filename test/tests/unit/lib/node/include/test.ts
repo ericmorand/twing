@@ -11,8 +11,8 @@ tape('node/include', (test) => {
         let expr = new TwingNodeExpressionConstant('foo.twig', 1, 1);
         let node = new TwingNodeInclude(expr, null, false, false, 1, 1);
 
-        test.false(node.hasNode('variables'));
-        test.same(node.getNode('expr'), expr);
+        test.false(node.hasChild('variables'));
+        test.same(node.getChild('expr'), expr);
         test.false(node.getAttribute('only'));
 
         let arrayNodes = new Map([
@@ -23,7 +23,7 @@ tape('node/include', (test) => {
         let vars = new TwingNodeExpressionArray(arrayNodes, 1, 1);
         node = new TwingNodeInclude(expr, vars, true, false, 1, 1);
 
-        test.same(node.getNode('variables'), vars);
+        test.same(node.getChild('variables'), vars);
         test.true(node.getAttribute('only'));
         test.same(node.type, type);
         test.same(node.getTemplateLine(), 1);

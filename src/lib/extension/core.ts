@@ -357,7 +357,7 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'default'}
             ], {
                 expression_factory: function (node: TwingNode, filterName: TwingNodeExpressionConstant, methodArguments: TwingNode, lineno: number, columnno: number, tag: string) {
-                    return new TwingNodeExpressionFilterDefault(node, filterName, methodArguments, lineno, columnno, tag);
+                    return new TwingNodeExpressionFilterDefault(node, 'default', methodArguments, lineno, columnno, tag);
                 }
             }),
             new TwingFilter('e', escape, [
@@ -520,13 +520,13 @@ export class TwingExtensionCore extends TwingExtension {
         return [
             new TwingTest('constant', null, [], {
                 expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
+                    return new TwingNodeExpressionTestConstant(node, nodeArguments, lineno, columnno);
                 }
             }),
             new TwingTest('divisible by', divisibleBy, []),
             new TwingTest('defined', null, [], {
                 expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
+                    return new TwingNodeExpressionTestDefined(node, nodeArguments, lineno, columnno);
                 }
             }),
             new TwingTest('empty', empty, []),
@@ -636,13 +636,13 @@ export class TwingExtensionCore extends TwingExtension {
     /**
      * @internal
      */
-    private escapeFilterIsSafe(filterArgs: TwingNode) {
+    private escapeFilterIsSafe(filterArgs: TwingNode): Array<string> {
         if (filterArgs.getNodes().size > 0) {
             let result: Array<string> = [];
 
-            filterArgs.getNodes().forEach(function (arg) {
+            filterArgs.getNodes().forEach((arg) => {
                 if (arg instanceof TwingNodeExpressionConstant) {
-                    result = [arg.getAttribute('value')];
+                    result = [arg.getAttribute('value') as string];
                 }
             });
 

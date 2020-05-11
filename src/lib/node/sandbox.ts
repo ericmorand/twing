@@ -23,7 +23,7 @@ export class TwingNodeSandbox extends TwingNode {
             .write("this.environment.enableSandbox();\n")
             .outdent()
             .write("}\n")
-            .subcompile(this.getNode('body'))
+            .subcompile(this.getChild('body'))
             .write("if (!alreadySandboxed) {\n")
             .indent()
             .write("this.environment.disableSandbox();\n")

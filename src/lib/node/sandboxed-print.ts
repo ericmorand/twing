@@ -12,7 +12,7 @@ export class TwingNodeSandboxedPrint extends TwingNodePrint {
     compile(compiler: TwingCompiler) {
         compiler
             .write('outputBuffer.echo(this.environment.ensureToStringAllowed(')
-            .subcompile(this.getNode('expr'))
+            .subcompile(this.getChild('expr'))
             .raw("));\n")
         ;
     }

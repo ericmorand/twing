@@ -1,6 +1,5 @@
 import {TwingNodeExpressionFilter} from "../filter";
 import {TwingNode} from "../../../node";
-import {TwingNodeExpressionConstant} from "../constant";
 import {TwingNodeExpressionTestDefined} from "../test/defined";
 import {TwingNodeExpressionConditional} from "../conditional";
 import {TwingNodeExpression} from "../../expression";
@@ -8,24 +7,25 @@ import {TwingCompiler} from "../../../compiler";
 import {type as nameType} from "../name";
 import {type as getAttrType} from "../get-attribute";
 import {TwingNodeType} from "../../../node-type";
+import {TwingNodeExpressionConstantString} from "../constant/string";
 
 export const type = new TwingNodeType('expression_filter');
 
 export class TwingNodeExpressionFilterDefault extends TwingNodeExpressionFilter {
-    constructor(node: TwingNode, filterName: TwingNodeExpressionConstant, methodArguments: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        let defaultNode = new TwingNodeExpressionFilter(node, new TwingNodeExpressionConstant('default', node.getTemplateLine(), node.getTemplateColumn()), methodArguments, node.getTemplateLine(), node.getTemplateColumn());
+    constructor(node: TwingNode, filterName: TwingNodeExpressionConstantString, methodArguments: TwingNode, lineno: number, columnno: number, tag: string = null) {
+        let defaultNode = new TwingNodeExpressionFilter(node, 'default', methodArguments, node.getTemplateLine(), node.getTemplateColumn());
 
-        if (filterName.getAttribute('value') === 'default' && (node.is(nameType) || node.is(getAttrType))) {
-            let test = new TwingNodeExpressionTestDefined(node.clone() as TwingNodeExpression, 'defined', new TwingNode(), node.getTemplateLine(), node.getTemplateColumn());
-            let falseNode = methodArguments.getNodes().size ? methodArguments.getNode(0) : new TwingNodeExpressionConstant('', node.getTemplateLine(), node.getTemplateColumn());
+        // if (filterName.getAttribute('value') === 'default' && (node.is(nameType) || node.is(getAttrType))) {
+        //     let test = new TwingNodeExpressionTestDefined(node.clone() as TwingNodeExpression, 'defined', new TwingNode(), node.getTemplateLine(), node.getTemplateColumn());
+        //     let falseNode = methodArguments.nodes.size ? methodArguments.getNode(0) : new TwingNodeExpressionConstantString('', node.getTemplateLine(), node.getTemplateColumn());
+        //
+        //     node = new TwingNodeExpressionConditional(test, defaultNode, falseNode, node.getTemplateLine(), node.getTemplateColumn());
+        // }
+        // else {
+        //     node = defaultNode;
+        // }
 
-            node = new TwingNodeExpressionConditional(test, defaultNode, falseNode as TwingNodeExpression, node.getTemplateLine(), node.getTemplateColumn());
-        }
-        else {
-            node = defaultNode;
-        }
-
-        super(node, filterName, methodArguments, lineno, columnno, tag);
+        super(node, 'default', methodArguments, lineno, columnno);
     }
 
     get type() {
@@ -33,6 +33,6 @@ export class TwingNodeExpressionFilterDefault extends TwingNodeExpressionFilter 
     }
 
     compile(compiler: TwingCompiler) {
-        compiler.subcompile(this.getNode('node'));
+        compiler.subcompile(this.getChild('node'));
     }
 }

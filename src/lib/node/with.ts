@@ -22,12 +22,12 @@ export class TwingNodeWith extends TwingNode {
     }
 
     compile(compiler: TwingCompiler) {
-        if (this.hasNode('variables')) {
+        if (this.hasChild('variables')) {
             compiler
                 .write('{\n')
                 .indent()
                 .write(`let tmp = `)
-                .subcompile(this.getNode('variables'))
+                .subcompile(this.getChild('variables'))
                 .raw(";\n")
                 .write(`if (typeof (tmp) !== 'object') {\n`)
                 .indent()
@@ -55,7 +55,7 @@ export class TwingNodeWith extends TwingNode {
         }
 
         compiler
-            .subcompile(this.getNode('body'))
+            .subcompile(this.getChild('body'))
             .write("context = context.get('_parent');\n")
         ;
     }

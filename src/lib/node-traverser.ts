@@ -69,7 +69,7 @@ export class TwingNodeTraverser {
 
             if (m) {
                 if (m !== n) {
-                    node.setNode(k, m);
+                    node.setChild(k, m);
                 }
             }
             else {

@@ -16,7 +16,7 @@ export class TwingNodeInlinePrint extends TwingNode {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('outputBuffer.echo(')
-            .subcompile(this.getNode('node'))
+            .subcompile(this.getChild('node'))
             .raw(')')
         ;
     }

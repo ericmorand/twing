@@ -38,10 +38,10 @@ export class TwingNodeMacro extends TwingNode {
             .raw('outputBuffer, ')
         ;
 
-        let count = this.getNode('arguments').getNodes().size;
+        let count = this.getChild('arguments').getNodes().size;
         let pos = 0;
 
-        for (let [name, defaultValue] of this.getNode('arguments').getNodes()) {
+        for (let [name, defaultValue] of this.getChild('arguments').getNodes()) {
             compiler
                 .raw('__' + name + '__ = ')
                 .subcompile(defaultValue)
@@ -67,7 +67,7 @@ export class TwingNodeMacro extends TwingNode {
 
         let first = true;
 
-        for (let [name, default_] of this.getNode('arguments').getNodes()) {
+        for (let [name, default_] of this.getChild('arguments').getNodes()) {
             if (!first) {
                 compiler.raw(',\n');
             }
@@ -101,7 +101,7 @@ export class TwingNodeMacro extends TwingNode {
             .write("outputBuffer.start();\n")
             .write("try {\n")
             .indent()
-            .subcompile(this.getNode('body'))
+            .subcompile(this.getChild('body'))
             .raw("\n")
             .write('let tmp = outputBuffer.getContents();\n')
             .write("result = (tmp === '') ? '' : new this.Markup(tmp, this.environment.getCharset());\n")

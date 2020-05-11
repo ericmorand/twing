@@ -10,7 +10,7 @@ tape('node/expression/arrow-function', (test) => {
         let names = new TwingNode(new Map([[0 ,new TwingNodeExpressionAssignName('a', 1, 1)]]));
         let node = new TwingNodeExpressionArrowFunction(new TwingNodeExpressionConstant('foo', 1, 1), names, 1, 1);
 
-        test.same(node.getNode('names'), names);
+        test.same(node.getChild('names'), names);
 
         test.end();
     });

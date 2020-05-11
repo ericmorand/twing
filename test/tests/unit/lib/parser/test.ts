@@ -429,7 +429,7 @@ tape('parser', (test) => {
             new Token(TokenType.EOF, '', 1, 0),
         ], new TwingSource('', 'foo')));
 
-        let body = node.getNode('body');
+        let body = node.getChild('body');
 
         test.same(body.getNode(0).type, type);
         test.same(body.getNode(0).getAttribute('data'), 'test');
@@ -555,7 +555,7 @@ tape('parser', (test) => {
             let stream = env.tokenize(new TwingSource(templateAndNodes[0], ''));
 
             let actual = parser.parse(stream)
-                .getNode('body')
+                .getChild('body')
                 .getNode(0)
                 .getNode('expr');
 
@@ -659,7 +659,7 @@ tape('parser', (test) => {
             let stream = env.tokenize(new TwingSource(templateAndNodes[0], ''));
 
             let actual = parser.parse(stream)
-                .getNode('body')
+                .getChild('body')
                 .getNode(0)
                 .getNode('expr');
 

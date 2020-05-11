@@ -23,7 +23,7 @@ tape('token', (test) => {
         let clone = node.clone();
 
         test.notEquals(clone, node);
-        test.notEquals(clone.getNode(0), childNode);
+        test.notEquals(clone.getChild(0), childNode);
         test.notEquals(clone.getAttribute('foo'), childAttribute);
         test.same(clone.getTemplateLine(), node.getTemplateLine());
         test.same(clone.getTemplateColumn(), node.getTemplateColumn());
@@ -62,7 +62,7 @@ tape('token', (test) => {
         let node = new TwingNode();
 
         try {
-            node.getNode(0);
+            node.getChild(0);
 
             test.fail();
         }
