@@ -26,8 +26,8 @@ tape('node/include', (test) => {
         test.same(node.getNode('variables'), vars);
         test.true(node.getAttribute('only'));
         test.same(node.type, type);
-        test.same(node.getTemplateLine(), 1);
-        test.same(node.getTemplateColumn(), 1);
+        test.same(node.getLine(), 1);
+        test.same(node.getColumn(), 1);
 
         test.end();
     });

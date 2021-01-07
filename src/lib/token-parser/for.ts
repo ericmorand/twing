@@ -90,7 +90,7 @@ export class TwingTokenParserFor extends TwingTokenParser {
         let self = this;
 
         if ((node.is(getAttrType)) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === 'loop')) {
-            throw new TwingErrorSyntax('The "loop" variable cannot be used in a looping condition.', node.getTemplateLine(), stream.getSourceContext());
+            throw new TwingErrorSyntax('The "loop" variable cannot be used in a looping condition.', node.getLine(), stream.getSourceContext());
         }
 
         node.getNodes().forEach(function (n) {
@@ -110,7 +110,7 @@ export class TwingTokenParserFor extends TwingTokenParser {
             let attribute = node.getNode('attribute');
 
             if ((attribute.is(constantType)) && (['length', 'revindex0', 'revindex', 'last'].indexOf(attribute.getAttribute('value')) > -1)) {
-                throw new TwingErrorSyntax(`The "loop.${attribute.getAttribute('value')}" variable is not defined when looping with a condition.`, node.getTemplateLine(), stream.getSourceContext());
+                throw new TwingErrorSyntax(`The "loop.${attribute.getAttribute('value')}" variable is not defined when looping with a condition.`, node.getLine(), stream.getSourceContext());
             }
         }
 

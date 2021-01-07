@@ -19,16 +19,15 @@ import {Token, TokenType} from "twig-lexer";
  */
 export class TwingTokenParserBlock extends TwingTokenParser {
     parse(token: Token): TwingNode {
-        let lineno = token.line;
-        let columnno = token.column;
-        let stream = this.parser.getStream();
-        let name = stream.expect(TokenType.NAME).value;
+        const {line, column} = token;
+        const stream = this.parser.getStream();
+        const name = stream.expect(TokenType.NAME).value;
 
         if (this.parser.hasBlock(name)) {
-            throw new TwingErrorSyntax(`The block '${name}' has already been defined line ${this.parser.getBlock(name).getTemplateLine()}.`, stream.getCurrent().line, stream.getSourceContext());
+            throw new TwingErrorSyntax(`The block '${name}' has already been defined line ${this.parser.getBlock(name).getLine()}.`, stream.getCurrent().line, stream.getSourceContext());
         }
 
-        let block = new TwingNodeBlock(name, new TwingNode(new Map()), lineno, columnno);
+        let block = new TwingNodeBlock(name, new TwingNode(new Map()), line, column);
 
         this.parser.setBlock(name, block);
         this.parser.pushLocalScope();
@@ -52,7 +51,7 @@ export class TwingTokenParserBlock extends TwingTokenParser {
         else {
             let nodes = new Map();
 
-            nodes.set(0, new TwingNodePrint(this.parser.parseExpression(), lineno, columnno));
+            nodes.set(0, new TwingNodePrint(this.parser.parseExpression(), line, column));
 
             body = new TwingNode(nodes);
         }
@@ -64,7 +63,7 @@ export class TwingTokenParserBlock extends TwingTokenParser {
         this.parser.popBlockStack();
         this.parser.popLocalScope();
 
-        return new TwingNodeBlockReference(name, lineno, columnno, this.getTag());
+        return new TwingNodeBlockReference(name, line, column, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

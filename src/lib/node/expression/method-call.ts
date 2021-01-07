@@ -2,23 +2,31 @@ import {TwingNodeExpression} from "../expression";
 import {TwingNodeExpressionArray} from "./array";
 import {TwingCompiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
+import {TwingNodeExpressionName} from "./name";
+
+import type {TwingNodeExpressionAttributes} from "../expression";
 
 export const type = new TwingNodeType('expression_method_call');
 
-export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
-    constructor(node: TwingNodeExpression, method: string, methodArguments: TwingNodeExpressionArray, lineno: number, columnno: number) {
-        let nodes = new Map();
+type Nodes = {
+    node: TwingNodeExpressionName,
+    arguments: TwingNodeExpressionArray
+};
 
-        nodes.set('node', node);
-        nodes.set('arguments', methodArguments);
+type Attributes = TwingNodeExpressionAttributes & {
+    method: string
+};
 
-        let attributes = new Map();
-
-        attributes.set('method', method);
-        attributes.set('safe', false);
-        attributes.set('is_defined_test', false);
-
-        super(nodes, attributes, lineno, columnno);
+export class TwingNodeExpressionMethodCall extends TwingNodeExpression<Nodes, Attributes> {
+    constructor(node: TwingNodeExpressionName, method: string, methodArguments: TwingNodeExpressionArray, line: number, column: number) {
+        super({
+            node,
+            arguments: methodArguments
+        }, {
+            method,
+            isDefinedTest: false,
+            safe: true
+        }, line, column);
     }
 
     get type() {
@@ -29,16 +37,15 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
         if (this.getAttribute('is_defined_test')) {
             compiler
                 .raw('(await aliases.proxy[')
-                .repr(this.getNode('node').getAttribute('name'))
+                .repr(this.getNode('node').getAttribute('value'))
                 .raw('].hasMacro(')
                 .repr(this.getAttribute('method'))
                 .raw('))')
             ;
-        }
-        else {
+        } else {
             compiler
                 .raw('await this.callMacro(aliases.proxy[')
-                .repr(this.getNode('node').getAttribute('name'))
+                .repr(this.getNode('node').getAttribute('value'))
                 .raw('], ')
                 .repr(this.getAttribute('method'))
                 .raw(', outputBuffer')
@@ -46,20 +53,21 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression {
             ;
             let first = true;
 
-            let argumentsNode = this.getNode('arguments') as TwingNodeExpressionArray;
+            let argumentsNode = this.getNode('arguments');
 
-            for (let pair of argumentsNode.getKeyValuePairs()) {
+            for (let pair of argumentsNode.keyValuePairs) {
                 if (!first) {
                     compiler.raw(', ');
                 }
+
                 first = false;
 
-                compiler.subcompile(pair['value']);
+                compiler.subcompile(pair.value);
             }
 
             compiler
                 .raw('], ')
-                .repr(this.getTemplateLine())
+                .repr(this.getLine())
                 .raw(', context, this.source)');
         }
     }

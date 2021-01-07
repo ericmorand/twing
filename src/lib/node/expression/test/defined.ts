@@ -5,7 +5,7 @@ import {TwingNodeExpressionConstant, type as constantType} from "../constant";
 import {type as nameType} from "../name";
 import {type as getAttrType} from "../get-attribute";
 import {type as blockreferenceType} from "../block-reference";
-import {type as functionType} from "../function";
+import {TwingNodeExpressionFunction} from "../function";
 import {type as arrayType} from "../array";
 import {type as methodCallType} from "../method-call";
 import {TwingErrorSyntax} from "../../../error/syntax";
@@ -25,7 +25,7 @@ export const type = new TwingNodeType('expression_test_defined');
  * </pre>
  */
 export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
-    constructor(node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
+    constructor(node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) {
         let changeIgnoreStrictCheck = false;
         let error = null;
 
@@ -36,24 +36,24 @@ export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
             changeIgnoreStrictCheck = true;
         } else if (node.is(blockreferenceType)) {
             node.setAttribute('is_defined_test', true);
-        } else if (node.is(functionType) && (node.getAttribute('name') === 'constant')) {
+        } else if ((node instanceof TwingNodeExpressionFunction) && (node.getAttribute('name') === 'constant')) {
             node.setAttribute('is_defined_test', true);
         } else if (node.is(constantType) || node.is(arrayType)) {
-            node = new TwingNodeExpressionConstant(true, node.getTemplateLine(), node.getTemplateColumn());
+            node = new TwingNodeExpressionConstant(true, node.getLine(), node.getColumn());
         } else if (node.is(methodCallType)) {
             node.setAttribute('is_defined_test', true);
         } else {
             error = 'The "defined" test only works with simple variables.';
         }
 
-        super(node, name, nodeArguments, lineno, columnno);
+        super(node, name, testArguments, line, column);
 
         if (changeIgnoreStrictCheck) {
             this.changeIgnoreStrictCheck(node);
         }
 
         if (error) {
-            throw new TwingErrorSyntax(error, this.getTemplateLine());
+            throw new TwingErrorSyntax(error, this.getLine());
         }
     }
 

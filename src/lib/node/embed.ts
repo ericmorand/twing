@@ -1,30 +1,22 @@
-import {TwingNodeExpression} from "./expression";
 import {TwingNodeInclude} from "./include";
 import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('embed');
+import type {TwingNodeIncludeAttributes} from "./include";
 
-export class TwingNodeEmbed extends TwingNodeInclude {
-    constructor(name: string, index: number, variables: TwingNodeExpression, only: boolean, ignoreMissing: boolean, lineno: number, columnno: number, tag: string) {
-        super(null, variables, only, ignoreMissing, lineno, columnno, tag);
+export type TwingNodeEmbedAttributes = TwingNodeIncludeAttributes & {
+    name: string,
+    index: number
+};
 
-        this.setAttribute('name', name);
-        this.setAttribute('index', index);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class TwingNodeEmbed<A extends TwingNodeEmbedAttributes = TwingNodeEmbedAttributes> extends TwingNodeInclude<TwingNodeEmbedAttributes> {
     protected addGetTemplate(compiler: TwingCompiler) {
         compiler
             .raw('await this.loadTemplate(')
-            .string(this.getAttribute('name'))
+            .string(this.attributes.name)
             .raw(', ')
-            .repr(this.getTemplateLine())
+            .repr(this.line)
             .raw(', ')
-            .string(this.getAttribute('index'))
+            .repr(this.attributes.index)
             .raw(')')
         ;
     }

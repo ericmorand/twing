@@ -25,7 +25,7 @@ export class TwingTokenParserSet extends TwingTokenParser {
         let values;
 
         if (stream.nextIf(TokenType.OPERATOR, '=')) {
-            values = this.parser.parseMultitargetExpression();
+            values = this.parser.parseMultiTargetExpression();
 
             stream.expect(TokenType.TAG_END);
 

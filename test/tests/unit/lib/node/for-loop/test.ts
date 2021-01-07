@@ -8,9 +8,9 @@ tape('node/for-loop', (test) => {
     test.test('constructor', (test) => {
         let node = new TwingNodeForLoop(1, 1);
 
-        test.equals(node.getNodeTag(), null);
-        test.same(node.getTemplateLine(), 1);
-        test.same(node.getTemplateColumn(), 1);
+        test.equals(node.getTag(), null);
+        test.same(node.getLine(), 1);
+        test.same(node.getColumn(), 1);
 
         test.end();
     });

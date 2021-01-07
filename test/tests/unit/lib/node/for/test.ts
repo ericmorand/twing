@@ -30,8 +30,8 @@ tape('node/for', (test) => {
         test.same(node.getNode('body').constructor.name, 'TwingNodeIf');
         test.same(node.getNode('body').getNode('tests').getNode(1).getNode(0), body);
         test.false(node.hasNode('else'));
-        test.same(node.getTemplateLine(), 1);
-        test.same(node.getTemplateColumn(), 1);
+        test.same(node.getLine(), 1);
+        test.same(node.getColumn(), 1);
 
         else_ = new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1);
         node = new TwingNodeFor(keyTarget, valueTarget, seq, ifExpr, body, else_, 1, 1);

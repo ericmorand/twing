@@ -29,7 +29,7 @@ export class TwingNodeCheckSecurity extends TwingNode {
                 tags.set(node, null);
             }
             else {
-                tags.set(name, node.getTemplateLine());
+                tags.set(name, node.getLine());
             }
         }
 
@@ -40,7 +40,7 @@ export class TwingNodeCheckSecurity extends TwingNode {
                 filters.set(node, null);
             }
             else {
-                filters.set(name, node.getTemplateLine());
+                filters.set(name, node.getLine());
             }
         }
 
@@ -51,7 +51,7 @@ export class TwingNodeCheckSecurity extends TwingNode {
                 functions.set(node, null);
             }
             else {
-                functions.set(name, node.getTemplateLine());
+                functions.set(name, node.getLine());
             }
         }
 

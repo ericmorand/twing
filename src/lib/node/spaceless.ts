@@ -5,15 +5,13 @@ import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('spaceless');
 
-export class TwingNodeSpaceless extends TwingNode implements TwingNodeOutputInterface {
+export class TwingNodeSpaceless extends TwingNode<{
+    body: TwingNode
+}, null> implements TwingNodeOutputInterface {
     TwingNodeOutputInterfaceImpl: TwingNodeOutputInterface;
 
     constructor(body: TwingNode, lineno: number, columnno: number, tag = 'spaceless') {
-        let nodes = new Map();
-
-        nodes.set('body', body);
-
-        super(nodes, new Map(), lineno, columnno, tag);
+        super({body}, null, lineno, columnno, tag);
 
         this.TwingNodeOutputInterfaceImpl = this;
     }

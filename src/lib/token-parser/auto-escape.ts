@@ -6,13 +6,13 @@ import {TwingNode} from "../node";
 import {TwingErrorSyntax} from "../error/syntax";
 import {TwingNodeAutoEscape} from "../node/auto-escape";
 import {Token, TokenType} from "twig-lexer";
-import {type as constantType} from "../node/expression/constant";
+import {TwingNodeExpressionConstant, type as constantType} from "../node/expression/constant";
 
 export class TwingTokenParserAutoEscape extends TwingTokenParser {
     parse(token: Token): TwingNode {
-        let lineno = token.line;
-        let columnno = token.column;
-        let stream = this.parser.getStream();
+        const {line, column} = token;
+        const stream = this.parser.getStream();
+
         let value: string;
 
         if (stream.test(TokenType.TAG_END)) {
@@ -21,8 +21,8 @@ export class TwingTokenParserAutoEscape extends TwingTokenParser {
         else {
             let expr = this.parser.parseExpression();
 
-            if (expr.type !== constantType) {
-                throw new TwingErrorSyntax('An escaping strategy must be a string or false.', stream.getCurrent().line, stream.getSourceContext());
+            if (!(expr instanceof TwingNodeExpressionConstant)) {
+                throw new TwingErrorSyntax('An escaping strategy must be a string or false.', line, stream.getSourceContext());
             }
 
             value = expr.getAttribute('value');
@@ -34,7 +34,7 @@ export class TwingTokenParserAutoEscape extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeAutoEscape(value, body, lineno, columnno, this.getTag());
+        return new TwingNodeAutoEscape(value, body, line, column, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

@@ -1,42 +1,49 @@
-import {TwingNode} from "../node";
+import {AnonymousNodes, TwingNode} from "../node";
 import {TwingSource} from "../source";
 import {TwingCompiler} from "../compiler";
 import {type as constantType} from "./expression/constant";
-import {type as bodyType} from "./body";
+import {TwingNodeBody, type as bodyType} from "./body";
 import {TwingNodeType} from "../node-type";
+import {TwingNodeTrait} from "./trait";
 
 export const type = new TwingNodeType('module');
 
 /**
  * Represents a module node that compiles into a JavaScript module.
  */
-export class TwingNodeModule extends TwingNode {
+export class TwingNodeModule extends TwingNode<{
+    body: TwingNodeBody,
+    blocks: TwingNode,
+    macros: TwingNode,
+    traits: TwingNode<AnonymousNodes<TwingNodeTrait>>,
+    display_start: TwingNode,
+    display_end: TwingNode,
+    constructor_start: TwingNode,
+    constructor_end: TwingNode,
+    class_end: TwingNode,
+    parent?: TwingNode
+}, {
+    index: number,
+    embedded_templates: Array<any>
+}> {
     public source: TwingSource;
 
-    constructor(body: TwingNode, parent: TwingNode, blocks: TwingNode, macros: TwingNode, traits: TwingNode, embeddedTemplates: Array<{}>, source: TwingSource) {
-        let nodes = new Map();
-
-        nodes.set('body', body);
-        nodes.set('blocks', blocks);
-        nodes.set('macros', macros);
-        nodes.set('traits', traits);
-        nodes.set('display_start', new TwingNode());
-        nodes.set('display_end', new TwingNode());
-        nodes.set('constructor_start', new TwingNode());
-        nodes.set('constructor_end', new TwingNode());
-        nodes.set('class_end', new TwingNode());
-
-        if (parent !== null) {
-            nodes.set('parent', parent);
-        }
-
-        // embedded templates are set as attributes so that they are only visited once by the visitors
-        let attributes = new Map();
-
-        attributes.set('index', 0);
-        attributes.set('embedded_templates', embeddedTemplates);
-
-        super(nodes, attributes, 1, 1);
+    constructor(body: TwingNodeBody, parent: TwingNode, blocks: TwingNode, macros: TwingNode, traits: TwingNode<AnonymousNodes<TwingNodeTrait>>, embeddedTemplates: Array<{}>, source: TwingSource) {
+        super({
+            body,
+            blocks,
+            macros,
+            traits,
+            display_start: new TwingNode({}, {}),
+            display_end: new TwingNode({}, {}),
+            constructor_start: new TwingNode({}, {}),
+            constructor_end: new TwingNode({}, {}),
+            class_end: new TwingNode({}, {}),
+            parent
+        }, {
+            index: 0,
+            embedded_templates: embeddedTemplates // embedded templates are set as attributes so that they are only visited once by the visitors
+        }, 1, 1);
 
         this.source = source;
 
@@ -307,26 +314,19 @@ export class TwingNodeModule extends TwingNode {
         //   * it has no macros
         //   * it has no body
         //
-        // Put another way, a template can be used as a trait if it
-        // only contains blocks and use statements.
+        // Put another way, a template can be used as a trait if it only contains blocks and use statements.
         let traitable = !this.hasNode('parent') && (this.getNode('macros').getNodes().size === 0);
 
         if (traitable) {
-            let node: TwingNode = this.getNode('body');
-
-            if (node.is(bodyType)) {
-                node = node.getNode(0);
-            }
+            let node = this.getNode('body').getNode('node');
 
             if (!node.getNodes().size) {
-                let n = new Map();
-
-                n.set(0, node);
-
-                node = new TwingNode(n);
+                node = new TwingNode({
+                    0: node
+                }, null, 1, 1);
             }
 
-            for (let [idx, subNode] of node.getNodes()) {
+            for (let subNode of node.getNodes().values()) {
                 if (!subNode.getNodes().size) {
                     continue;
                 }

@@ -1,6 +1,8 @@
 import {TwingError} from "./error";
 import {TwingSource} from "./source";
 import {TwingNode} from "./node";
+import {TwingNodeExpressionConstant} from "./node/expression/constant";
+import {TwingNodeExpression} from "./node/expression";
 
 export type TwingCallable<T> = (...args: any[]) => Promise<T>;
 
@@ -8,6 +10,8 @@ export type TwingCallableArgument = {
     name: string,
     defaultValue?: any
 };
+
+export type CallableWrapperExpressionFactory = (node: TwingNode, name: string, callableArguments: TwingNode, line: number, column: number) => TwingNodeExpression;
 
 export type TwingCallableWrapperOptions = {
     needs_template?: boolean;
@@ -18,7 +22,7 @@ export type TwingCallableWrapperOptions = {
     is_safe_callback?: Function;
     deprecated?: boolean | string;
     alternative?: string;
-    expression_factory?: Function;
+    expression_factory?: CallableWrapperExpressionFactory;
 }
 
 export abstract class TwingCallableWrapper<T> {
@@ -27,7 +31,7 @@ export abstract class TwingCallableWrapper<T> {
     readonly acceptedArguments: TwingCallableArgument[];
     readonly options: TwingCallableWrapperOptions;
 
-    private arguments: Array<any> = [];
+    protected _arguments: Array<any> = [];
 
     protected constructor(name: string, callable: TwingCallable<any>, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         this.name = name;
@@ -87,27 +91,47 @@ export abstract class TwingCallableWrapper<T> {
         }
     }
 
-    isVariadic(): boolean {
+    get isVariadic(): boolean {
         return this.options.is_variadic;
     }
 
-    isDeprecated(): boolean {
+    get isDeprecated(): boolean {
         return this.options.deprecated ? true : false;
     }
 
-    needsTemplate(): boolean {
+    get needsTemplate(): boolean {
         return this.options.needs_template;
     }
 
-    needsContext(): boolean {
+    get needsContext(): boolean {
         return this.options.needs_context;
     }
 
-    needsOutputBuffer(): boolean {
+    get needsOutputBuffer(): boolean {
         return this.options.needs_output_buffer;
     }
 
-    getSafe(functionArgs: TwingNode): any[] {
+    get deprecatedVersion() {
+        return this.options.deprecated;
+    }
+
+    get alternative() {
+        return this.options.alternative;
+    }
+
+    set arguments(value: Array<any>) {
+        this._arguments = value;
+    }
+
+    get arguments() {
+        return this._arguments;
+    }
+
+    get expressionFactory(): CallableWrapperExpressionFactory {
+        return this.options.expression_factory;
+    }
+
+    isSafe(functionArgs: TwingNode): any[] {
         if (this.options.is_safe !== null) {
             return this.options.is_safe;
         }
@@ -117,25 +141,5 @@ export abstract class TwingCallableWrapper<T> {
         }
 
         return [];
-    }
-
-    getDeprecatedVersion() {
-        return this.options.deprecated;
-    }
-
-    getAlternative() {
-        return this.options.alternative;
-    }
-
-    setArguments(arguments_: Array<any>) {
-        this.arguments = arguments_;
-    }
-
-    getArguments() {
-        return this.arguments;
-    }
-
-    getExpressionFactory(): Function {
-        return this.options.expression_factory;
     }
 }

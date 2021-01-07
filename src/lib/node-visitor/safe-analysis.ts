@@ -108,7 +108,7 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
             let filter = env.getFilter(name);
 
             if (filter) {
-                let safe = filter.getSafe(filterArgs);
+                let safe = filter.isSafe(filterArgs);
 
                 if (safe.length < 1) {
                     safe = this.intersectSafe(this.getSafe(node.getNode('node')), filter.getPreservesSafety());
@@ -125,7 +125,7 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
             let functionNode = env.getFunction(name);
 
             if (functionNode) {
-                this.setSafe(node, functionNode.getSafe(functionArgs));
+                this.setSafe(node, functionNode.isSafe(functionArgs));
             } else {
                 this.setSafe(node, []);
             }

@@ -3,27 +3,32 @@ import {TwingTemplate} from "../../template";
 import {TwingCompiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
 
+import type {TwingNodeExpressionAttributes} from "../expression";
+
 export const type = new TwingNodeType('expression_get_attribute');
 
-export class TwingNodeExpressionGetAttribute extends TwingNodeExpression {
-    constructor(node: TwingNodeExpression, attribute: TwingNodeExpression, methodArguments: TwingNodeExpression, type: string, lineno: number, columnno: number) {
-        let nodes = new Map();
+type Nodes = {
+    node: TwingNodeExpression,
+    attribute: TwingNodeExpression,
+    arguments?: TwingNodeExpression
+};
 
-        nodes.set('node', node);
-        nodes.set('attribute', attribute);
+type Attributes = TwingNodeExpressionAttributes & {
+    type: string,
+    is_defined_test: boolean
+};
 
-        if (methodArguments) {
-            nodes.set('arguments', methodArguments);
-        }
-
-        let nodeAttributes = new Map();
-
-        nodeAttributes.set('type', type);
-        nodeAttributes.set('is_defined_test', false);
-        nodeAttributes.set('ignore_strict_check', false);
-        nodeAttributes.set('optimizable', true);
-
-        super(nodes, nodeAttributes, lineno, columnno);
+export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<Nodes, Attributes> {
+    constructor(node: TwingNodeExpression, attribute: TwingNodeExpression, methodArguments: TwingNodeExpression, type: string, line: number, column: number) {
+        super({
+            node,
+            attribute,
+            arguments: methodArguments
+        }, {
+            type,
+            is_defined_test: false,
+            optimizable: true
+        }, line, column);
     }
 
     get type() {
@@ -50,7 +55,7 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression {
             return;
         }
 
-        compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.getTemplateLine()}, this.source)(this.environment, `);
+        compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.getLine()}, this.source)(this.environment, `);
 
         if (this.getAttribute('ignore_strict_check')) {
             this.getNode('node').setAttribute('ignore_strict_check', true);

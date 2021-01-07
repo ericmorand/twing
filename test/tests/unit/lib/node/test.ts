@@ -25,10 +25,10 @@ tape('token', (test) => {
         test.notEquals(clone, node);
         test.notEquals(clone.getNode(0), childNode);
         test.notEquals(clone.getAttribute('foo'), childAttribute);
-        test.same(clone.getTemplateLine(), node.getTemplateLine());
-        test.same(clone.getTemplateColumn(), node.getTemplateColumn());
+        test.same(clone.getLine(), node.getLine());
+        test.same(clone.getColumn(), node.getColumn());
         test.same(clone.type, node.type);
-        test.same(clone.getNodeTag(), node.getNodeTag());
+        test.same(clone.getTag(), node.getTag());
 
         test.end();
     });

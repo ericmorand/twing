@@ -8,14 +8,12 @@ export const type = new TwingNodeType('expression_arrow_function');
 /**
  * Represents an arrow function.
  */
-export class TwingNodeExpressionArrowFunction extends TwingNodeExpression {
+export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{
+    expr: TwingNodeExpression,
+    names: TwingNode
+}, null> {
     constructor(expr: TwingNodeExpression, names: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map([
-            ['expr', expr],
-            ['names', names]
-        ]);
-
-        super(nodes, new Map(), lineno, columnno, tag);
+        super({expr, names}, null, lineno, columnno, tag);
     }
 
     get type() {

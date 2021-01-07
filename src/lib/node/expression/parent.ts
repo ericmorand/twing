@@ -8,7 +8,7 @@ export class TwingNodeExpressionParent extends TwingNodeExpression {
     constructor(name: string, lineno: number) {
         let attributes = new Map();
 
-        attributes.set('output', false);
+        // attributes.set('output', false);
         attributes.set('name', name);
 
         super(new Map(), attributes, lineno);
@@ -22,7 +22,7 @@ export class TwingNodeExpressionParent extends TwingNodeExpression {
         let name = this.getAttribute('name');
 
         compiler
-            .raw(`await this.traceableRenderParentBlock(${this.getTemplateLine()}, this.source)(`)
+            .raw(`await this.traceableRenderParentBlock(${this.getLine()}, this.source)(`)
             .string(name)
             .raw(', context, outputBuffer, blocks)')
         ;

@@ -18,15 +18,15 @@ export class TwingNodeExpressionNullCoalesce extends TwingNodeExpressionConditio
 
         let test = new TwingNodeExpressionBinaryAnd(
             [
-                new TwingNodeExpressionTestDefined(<TwingNodeExpression>left.clone(), 'defined', new TwingNode(), left.getTemplateLine(), left.getTemplateColumn()),
+                new TwingNodeExpressionTestDefined(<TwingNodeExpression>left.clone(), 'defined', new TwingNode(), left.getLine(), left.getColumn()),
                 new TwingNodeExpressionUnaryNot(
-                    new TwingNodeExpressionTest(left, 'null', new TwingNode(), left.getTemplateLine(), left.getTemplateColumn()),
-                    left.getTemplateLine(),
-                    left.getTemplateColumn()
+                    new TwingNodeExpressionTest(left, 'null', new TwingNode(), left.getLine(), left.getColumn()),
+                    left.getLine(),
+                    left.getColumn()
                 )
             ],
-            left.getTemplateLine(),
-            left.getTemplateColumn()
+            left.getLine(),
+            left.getColumn()
         );
 
         super(test, left, right, lineno, columno);

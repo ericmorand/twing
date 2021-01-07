@@ -93,7 +93,7 @@ export class TwingCompiler {
         return this;
     }
 
-    repr(value: any): any {
+    repr(value: any): TwingCompiler {
         if (typeof value === 'number') {
             this.raw(value);
         } else if (isNullOrUndefined(value)) {
@@ -158,9 +158,9 @@ export class TwingCompiler {
         if (this.getEnvironment().isSourceMap()) {
             this
                 .write('this.environment.enterSourceMapBlock(')
-                .raw(node.getTemplateLine())
+                .raw(node.getLine())
                 .raw(', ')
-                .raw(node.getTemplateColumn())
+                .raw(node.getColumn())
                 .raw(', ')
                 .string(node.type.toString())
                 .raw(', ')

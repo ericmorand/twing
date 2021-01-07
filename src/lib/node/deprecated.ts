@@ -5,19 +5,14 @@
  */
 import {TwingNode} from "../node";
 import {TwingNodeExpression} from "./expression";
-import {type as constantType} from "./expression/constant";
 import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
+import {TwingNodeExpressionConstant} from "./expression/constant";
 
-export const type = new TwingNodeType('deprecated');
-
-export class TwingNodeDeprecated extends TwingNode {
-    constructor(expr: TwingNodeExpression, lineno: number, columnno: number, tag: string = null) {
-        super(new Map([['expr', expr]]), new Map(), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
+export class TwingNodeDeprecated extends TwingNode<null, {
+    expr: TwingNodeExpression
+}> {
+    constructor(expr: TwingNodeExpression, line: number, column: number, tag: string) {
+        super(null, {expr}, line, column, tag);
     }
 
     compile(compiler: TwingCompiler) {
@@ -27,13 +22,12 @@ export class TwingNodeDeprecated extends TwingNode {
             .write('{\n')
             .indent();
 
-        if (expr.is(constantType)) {
+        if (expr instanceof TwingNodeExpressionConstant) {
             compiler
                 .write('console.warn(')
                 .subcompile(expr)
             ;
-        }
-        else {
+        } else {
             compiler.write(`let message = `)
                 .subcompile(expr)
                 .raw(';\n')
@@ -43,7 +37,7 @@ export class TwingNodeDeprecated extends TwingNode {
 
         compiler
             .raw(' + ')
-            .string(` ("${this.getTemplateName()}" at line ${this.getTemplateLine()})`)
+            .string(` ("${this.getTemplateName()}" at line ${this.line})`)
             .raw(');\n')
             .outdent()
             .write('}\n')

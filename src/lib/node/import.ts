@@ -4,54 +4,47 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 import {TwingNode} from "../node";
-import {TwingNodeExpression} from "./expression";
+import {TwingNodeExpression, TwingNodeExpressionAttributes} from "./expression";
 import {TwingCompiler} from "../compiler";
-import {type as nameType} from "./expression/name";
-import {TwingNodeType} from "../node-type";
+import {TwingNodeExpressionName} from "./expression/name";
 
-export const type = new TwingNodeType('import');
+export type TwingNodeImportAttributes = {
+    global: boolean
+};
 
-export class TwingNodeImport extends TwingNode {
-    constructor(expr: TwingNodeExpression, varName: TwingNodeExpression, lineno: number, columnno: number, tag: string = null, global: boolean = true) {
-        let nodes = new Map();
+export type TwingNodeImportNodes = {
+    templateName: TwingNodeExpression,
+    variable: TwingNodeExpression<TwingNodeExpressionAttributes & {
+        value: string
+    }>
+};
 
-        nodes.set('expr', expr);
-        nodes.set('var', varName);
-
-        let attributes = new Map();
-
-        attributes.set('global', global);
-
-        super(nodes, attributes, lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class TwingNodeImport<A extends TwingNodeImportAttributes = TwingNodeImportAttributes, N extends TwingNodeImportNodes = TwingNodeImportNodes> extends TwingNode<TwingNodeImportAttributes, TwingNodeImportNodes> {
     compile(compiler: TwingCompiler) {
         compiler
             .write('aliases.proxy[')
-            .repr(this.getNode('var').getAttribute('name'))
+            .repr(this.getNode('variable').getAttribute('value'))
             .raw('] = ')
         ;
 
         if (this.getAttribute('global')) {
             compiler
                 .raw('this.aliases.proxy[')
-                .repr(this.getNode('var').getAttribute('name'))
+                .repr(this.getNode('variable').getAttribute('value'))
                 .raw('] = ')
             ;
         }
 
-        if (this.getNode('expr').is(nameType) && this.getNode('expr').getAttribute('name') === '_self') {
+        const templateName = this.getNode('templateName');
+
+        if ((templateName instanceof TwingNodeExpressionName) && (templateName.getAttribute('value') === '_self')) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('await this.loadTemplate(')
-                .subcompile(this.getNode('expr'))
+                .subcompile(this.getNode('templateName'))
                 .raw(', ')
-                .repr(this.getTemplateLine())
+                .repr(this.line)
                 .raw(')')
             ;
         }

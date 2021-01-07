@@ -12,7 +12,7 @@ import {Token, TokenType} from "twig-lexer";
  */
 export class TwingTokenParserFrom extends TwingTokenParser {
     parse(token: Token) {
-        let macro = this.parser.parseExpression();
+        let templateName = this.parser.parseExpression();
         let stream = this.parser.getStream();
 
         stream.expect(TokenType.NAME, 'import');
@@ -20,14 +20,14 @@ export class TwingTokenParserFrom extends TwingTokenParser {
         let targets = new Map();
 
         do {
-            let name = stream.expect(TokenType.NAME).value;
-            let alias = name;
+            let macro: string = stream.expect(TokenType.NAME).value;
+            let alias: string = macro;
 
             if (stream.nextIf(TokenType.NAME, 'as')) {
                 alias = stream.expect(TokenType.NAME).value;
             }
 
-            targets.set(name, alias);
+            targets.set(macro, alias);
 
             if (!stream.nextIf(TokenType.PUNCTUATION, ',')) {
                 break;
@@ -36,11 +36,16 @@ export class TwingTokenParserFrom extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        let expr = new TwingNodeExpressionAssignName(this.parser.getVarName(), token.line, token.column);
-        let node = new TwingNodeImport(macro, expr, token.line, token.column, this.getTag());
+        let variable = new TwingNodeExpressionAssignName(this.parser.getVarName(), token.line, token.column);
+        let node = new TwingNodeImport({
+            global: true
+        }, {
+            templateName,
+            variable
+        }, token.line, token.column, this.getTag());
 
         for (let [name, alias] of targets) {
-            this.parser.addImportedSymbol('function', alias, name, expr);
+            this.parser.addImportedSymbol('function', alias, name, variable);
         }
 
         return node;

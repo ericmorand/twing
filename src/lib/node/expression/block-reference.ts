@@ -5,22 +5,14 @@ import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_block_reference');
 
-export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
-    constructor(name: TwingNode, template: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map();
-
-        nodes.set('name', name);
-
-        if (template) {
-            nodes.set('template', template);
-        }
-
-        let attributes = new Map([
-            ['is_defined_test', false],
-            ['output', false]
-        ]);
-
-        super(nodes, attributes, lineno, columnno, tag);
+export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{
+    name: TwingNode,
+    template?: TwingNode
+}> {
+    constructor(name: TwingNode, template: TwingNode, line: number, column: number, tag: string = null) {
+        super({name, template}, {
+            is_defined_test: false
+        }, line, column, tag);
     }
 
     get type() {
@@ -45,12 +37,12 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression {
                 .raw('(await this.loadTemplate(')
                 .subcompile(this.getNode('template'))
                 .raw(', ')
-                .repr(this.getTemplateLine())
+                .repr(this.getLine())
                 .raw('))')
             ;
         }
 
-        compiler.raw(`.${method}(${this.getTemplateLine()}, this.source)`);
+        compiler.raw(`.${method}(${this.getLine()}, this.source)`);
 
         this.compileBlockArguments(compiler, needsOutputBuffer);
 

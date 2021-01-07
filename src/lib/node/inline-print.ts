@@ -1,22 +1,11 @@
-import {TwingNode} from "../node";
 import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
+import {TwingNodePrint} from "./print";
 
-export const type = new TwingNodeType('inline_print');
-
-export class TwingNodeInlinePrint extends TwingNode {
-    constructor(node: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        super(new Map([['node', node]]), new Map(), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class TwingNodeInlinePrint extends TwingNodePrint {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('outputBuffer.echo(')
-            .subcompile(this.getNode('node'))
+            .subcompile(this.nodes.content)
             .raw(')')
         ;
     }

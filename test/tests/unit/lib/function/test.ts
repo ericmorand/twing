@@ -10,7 +10,7 @@ tape('function', (test) => {
             }
         });
 
-        test.same(function_.getSafe(new TwingNode()), 'html');
+        test.same(function_.isSafe(new TwingNode()), 'html');
 
         test.end();
     });

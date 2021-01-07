@@ -1,21 +1,17 @@
 import {TwingNodeExpression} from "../expression";
 import {TwingCompiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
 
-export const type = new TwingNodeType('expression_name');
+import type {TwingNodeExpressionAttributes} from "../expression";
 
-export class TwingNodeExpressionName extends TwingNodeExpression {
+export type TwingNodeExpressionNameAttributes = TwingNodeExpressionAttributes & {
+    value: string
+};
+
+export class TwingNodeExpressionName<A extends TwingNodeExpressionNameAttributes = TwingNodeExpressionNameAttributes> extends TwingNodeExpression<A> {
     private specialVars: Map<string, string>;
 
-    constructor(name: string, lineno: number, columnno: number) {
-        let attributes = new Map();
-
-        attributes.set('name', name);
-        attributes.set('is_defined_test', false);
-        attributes.set('ignore_strict_check', false);
-        attributes.set('always_defined', false);
-
-        super(new Map(), attributes, lineno, columnno);
+    constructor(attributes: A, nodes: null, line: number, column: number) {
+        super(attributes, null, line, column);
 
         this.specialVars = new Map([
             ['_self', 'this.templateName'],
@@ -24,14 +20,10 @@ export class TwingNodeExpressionName extends TwingNodeExpression {
         ]);
     }
 
-    get type() {
-        return type;
-    }
-
     compile(compiler: TwingCompiler) {
-        let name: string = this.getAttribute('name');
+        let name = this.attributes.value;
 
-        if (this.getAttribute('is_defined_test')) {
+        if (this.attributes.isDefinedTest) {
             if (this.isSpecial()) {
                 compiler.repr(true);
             }
@@ -42,7 +34,7 @@ export class TwingNodeExpressionName extends TwingNodeExpression {
         else if (this.isSpecial()) {
             compiler.raw(this.specialVars.get(name));
         }
-        else if (this.getAttribute('always_defined')) {
+        else if (this.attributes.alwaysDefined) {
             compiler
                 .raw('context.get(')
                 .string(name)
@@ -50,7 +42,7 @@ export class TwingNodeExpressionName extends TwingNodeExpression {
             ;
         }
         else {
-            if (this.getAttribute('ignore_strict_check') || !compiler.getEnvironment().isStrictVariables()) {
+            if (this.attributes.ignoreStrictCheck || !compiler.getEnvironment().isStrictVariables()) {
                 compiler
                     .raw('(context.has(')
                     .string(name)
@@ -68,7 +60,7 @@ export class TwingNodeExpressionName extends TwingNodeExpression {
                     .raw(') : (() => { throw new this.RuntimeError(\'Variable ')
                     .string(name)
                     .raw(' does not exist.\', ')
-                    .repr(this.lineno)
+                    .repr(this.line)
                     .raw(', this.source); })()')
                     .raw(')')
                 ;
@@ -77,10 +69,10 @@ export class TwingNodeExpressionName extends TwingNodeExpression {
     }
 
     isSpecial() {
-        return this.specialVars.has(this.getAttribute('name'));
+        return this.specialVars.has(this.attributes.value);
     }
 
     isSimple() {
-        return !this.isSpecial() && !this.getAttribute('is_defined_test');
+        return !this.isSpecial() && !this.attributes.isDefinedTest;
     }
 }

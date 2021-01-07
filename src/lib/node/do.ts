@@ -1,9 +1,6 @@
 import {TwingNode} from "../node";
 import {TwingNodeExpression} from "./expression";
 import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
-
-export const type = new TwingNodeType('do');
 
 /**
  * Represents a do node.
@@ -12,15 +9,12 @@ export const type = new TwingNodeType('do');
  * {% do 1 + 2 %}
  *
  * @author Eric MORAND <eric.morand@gmail.com>
- * @author Eric Morand <eric.morand@gmail.com>
  */
-export class TwingNodeDo extends TwingNode {
-    constructor(expr: TwingNodeExpression, lineno: number, columnno: number, tag: string = null) {
-        super(new Map([['expr', expr]]), new Map(), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
+export class TwingNodeDo extends TwingNode<null, {
+    expr: TwingNodeExpression
+}> {
+    constructor(expr: TwingNodeExpression, line: number, column: number, tag: string) {
+        super(null, {expr}, line, column, tag);
     }
 
     compile(compiler: TwingCompiler) {

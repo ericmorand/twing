@@ -20,7 +20,7 @@ class Parser extends TwingParser {
         return null;
     }
 
-    parseMultitargetExpression(): TwingNode {
+    parseMultiTargetExpression(): TwingNode {
         return null;
     }
 }

@@ -13,7 +13,7 @@ export class TwingTokenParserImport extends TwingTokenParser {
         let var_ = new TwingNodeExpressionAssignName(this.parser.getStream().expect(TokenType.NAME).value, token.line, token.column);
 
         this.parser.getStream().expect(TokenType.TAG_END);
-        this.parser.addImportedSymbol('template', var_.getAttribute('name'));
+        this.parser.addImportedSymbol('template', var_.getAttribute('value'));
 
         return new TwingNodeImport(macro, var_, token.line, token.column, this.getTag(), this.parser.isMainScope());
     }

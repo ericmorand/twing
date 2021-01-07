@@ -1,46 +1,12 @@
-import {TwingNodeExpressionArray} from "./array";
 import {TwingCompiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
+import {TwingNodeExpression} from "../expression";
 
-export const type = new TwingNodeType('expression_hash');
+import {TwingNodeExpressionList} from "./list";
 
-export class TwingNodeExpressionHash extends TwingNodeExpressionArray {
-    get type() {
-        return type;
-    }
+export type TwingNodeExpressionHashElement = [TwingNodeExpression, TwingNodeExpression];
 
-    /**
-     * hash node is also an array node.
-     *
-     * @param type
-     */
-    is(type: TwingNodeType): boolean {
-        return (type === super.type) || super.is(type);
-    }
-
-    compile(compiler: TwingCompiler) {
-        compiler
-            .raw('new Map([')
-        ;
-
-        let first = true;
-
-        for (let pair of this.getKeyValuePairs()) {
-            if (!first) {
-                compiler.raw(', ');
-            }
-
-            first = false;
-
-            compiler
-                .raw('[')
-                .subcompile(pair.key)
-                .raw(', ')
-                .subcompile(pair.value)
-                .raw(']')
-            ;
-        }
-
-        compiler.raw('])');
+export class TwingNodeExpressionHash extends TwingNodeExpressionList<TwingNodeExpression> {
+    protected compileKey(compiler: TwingCompiler, key: TwingNodeExpression): void {
+        compiler.subcompile(key);
     }
 }

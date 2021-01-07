@@ -12,7 +12,7 @@ export class TwingNodeExpressionAssignName extends TwingNodeExpressionName {
     compile(compiler: TwingCompiler) {
         compiler
             .raw('context.proxy[')
-            .string(this.getAttribute('name'))
+            .string(this.getAttribute('value'))
             .raw(']')
         ;
     }

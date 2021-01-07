@@ -23,7 +23,7 @@ tape('token-parser/set', (test) => {
                 tokenParser.setParser(parser);
 
                 sinon.stub(parser, 'parseAssignmentExpression').returns(new TwingNode(new Map<number, any>([[0, 'foo']])));
-                sinon.stub(parser, 'parseMultitargetExpression').returns(new TwingNode(new Map<number, any>([[0, 'oof'], [1, 'bar']])));
+                sinon.stub(parser, 'parseMultiTargetExpression').returns(new TwingNode(new Map<number, any>([[0, 'oof'], [1, 'bar']])));
 
                 try {
                     tokenParser.parse(new Token(TokenType.NAME, 'set', 1, 1))

@@ -32,7 +32,7 @@ export class TwingNodeVisitorMacroAutoImport extends TwingBaseNodeVisitor {
 
                 let name = node.getNode('attribute').getAttribute('value');
 
-                node = new TwingNodeExpressionMethodCall(node.getNode('node'), name, node.getNode('arguments') as TwingNodeExpressionArray, node.getTemplateLine(), node.getTemplateColumn());
+                node = new TwingNodeExpressionMethodCall(node.getNode('node'), name, node.getNode('arguments') as TwingNodeExpressionArray, node.getLine(), node.getColumn());
                 node.setAttribute('safe', true);
             }
         }

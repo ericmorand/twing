@@ -1,41 +1,66 @@
 import {TwingCompiler} from "./compiler";
-import {TwingNodeType} from "./node-type";
 
 const var_export = require('locutus/php/var/var_export');
 
-export class TwingNode {
-    protected nodes: Map<number | string, TwingNode>;
-    protected attributes: Map<string, any>;
-    protected lineno: number;
-    protected columnno: number;
-    protected tag: string;
+export type AnonymousNodes<T extends TwingNode = TwingNode> = Record<string, T>;
+export type AnonymousAttributes = Record<string, any>;
+
+export const toAnonymousNodes = <T extends TwingNode>(map: Map<string, T>): AnonymousNodes<T> => {
+    const nodes: AnonymousNodes<T> = {};
+
+    for (const [key, value] of map) {
+        nodes[key] = value;
+    }
+
+    return nodes;
+};
+
+export class TwingNode<A extends AnonymousAttributes = any, N extends AnonymousNodes = any> {
+    protected _attributes: A;
+    protected _nodes: N;
+    protected _line: number;
+    protected _column: number;
+    protected _tag: string;
+
     private name: string = null;
 
     /**
-     * Constructor.
-     *
-     * The nodes are automatically made available as properties ($this->node).
-     * The attributes are automatically made available as array items ($this['name']).
-     *
-     * @param nodes Map<string | number, TwingNode>  A map of named nodes
-     * @param attributes Map<string, any> A map of attributes (should not be nodes)
-     * @param lineno number The line number
-     * @param columnno number The column number
-     * @param tag string The tag name associated with the Node
+     * @param nodes
+     * @param attributes
+     * @param line The line number
+     * @param column The column number
+     * @param tag The tag name associated with the Node
      */
-    constructor(nodes: Map<string | number, TwingNode> = new Map(), attributes: Map<string, any> = new Map(), lineno: number = 0, columnno: number = 0, tag: string = null) {
-        this.nodes = nodes;
-        this.attributes = attributes;
-        this.lineno = lineno;
-        this.columnno = columnno;
-        this.tag = tag;
+    constructor(attributes: A, nodes: N, line: number = 0, column: number = 0, tag: string = null) {
+        this._attributes = attributes;
+        this._nodes = nodes;
+        this._line = line;
+        this._column = column;
+        this._tag = tag;
     }
 
-    /**
-     * @returns {TwingNode}
-     */
-    clone(): TwingNode {
-        let result: TwingNode = Reflect.construct(this.constructor, []);
+    get attributes(): A {
+        return this._attributes;
+    }
+
+    get nodes(): N {
+        return this._nodes;
+    }
+
+    get line() {
+        return this._line;
+    }
+
+    get column() {
+        return this._column;
+    }
+
+    get tag() {
+        return this._tag;
+    }
+
+    clone(): TwingNode<N, A> {
+        let result: TwingNode<N, A> = Reflect.construct(this.constructor, []);
 
         for (let [name, node] of this.getNodes()) {
             result.setNode(name as string, node.clone());
@@ -49,8 +74,8 @@ export class TwingNode {
             result.setAttribute(name, node);
         }
 
-        result.lineno = this.lineno;
-        result.columnno = this.columnno;
+        result.line = this.line;
+        result.column = this.column;
         result.tag = this.tag;
 
         return result;
@@ -71,8 +96,8 @@ export class TwingNode {
             attributes.push(`${name}: ${attributeRepr.replace(/\n/g, '')}`);
         }
 
-        attributes.push(`line: ${this.getTemplateLine()}`);
-        attributes.push(`column: ${this.getTemplateColumn()}`);
+        attributes.push(`line: ${this.line}`);
+        attributes.push(`column: ${this.column}`);
 
         let repr = [this.constructor.name + '(' + attributes.join(', ')];
 
@@ -96,91 +121,13 @@ export class TwingNode {
         return repr.join('\n');
     }
 
-    get type(): TwingNodeType {
-        return null;
-    }
-
-    is(type: TwingNodeType): boolean {
-        return this.type === type;
-    }
-
     compile(compiler: TwingCompiler): void {
         for (let node of this.nodes.values()) {
             node.compile(compiler);
         }
     }
 
-    getTemplateLine() {
-        return this.lineno;
-    }
-
-    getTemplateColumn() {
-        return this.columnno;
-    }
-
-    getNodeTag() {
-        return this.tag;
-    }
-
-    /**
-     * @returns booleqn
-     */
-    hasAttribute(name: string) {
-        return this.attributes.has(name);
-    }
-
-    /**
-     *
-     * @param {string} name
-     * @returns any
-     */
-    getAttribute(name: string): any {
-        if (!this.attributes.has(name)) {
-            throw new Error(`Attribute "${name}" does not exist for Node "${this.constructor.name}".`);
-        }
-
-        return this.attributes.get(name);
-    }
-
-    /**
-     * @param {string} name
-     * @param {*} value
-     */
-    setAttribute(name: string, value: any) {
-        this.attributes.set(name, value);
-    }
-
-    removeAttribute(name: string) {
-        this.attributes.delete(name);
-    }
-
-    /**
-     * @return bool
-     */
-    hasNode(name: any) {
-        return this.nodes.has(name);
-    }
-
-    /**
-     * @return TwingNode
-     */
-    getNode(name: string | number): TwingNode {
-        if (!this.nodes.has(name)) {
-            throw new Error(`Node "${name}" does not exist for Node "${this.constructor.name}".`);
-        }
-
-        return this.nodes.get(name);
-    }
-
-    setNode(name: string | number, node: TwingNode) {
-        this.nodes.set(name, node);
-    }
-
-    removeNode(name: string | number) {
-        this.nodes.delete(name);
-    }
-
-    count() {
+    get count(): number {
         return this.nodes.size;
     }
 
@@ -192,11 +139,10 @@ export class TwingNode {
         }
     }
 
+    /**
+     * @deprecated should be replace by a TwingCompiler getter - i.e. compiler.templateName
+     */
     getTemplateName() {
         return this.name;
-    }
-
-    getNodes() {
-        return this.nodes;
     }
 }

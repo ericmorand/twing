@@ -1,13 +1,14 @@
 import {TwingTokenParser} from "../token-parser";
 import {TwingNodeWith} from "../node/with";
 import {Token, TokenType} from "twig-lexer";
+import {TwingNodeExpression} from "../node/expression";
 
 export class TwingTokenParserWith extends TwingTokenParser {
     parse(token: Token) {
-        let stream = this.parser.getStream();
+        const stream = this.parser.getStream();
 
-        let variables = null;
-        let only = false;
+        let variables: TwingNodeExpression = null;
+        let only: boolean = false;
 
         if (!stream.test(TokenType.TAG_END)) {
             variables = this.parser.parseExpression();
@@ -21,7 +22,7 @@ export class TwingTokenParserWith extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeWith(body, variables, only, token.line, token.column, this.getTag());
+        return new TwingNodeWith({only}, {variables, body}, token.line, token.column, this.getTag());
     }
 
     decideWithEnd(token: Token) {

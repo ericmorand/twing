@@ -10,8 +10,8 @@ tape('node/sandboxed', (test) => {
 
         test.same(node.getNode('body'), body);
         test.same(node.type, type);
-        test.same(node.getTemplateLine(), 1);
-        test.same(node.getTemplateColumn(), 1);
+        test.same(node.getLine(), 1);
+        test.same(node.getColumn(), 1);
 
         test.end();
     });

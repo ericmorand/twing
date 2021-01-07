@@ -1,56 +1,46 @@
 import {TwingNode} from "../node";
 import {TwingNodeExpression} from "./expression";
 import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('include');
+export type TwingNodeIncludeAttributes = {
+    ignoreMissing: boolean,
+    only?: boolean
+};
 
-export class TwingNodeInclude extends TwingNode {
-    constructor(expr: TwingNodeExpression, variables: TwingNodeExpression, only: boolean, ignoreMissing: boolean, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map();
+export type TwingNodeIncludeNodes = {
+    template: TwingNodeExpression,
+    variables?: TwingNodeExpression,
+};
 
-        if (expr) {
-            nodes.set('expr', expr);
-        }
-
-        if (variables !== null) {
-            nodes.set('variables', variables);
-        }
-
-        super(nodes, new Map([['only', only], ['ignore_missing', ignoreMissing]]), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIncludeAttributes,
+    N extends TwingNodeIncludeNodes = TwingNodeIncludeNodes> extends TwingNode<A, N> {
     compile(compiler: TwingCompiler) {
-        compiler
-            .write('outputBuffer.echo(await this.include(context, outputBuffer, ');
+        compiler.write('outputBuffer.echo(await this.include(context, outputBuffer, ');
 
         this.addGetTemplate(compiler);
 
         compiler.raw(', ');
 
-        if (this.hasNode('variables')) {
-            compiler.subcompile(this.getNode('variables'));
-        }
-        else {
+        const variables = this.nodes.variables;
+
+        if (variables) {
+            compiler.subcompile(variables);
+        } else {
             compiler.repr(undefined)
         }
 
         compiler
             .raw(', ')
-            .repr(!this.getAttribute('only'))
+            .repr(!this.attributes.only)
             .raw(', ')
-            .repr(this.getAttribute('ignore_missing'))
+            .repr(this.attributes.ignoreMissing)
             .raw(', ')
-            .repr(this.getTemplateLine())
+            .repr(this.line)
             .raw(')')
             .raw(');\n');
     }
 
     protected addGetTemplate(compiler: TwingCompiler) {
-        compiler.subcompile(this.getNode('expr'));
+        compiler.subcompile(this.nodes.template);
     }
 }

@@ -356,8 +356,8 @@ export class TwingExtensionCore extends TwingExtension {
             new TwingFilter('default', defaultFilter, [
                 {name: 'default'}
             ], {
-                expression_factory: function (node: TwingNode, filterName: TwingNodeExpressionConstant, methodArguments: TwingNode, lineno: number, columnno: number, tag: string) {
-                    return new TwingNodeExpressionFilterDefault(node, filterName, methodArguments, lineno, columnno, tag);
+                expression_factory: (node: TwingNode, filterName: string, filterArguments: TwingNode, line: number, column: number) => {
+                    return new TwingNodeExpressionFilterDefault(node, filterName, filterArguments, line, column);
                 }
             }),
             new TwingFilter('e', escape, [
@@ -519,14 +519,14 @@ export class TwingExtensionCore extends TwingExtension {
     getTests(): Array<TwingTest> {
         return [
             new TwingTest('constant', null, [], {
-                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestConstant(node, name, nodeArguments, lineno, columnno);
+                expression_factory: (node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) => {
+                    return new TwingNodeExpressionTestConstant(node, name, testArguments, line, column);
                 }
             }),
             new TwingTest('divisible by', divisibleBy, []),
             new TwingTest('defined', null, [], {
-                expression_factory: function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-                    return new TwingNodeExpressionTestDefined(node, name, nodeArguments, lineno, columnno);
+                expression_factory: (node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) => {
+                    return new TwingNodeExpressionTestDefined(node, name, testArguments, line, column);
                 }
             }),
             new TwingTest('empty', empty, []),

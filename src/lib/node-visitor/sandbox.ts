@@ -38,8 +38,8 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
             return node;
         } else {
             // look for tags
-            if (node.getNodeTag() && !(this.tags.has(node.getNodeTag()))) {
-                this.tags.set(node.getNodeTag(), node);
+            if (node.getTag() && !(this.tags.has(node.getTag()))) {
+                this.tags.set(node.getTag(), node);
             }
 
             // look for filters

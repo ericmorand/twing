@@ -15,7 +15,7 @@ export const type = new TwingNodeType('check_to_string');
  */
 export class TwingNodeCheckToString extends TwingNode {
     constructor(expression: TwingNodeExpression) {
-        super(new Map([['expr', expression]]), new Map(), expression.getTemplateLine(), expression.getTemplateColumn());
+        super(new Map([['expr', expression]]), new Map(), expression.getLine(), expression.getColumn());
     }
 
     get type() {

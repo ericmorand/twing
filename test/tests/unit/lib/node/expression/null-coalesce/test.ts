@@ -10,8 +10,8 @@ tape('node/expression/null-coalesce', (test) => {
         let right = new TwingNodeExpressionConstant(2, 1, 1);
         let node = new TwingNodeExpressionNullCoalesce([left, right], 1, 1);
 
-        test.same(node.getTemplateLine(), 1);
-        test.same(node.getTemplateColumn(),1);
+        test.same(node.getLine(), 1);
+        test.same(node.getColumn(),1);
 
         test.end();
     });

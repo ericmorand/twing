@@ -1,0 +1,998 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Twing</title>
+	<meta name="description" content="Documentation for Twing">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="assets/css/main.css">
+	<script async src="assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="assets/js/search.json" data-base=".">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="index.html" class="title">Twing</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<h1>Twing</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<div class="tsd-panel tsd-typography">
+				<a href="#twing" id="twing" style="color: inherit; text-decoration: none;">
+					<h1>Twing</h1>
+				</a>
+				<p><a href="https://npmjs.org/package/twing"><img src="https://badge.fury.io/js/twing.svg" alt="NPM version"></a> <a href="https://travis-ci.com/NightlyCommit/twing"><img src="https://travis-ci.com/NightlyCommit/twing.svg?branch=master" alt="Build Status"></a> <a href="https://coveralls.io/github/NightlyCommit/twing"><img src="https://coveralls.io/repos/github/NightlyCommit/twing/badge.svg" alt="Coverage percentage"></a> <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&amp;hosted_button_id=7YZU3L2JL2KJA"><img src="https://img.shields.io/badge/Donate-PayPal-green.svg" alt="Donate"></a></p>
+				<p>First-class Twig engine for Node.js</p>
+				<a href="#philosophy-behind-twing" id="philosophy-behind-twing" style="color: inherit; text-decoration: none;">
+					<h2>Philosophy behind Twing</h2>
+				</a>
+				<p>We believe that a first-class Twig engine should be able to render any template to the exact same result as the official PHP engine. That means that it should implement 100% of the syntax defined by the language specifications and that it should render that syntax using PHP logic.</p>
+				<p>We also believe that a first-class Twig engine should be able to catch-up easily when Twig specifications evolve. Its code architecture and philosophy should then be as close as possible as the PHP implementation.</p>
+				<p>Finally, we believe that a first-class Twig engine should allow users to build on their experience with TwigPHP and get support from the huge community that comes with it.</p>
+				<p>That&#39;s what Twing is. A maintainability-first engine that pass 100% of the TwigPHP integration tests, is as close as possible to its code structure and expose an as-close-as-possible API.</p>
+				<a href="#prerequisites" id="prerequisites" style="color: inherit; text-decoration: none;">
+					<h2>Prerequisites</h2>
+				</a>
+				<p>Twing needs at least <strong>node.js 8.0.0</strong> to run.</p>
+				<a href="#installation" id="installation" style="color: inherit; text-decoration: none;">
+					<h2>Installation</h2>
+				</a>
+				<p>The recommended way to install Twing is via npm:</p>
+				<p><code>npm install twing --save</code></p>
+				<a href="#basic-api-usage" id="basic-api-usage" style="color: inherit; text-decoration: none;">
+					<h2>Basic API Usage</h2>
+				</a>
+				<pre><code class="language-js"><span style="color: #0000FF">const</span><span style="color: #000000"> {</span><span style="color: #0070C1">TwingEnvironment</span><span style="color: #000000">, </span><span style="color: #0070C1">TwingLoaderArray</span><span style="color: #000000">} = </span><span style="color: #795E26">require</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;twing&#039;</span><span style="color: #000000">);</span>
+
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">loader</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">TwingLoaderArray</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #A31515">&#039;index.twig&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Hello {{ name }}!&#039;</span>
+<span style="color: #000000">});</span>
+<span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">twing</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #267F99">TwingEnvironment</span><span style="color: #000000">(</span><span style="color: #001080">loader</span><span style="color: #000000">);</span>
+
+<span style="color: #001080">twing</span><span style="color: #000000">.</span><span style="color: #795E26">render</span><span style="color: #000000">(</span><span style="color: #A31515">&#039;index.twig&#039;</span><span style="color: #000000">, {</span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Fabien&#039;</span><span style="color: #000000">}).</span><span style="color: #795E26">then</span><span style="color: #000000">((</span><span style="color: #001080">output</span><span style="color: #000000">) </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #008000">// do something with the output</span>
+<span style="color: #000000">});</span>
+</code></pre>
+				<a href="#usage-with-express" id="usage-with-express" style="color: inherit; text-decoration: none;">
+					<h2>Usage with Express</h2>
+				</a>
+				<p>Twing and Express work quite well together. Have a look at the <a href="http://NightlyCommit.github.io/twing/intro.html#real-world-example-using-express">documentation</a> for an example of usage with Express.</p>
+				<a href="#browser-support" id="browser-support" style="color: inherit; text-decoration: none;">
+					<h2>Browser support</h2>
+				</a>
+				<p>Starting with version 2.0.0, Twing can be used in web browsers with very few compromise. Filesystem components are obviously not available (namely filesystem loader and cache) but everything else is fully supported.</p>
+				<a href="#module-bundler" id="module-bundler" style="color: inherit; text-decoration: none;">
+					<h3>Module bundler</h3>
+				</a>
+				<p>Module bundlers will automatically grab the browser-specific flavor of Twing when Twing module is imported. Either <code>const {TwingEnvironment} = require(&#39;twing&#39;);</code> or <code>import {TwingEnvironment} from &#39;twing&#39;;</code> will work in both node.js and the browser - once bundled in the latter case.</p>
+				<a href="#script-tag" id="script-tag" style="color: inherit; text-decoration: none;">
+					<h3>Script tag</h3>
+				</a>
+				<p>Use <a href="https://www.jsdelivr.com/">jsdelivr</a> CDN to include Twing in your HTML document:</p>
+				<p><code>&lt;script src=&quot;https://cdn.jsdelivr.net/npm/twing/dist/lib.min.js&quot;&gt;&lt;/script&gt;</code></p>
+				<p>Once loaded by the browser, Twing is available under the global <code>Twing</code> variable.</p>
+				<a href="#twig-specifications-implementation" id="twig-specifications-implementation" style="color: inherit; text-decoration: none;">
+					<h2>Twig specifications implementation</h2>
+				</a>
+				<p>Twing aims at implementing Twig specifications perfectly, without compromise. This is not an easy task due to the nature of Twig specifications: they don&#39;t exist officially and can only be deduced from the public documentation, the source code documentation and the test suite of the PHP reference implementation. It sometimes happens that something that was not part of either the documentations or the test suite suddenly becomes part of the specifications like the <a href="https://github.com/twigphp/Twig/issues/3091"><code>filter</code> tag</a> or the <a href="https://github.com/twigphp/Twig/issues/3090">macros rework</a> issues, putting Twing and all other non-reference implementations in the uncomfortable position of having to deal with a potential breaking change. Since Twig&#39;s team doesn&#39;t plan on releasing some official specifications for the language, we can&#39;t expect the problem to be solved anytime soon.</p>
+				<p>Twing&#39;s strategy here is to stick strictly to Semantic Versioning rules and <em>never</em> introduce a breaking change into a minor version - its extensive test suite with 100% code coverage guarantees that. Twig teams&#39;s mistakes will be managed by either issuing a <a href="#known-issues">known issue</a>, if the mistake is trivial, or bumping to a new major version, if it is not.</p>
+				<a href="#compatibility-chart" id="compatibility-chart" style="color: inherit; text-decoration: none;">
+					<h3>Compatibility chart</h3>
+				</a>
+				<p>Here is the compatibility chart between minor versions of Twing and Twig specifications levels, along with a summary of notable features provided by each Twig specifications level. Note that Twig minor versions don&#39;t always provide new language-related features (because of Twig&#39;s team perpetuating the confusion between Twig and their reference implementation, TwigPHP).</p>
+				<table>
+					<thead>
+						<tr>
+							<th align="center">Twing version</th>
+							<th align="center">Twig specifications level</th>
+							<th>Notable features</th>
+						</tr>
+					</thead>
+					<tbody><tr>
+							<td align="center">3.0</td>
+							<td align="center">2.11</td>
+							<td><a href="https://twig.symfony.com/doc/2.x/tags/macro.html#macros-scoping">Macros scoping</a></td>
+						</tr>
+						<tr>
+							<td align="center">2.3</td>
+							<td align="center">2.10</td>
+							<td><code>spaceless</code>, <code>column</code>, <code>filter</code>, <code>map</code> and <code>reduce</code> filters, <code>apply</code> tag, <code>line whitespace trimming</code> whitespace control modifier</td>
+						</tr>
+						<tr>
+							<td align="center">2.2</td>
+							<td align="center">2.6</td>
+							<td><code>deprecated</code> tag</td>
+						</tr>
+						<tr>
+							<td align="center">1.3</td>
+							<td align="center">2.5</td>
+							<td><code>spaceless</code> and <code>block</code>-related deprecations</td>
+						</tr>
+						<tr>
+							<td align="center">1.0</td>
+							<td align="center">2.4</td>
+							<td></td>
+						</tr>
+				</tbody></table>
+				<p>It is highly recommended to always use the latest version of Twing available as bug fixes will always target the latest version.</p>
+				<a href="#known-issues" id="known-issues" style="color: inherit; text-decoration: none;">
+					<h3>Known issues</h3>
+				</a>
+				<p>You can find the list of known issues of Twing regarding Twig specifications implementation <a href="http://NightlyCommit.github.io/twing/known_issues">here</a>. Note that known issues are guaranteed to be addressed in the next major version bump of Twing.</p>
+				<a href="#more-information" id="more-information" style="color: inherit; text-decoration: none;">
+					<h2>More information</h2>
+				</a>
+				<p>Read the <a href="http://NightlyCommit.github.io/twing">documentation</a> for more information.</p>
+				<a href="#related-projects" id="related-projects" style="color: inherit; text-decoration: none;">
+					<h2>Related projects</h2>
+				</a>
+				<ul>
+					<li><a href="https://www.npmjs.com/package/gulp-twing">gulp-twing</a>: Compile Twig templates with gulp. Build upon Twing.</li>
+					<li><a href="https://www.npmjs.com/package/twing-loader">twing-loader</a>: Webpack loader that compiles Twig templates using Twing.</li>
+				</ul>
+				<a href="#contributing" id="contributing" style="color: inherit; text-decoration: none;">
+					<h2>Contributing</h2>
+				</a>
+				<ul>
+					<li>Fork this repository</li>
+					<li>Code</li>
+					<li>Implement tests using <a href="https://github.com/substack/tape">tape</a></li>
+					<li>Issue a pull request keeping in mind that all pull requests must reference an issue in the issue queue</li>
+				</ul>
+				<a href="#license" id="license" style="color: inherit; text-decoration: none;">
+					<h2>License</h2>
+				</a>
+				<p>Copyright © 2018 <a href="https://github.com/ericmorand">Eric MORAND</a>. Released under the <a href="https://github.com/ericmorand/twing/blob/master/LICENSE">2-Clause BSD License</a>.</p>
+			</div>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="modules.html">Exports</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/base.html">base</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/browser.html">browser</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_base_node_visitor.html">lib/base-<wbr>node-<wbr>visitor</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_cache_interface.html">lib/cache-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_cache_filesystem.html">lib/cache/filesystem</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_cache_null.html">lib/cache/null</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_callable_wrapper.html">lib/callable-<wbr>wrapper</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_compiler.html">lib/compiler</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_context.html">lib/context</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_environment.html">lib/environment</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_environment_options.html">lib/environment-<wbr>options</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_environment_browser.html">lib/environment/browser</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_environment_node.html">lib/environment/node</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_error.html">lib/error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_error_loader.html">lib/error/loader</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_error_runtime.html">lib/error/runtime</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_error_syntax.html">lib/error/syntax</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension.html">lib/extension</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_interface.html">lib/extension-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_set.html">lib/extension-<wbr>set</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core.html">lib/extension/core</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_abs.html">lib/extension/core/filters/abs</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_array_keys.html">lib/extension/core/filters/array-<wbr>keys</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_batch.html">lib/extension/core/filters/batch</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_capitalize.html">lib/extension/core/filters/capitalize</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_column.html">lib/extension/core/filters/column</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_convert_encoding.html">lib/extension/core/filters/convert-<wbr>encoding</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_date.html">lib/extension/core/filters/date</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_date_modify.html">lib/extension/core/filters/date-<wbr>modify</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_default.html">lib/extension/core/filters/default</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_escape.html">lib/extension/core/filters/escape</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_filter.html">lib/extension/core/filters/filter</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_first.html">lib/extension/core/filters/first</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_format.html">lib/extension/core/filters/format</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_join.html">lib/extension/core/filters/join</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_json_encode.html">lib/extension/core/filters/json-<wbr>encode</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_last.html">lib/extension/core/filters/last</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_length.html">lib/extension/core/filters/length</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_lower.html">lib/extension/core/filters/lower</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_map.html">lib/extension/core/filters/map</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_merge.html">lib/extension/core/filters/merge</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_nl2br.html">lib/extension/core/filters/nl2br</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_number_format.html">lib/extension/core/filters/number-<wbr>format</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_raw.html">lib/extension/core/filters/raw</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_reduce.html">lib/extension/core/filters/reduce</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_replace.html">lib/extension/core/filters/replace</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_reverse.html">lib/extension/core/filters/reverse</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_round.html">lib/extension/core/filters/round</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_slice.html">lib/extension/core/filters/slice</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_sort.html">lib/extension/core/filters/sort</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_spaceless.html">lib/extension/core/filters/spaceless</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_split.html">lib/extension/core/filters/split</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_striptags.html">lib/extension/core/filters/striptags</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_title.html">lib/extension/core/filters/title</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_trim.html">lib/extension/core/filters/trim</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_upper.html">lib/extension/core/filters/upper</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_filters_url_encode.html">lib/extension/core/filters/url-<wbr>encode</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_constant.html">lib/extension/core/functions/constant</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_cycle.html">lib/extension/core/functions/cycle</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_date.html">lib/extension/core/functions/date</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_dump.html">lib/extension/core/functions/dump</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_include.html">lib/extension/core/functions/include</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_max.html">lib/extension/core/functions/max</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_min.html">lib/extension/core/functions/min</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_random.html">lib/extension/core/functions/random</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_range.html">lib/extension/core/functions/range</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_source.html">lib/extension/core/functions/source</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_functions_template_from_string.html">lib/extension/core/functions/template-<wbr>from-<wbr>string</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_divisible_by.html">lib/extension/core/tests/divisible-<wbr>by</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_empty.html">lib/extension/core/tests/empty</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_even.html">lib/extension/core/tests/even</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_iterable.html">lib/extension/core/tests/iterable</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_null.html">lib/extension/core/tests/null</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_odd.html">lib/extension/core/tests/odd</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_extension_core_tests_same_as.html">lib/extension/core/tests/same-<wbr>as</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_filter.html">lib/filter</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_function.html">lib/function</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_asort.html">lib/helpers/asort</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_chunk.html">lib/helpers/chunk</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_clone_map.html">lib/helpers/clone-<wbr>map</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_compare.html">lib/helpers/compare</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_constant.html">lib/helpers/constant</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_count.html">lib/helpers/count</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_create_range.html">lib/helpers/create-<wbr>range</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_ctype_digit.html">lib/helpers/ctype-<wbr>digit</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_ctype_space.html">lib/helpers/ctype-<wbr>space</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_ensure_traversable.html">lib/helpers/ensure-<wbr>traversable</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_examine_object.html">lib/helpers/examine-<wbr>object</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_fill.html">lib/helpers/fill</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_first.html">lib/helpers/first</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_format_date_time.html">lib/helpers/format-<wbr>date-<wbr>time</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_format_duration.html">lib/helpers/format-<wbr>duration</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_get.html">lib/helpers/get</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_get_attribute.html">lib/helpers/get-<wbr>attribute</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_iconv.html">lib/helpers/iconv</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_includes.html">lib/helpers/includes</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_countable.html">lib/helpers/is-<wbr>countable</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_in.html">lib/helpers/is-<wbr>in</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_map.html">lib/helpers/is-<wbr>map</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_plain_object.html">lib/helpers/is-<wbr>plain-<wbr>object</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_pure_array.html">lib/helpers/is-<wbr>pure-<wbr>array</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_is_traversable.html">lib/helpers/is-<wbr>traversable</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_iterate.html">lib/helpers/iterate</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_iterator_to_array.html">lib/helpers/iterator-<wbr>to-<wbr>array</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_iterator_to_hash.html">lib/helpers/iterator-<wbr>to-<wbr>hash</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_iterator_to_map.html">lib/helpers/iterator-<wbr>to-<wbr>map</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_ksort.html">lib/helpers/ksort</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_merge.html">lib/helpers/merge</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_modify_date.html">lib/helpers/modify-<wbr>date</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_parse_regex.html">lib/helpers/parse-<wbr>regex</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_push.html">lib/helpers/push</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_reverse.html">lib/helpers/reverse</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_helpers_slice.html">lib/helpers/slice</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_lexer.html">lib/lexer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_interface.html">lib/loader-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_array.html">lib/loader/array</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_chain.html">lib/loader/chain</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_filesystem.html">lib/loader/filesystem</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_null.html">lib/loader/null</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_loader_relative_filesystem.html">lib/loader/relative-<wbr>filesystem</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_markup.html">lib/markup</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node.html">lib/node</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_capture_interface.html">lib/node-<wbr>capture-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_output_interface.html">lib/node-<wbr>output-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_traverser.html">lib/node-<wbr>traverser</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_type.html">lib/node-<wbr>type</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_visitor_interface.html">lib/node-<wbr>visitor-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_visitor_escaper.html">lib/node-<wbr>visitor/escaper</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_visitor_macro_auto_import.html">lib/node-<wbr>visitor/macro-<wbr>auto-<wbr>import</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_visitor_safe_analysis.html">lib/node-<wbr>visitor/safe-<wbr>analysis</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_visitor_sandbox.html">lib/node-<wbr>visitor/sandbox</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_auto_escape.html">lib/node/auto-<wbr>escape</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_block.html">lib/node/block</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_block_reference.html">lib/node/block-<wbr>reference</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_body.html">lib/node/body</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_check_security.html">lib/node/check-<wbr>security</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_check_to_string.html">lib/node/check-<wbr>to-<wbr>string</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_comment.html">lib/node/comment</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_deprecated.html">lib/node/deprecated</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_do.html">lib/node/do</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_embed.html">lib/node/embed</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression.html">lib/node/expression</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_array.html">lib/node/expression/array</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_arrow_function.html">lib/node/expression/arrow-<wbr>function</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_assign_name.html">lib/node/expression/assign-<wbr>name</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary.html">lib/node/expression/binary</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_add.html">lib/node/expression/binary/add</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_and.html">lib/node/expression/binary/and</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_bitwise_and.html">lib/node/expression/binary/bitwise-<wbr>and</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_bitwise_or.html">lib/node/expression/binary/bitwise-<wbr>or</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_bitwise_xor.html">lib/node/expression/binary/bitwise-<wbr>xor</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_concat.html">lib/node/expression/binary/concat</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_div.html">lib/node/expression/binary/div</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_ends_with.html">lib/node/expression/binary/ends-<wbr>with</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_equal.html">lib/node/expression/binary/equal</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_floor_div.html">lib/node/expression/binary/floor-<wbr>div</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_greater.html">lib/node/expression/binary/greater</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_greater_equal.html">lib/node/expression/binary/greater-<wbr>equal</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_in.html">lib/node/expression/binary/in</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_less.html">lib/node/expression/binary/less</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_less_equal.html">lib/node/expression/binary/less-<wbr>equal</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_matches.html">lib/node/expression/binary/matches</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_mod.html">lib/node/expression/binary/mod</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_mul.html">lib/node/expression/binary/mul</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_not_equal.html">lib/node/expression/binary/not-<wbr>equal</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_not_in.html">lib/node/expression/binary/not-<wbr>in</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_or.html">lib/node/expression/binary/or</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_power.html">lib/node/expression/binary/power</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_range.html">lib/node/expression/binary/range</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_starts_with.html">lib/node/expression/binary/starts-<wbr>with</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_binary_sub.html">lib/node/expression/binary/sub</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_block_reference.html">lib/node/expression/block-<wbr>reference</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_call.html">lib/node/expression/call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_conditional.html">lib/node/expression/conditional</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_constant.html">lib/node/expression/constant</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_filter.html">lib/node/expression/filter</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_filter_default.html">lib/node/expression/filter/default</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_function.html">lib/node/expression/function</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_get_attribute.html">lib/node/expression/get-<wbr>attribute</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_hash.html">lib/node/expression/hash</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_method_call.html">lib/node/expression/method-<wbr>call</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_name.html">lib/node/expression/name</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_null_coalesce.html">lib/node/expression/null-<wbr>coalesce</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_parent.html">lib/node/expression/parent</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_temp_name.html">lib/node/expression/temp-<wbr>name</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_test.html">lib/node/expression/test</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_test_constant.html">lib/node/expression/test/constant</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_test_defined.html">lib/node/expression/test/defined</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_unary.html">lib/node/expression/unary</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_unary_neg.html">lib/node/expression/unary/neg</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_unary_not.html">lib/node/expression/unary/not</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_expression_unary_pos.html">lib/node/expression/unary/pos</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_flush.html">lib/node/flush</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_for.html">lib/node/for</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_for_loop.html">lib/node/for-<wbr>loop</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_if.html">lib/node/if</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_import.html">lib/node/import</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_include.html">lib/node/include</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_inline_print.html">lib/node/inline-<wbr>print</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_line.html">lib/node/line</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_macro.html">lib/node/macro</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_module.html">lib/node/module</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_print.html">lib/node/print</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_sandbox.html">lib/node/sandbox</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_sandboxed_print.html">lib/node/sandboxed-<wbr>print</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_set.html">lib/node/set</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_spaceless.html">lib/node/spaceless</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_text.html">lib/node/text</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_verbatim.html">lib/node/verbatim</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_node_with.html">lib/node/with</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_operator.html">lib/operator</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_output_buffer.html">lib/output-<wbr>buffer</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_parser.html">lib/parser</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_error.html">lib/sandbox/security-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_not_allowed_filter_error.html">lib/sandbox/security-<wbr>not-<wbr>allowed-<wbr>filter-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_not_allowed_function_error.html">lib/sandbox/security-<wbr>not-<wbr>allowed-<wbr>function-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_not_allowed_method_error.html">lib/sandbox/security-<wbr>not-<wbr>allowed-<wbr>method-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_not_allowed_property_error.html">lib/sandbox/security-<wbr>not-<wbr>allowed-<wbr>property-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_not_allowed_tag_error.html">lib/sandbox/security-<wbr>not-<wbr>allowed-<wbr>tag-<wbr>error</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_policy.html">lib/sandbox/security-<wbr>policy</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_sandbox_security_policy_interface.html">lib/sandbox/security-<wbr>policy-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_source.html">lib/source</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_source_map_node.html">lib/source-<wbr>map/node</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_source_map_node_factory.html">lib/source-<wbr>map/node-<wbr>factory</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_source_map_node_factory_spaceless.html">lib/source-<wbr>map/node-<wbr>factory/spaceless</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_source_map_node_spaceless.html">lib/source-<wbr>map/node/spaceless</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_template.html">lib/template</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_test.html">lib/test</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser.html">lib/token-<wbr>parser</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_interface.html">lib/token-<wbr>parser-<wbr>interface</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_apply.html">lib/token-<wbr>parser/apply</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_auto_escape.html">lib/token-<wbr>parser/auto-<wbr>escape</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_block.html">lib/token-<wbr>parser/block</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_deprecated.html">lib/token-<wbr>parser/deprecated</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_do.html">lib/token-<wbr>parser/do</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_embed.html">lib/token-<wbr>parser/embed</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_extends.html">lib/token-<wbr>parser/extends</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_filter.html">lib/token-<wbr>parser/filter</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_flush.html">lib/token-<wbr>parser/flush</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_for.html">lib/token-<wbr>parser/for</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_from.html">lib/token-<wbr>parser/from</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_if.html">lib/token-<wbr>parser/if</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_import.html">lib/token-<wbr>parser/import</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_include.html">lib/token-<wbr>parser/include</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_line.html">lib/token-<wbr>parser/line</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_macro.html">lib/token-<wbr>parser/macro</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_sandbox.html">lib/token-<wbr>parser/sandbox</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_set.html">lib/token-<wbr>parser/set</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_spaceless.html">lib/token-<wbr>parser/spaceless</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_trans.html">lib/token-<wbr>parser/trans</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_use.html">lib/token-<wbr>parser/use</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_verbatim.html">lib/token-<wbr>parser/verbatim</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_parser_with.html">lib/token-<wbr>parser/with</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/lib_token_stream.html">lib/token-<wbr>stream</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="modules/main.html">main</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-variable"><span class="tsd-kind-icon">Variable</span></li>
+				<li class="tsd-kind-function"><span class="tsd-kind-icon">Function</span></li>
+				<li class="tsd-kind-function tsd-has-type-parameter"><span class="tsd-kind-icon">Function with type parameter</span></li>
+				<li class="tsd-kind-type-alias"><span class="tsd-kind-icon">Type alias</span></li>
+				<li class="tsd-kind-type-alias tsd-has-type-parameter"><span class="tsd-kind-icon">Type alias with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+				<li class="tsd-kind-class tsd-has-type-parameter"><span class="tsd-kind-icon">Class with type parameter</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-enum"><span class="tsd-kind-icon">Enumeration</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="assets/js/main.js"></script>
+</body>
+</html>

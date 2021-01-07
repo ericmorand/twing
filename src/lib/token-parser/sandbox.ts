@@ -22,7 +22,7 @@ export class TwingTokenParserSandbox extends TwingTokenParser {
             body.getNodes().forEach(function (node: TwingNode) {
                 if (!(node.is(textType) && ctypeSpace(node.getAttribute('data')))) {
                     if (!node.is(includeType)) {
-                        throw new TwingErrorSyntax('Only "include" tags are allowed within a "sandbox" section.', node.getTemplateLine(), stream.getSourceContext());
+                        throw new TwingErrorSyntax('Only "include" tags are allowed within a "sandbox" section.', node.getLine(), stream.getSourceContext());
                     }
                 }
             });

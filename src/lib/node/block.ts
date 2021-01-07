@@ -4,9 +4,13 @@ import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('auto_escape');
 
-export class TwingNodeBlock extends TwingNode {
-    constructor(name: string, body: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        super(new Map([['body', body]]), new Map([['name', name]]), lineno, columnno, tag);
+export class TwingNodeBlock extends TwingNode<{
+    name: string
+}, {
+    body: TwingNode
+}> {
+    constructor(name: string, body: TwingNode, line: number, column: number, tag: string) {
+        super({name}, {body}, line, column, tag);
     }
 
     get type() {
