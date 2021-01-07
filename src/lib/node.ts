@@ -24,6 +24,9 @@ export class TwingNode<A extends AnonymousAttributes = any, N extends AnonymousN
 
     private name: string = null;
 
+    private readonly _iterator: IterableIterator<[string, TwingNode]>;
+    private readonly _nodesCount: number;
+
     /**
      * @param nodes
      * @param attributes
@@ -37,13 +40,30 @@ export class TwingNode<A extends AnonymousAttributes = any, N extends AnonymousN
         this._line = line;
         this._column = column;
         this._tag = tag;
+
+        const nodesMap: Map<string, TwingNode> = new Map();
+
+        for (const key in nodes) {
+            nodesMap.set(key, nodes[key]);
+        }
+
+        this._iterator = nodesMap.entries();
+        this._nodesCount = nodesMap.size;
     }
 
-    get attributes(): A {
+    [Symbol.iterator](): IterableIterator<[string, TwingNode]> {
+        return this._iterator;
+    }
+
+    get nodesCount(): number {
+        return this._nodesCount;
+    }
+
+    get attributes(): Readonly<A> {
         return this._attributes;
     }
 
-    get nodes(): N {
+    get nodes(): Readonly<N> {
         return this._nodes;
     }
 
@@ -57,6 +77,14 @@ export class TwingNode<A extends AnonymousAttributes = any, N extends AnonymousN
 
     get tag() {
         return this._tag;
+    }
+
+    get outputs(): boolean {
+        return false;
+    }
+
+    get captures(): boolean {
+        return false;
     }
 
     clone(): TwingNode<N, A> {
@@ -122,13 +150,9 @@ export class TwingNode<A extends AnonymousAttributes = any, N extends AnonymousN
     }
 
     compile(compiler: TwingCompiler): void {
-        for (let node of this.nodes.values()) {
+        for (const [, node] of this) {
             node.compile(compiler);
         }
-    }
-
-    get count(): number {
-        return this.nodes.size;
     }
 
     setTemplateName(name: string) {

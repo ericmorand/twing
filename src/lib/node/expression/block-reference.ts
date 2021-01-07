@@ -1,26 +1,15 @@
 import {TwingNodeExpression} from "../expression";
 import {TwingNode} from "../../node";
 import {TwingCompiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
-
-export const type = new TwingNodeType('expression_block_reference');
-
-export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{
+²
+export type TwingNodeExpressionBlockReferenceNodes = {
     name: TwingNode,
     template?: TwingNode
-}> {
-    constructor(name: TwingNode, template: TwingNode, line: number, column: number, tag: string = null) {
-        super({name, template}, {
-            is_defined_test: false
-        }, line, column, tag);
-    }
+};
 
-    get type() {
-        return type;
-    }
-
+export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, TwingNodeExpressionBlockReferenceNodes> {
     compile(compiler: TwingCompiler) {
-        if (this.getAttribute('is_defined_test')) {
+        if (this.attributes.isDefinedTest) {
             this.compileTemplateCall(compiler, 'traceableHasBlock', false);
         } else {
             this.compileTemplateCall(compiler, 'traceableRenderBlock', true);
@@ -30,19 +19,19 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{
     compileTemplateCall(compiler: TwingCompiler, method: string, needsOutputBuffer: boolean): TwingCompiler {
         compiler.write('await ');
 
-        if (!this.hasNode('template')) {
+        if (!this.nodes.template) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('(await this.loadTemplate(')
-                .subcompile(this.getNode('template'))
+                .subcompile(this.nodes.template)
                 .raw(', ')
-                .repr(this.getLine())
+                .repr(this.line)
                 .raw('))')
             ;
         }
 
-        compiler.raw(`.${method}(${this.getLine()}, this.source)`);
+        compiler.raw(`.${method}(${this.line}, this.source)`);
 
         this.compileBlockArguments(compiler, needsOutputBuffer);
 
@@ -52,14 +41,14 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{
     compileBlockArguments(compiler: TwingCompiler, needsOutputBuffer: boolean) {
         compiler
             .raw('(')
-            .subcompile(this.getNode('name'))
+            .subcompile(this.nodes.name)
             .raw(', context.clone()');
 
         if (needsOutputBuffer) {
             compiler.raw(', outputBuffer');
         }
 
-        if (!this.hasNode('template')) {
+        if (!this.nodes.template) {
             compiler.raw(', blocks');
         }
 

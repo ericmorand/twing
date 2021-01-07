@@ -3,9 +3,9 @@ import {TwingCompiler} from "../../compiler";
 
 import type {TwingNodeExpressionAttributes} from "../expression";
 
-export type TwingNodeExpressionListAttributes<K> = TwingNodeExpressionAttributes & {
-    elements: Array<[K, TwingNodeExpression]>
-};
+export type TwingNodeExpressionListAttributes<K> = TwingNodeExpressionAttributes<{
+    elements: Array<[K, TwingNodeExpression<any>]>
+}>;
 
 /**
  * An abstract node representing a list of expressions.
@@ -13,8 +13,8 @@ export type TwingNodeExpressionListAttributes<K> = TwingNodeExpressionAttributes
  * @typeParam K The type of the keys used as index.
  */
 export abstract class TwingNodeExpressionList<K> extends TwingNodeExpression<TwingNodeExpressionListAttributes<K>, null> {
-    get keyValuePairs(): Array<{ key: K, value: TwingNodeExpression }> {
-        let pairs: Array<{ key: K, value: TwingNodeExpression }> = [];
+    get keyValuePairs(): Array<{ key: K, value: TwingNodeExpression<any> }> {
+        let pairs: Array<{ key: K, value: TwingNodeExpression<any> }> = [];
 
         for (let element of this.attributes.elements) {
             pairs.push({

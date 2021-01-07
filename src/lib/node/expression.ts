@@ -2,7 +2,7 @@ import {TwingNode} from "../node";
 
 import type {AnonymousNodes} from "../node";
 
-export type TwingNodeExpressionAttributes = {
+export type TwingNodeExpressionAttributes<A> = A & {
     optimizable?: boolean,
     ignoreStrictCheck?: boolean,
     isDefinedTest?: boolean,
@@ -13,6 +13,6 @@ export type TwingNodeExpressionAttributes = {
 /**
  * Abstract class for all nodes that represents an expression.
  */
-export abstract class TwingNodeExpression<A extends TwingNodeExpressionAttributes = TwingNodeExpressionAttributes, N extends AnonymousNodes = any> extends TwingNode<A, N> {
+export abstract class TwingNodeExpression<A, N extends AnonymousNodes = any> extends TwingNode<TwingNodeExpressionAttributes<A>, N> {
 
 }

@@ -42,7 +42,7 @@ export class TwingTokenParserApply extends TwingTokenParser {
         }, line, column);
 
         nodes.set('0', new TwingNodeSet(true, ref, body, line, column, this.getTag()));
-        nodes.set('1', new TwingNodePrint(filter, line, column, this.getTag()));
+        nodes.set('1', new TwingNodePrint(null, {content: filter}, line, column, this.getTag()));
 
         return new TwingNode(toAnonymousNodes(nodes), null, line, column);
     }

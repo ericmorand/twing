@@ -15,4 +15,8 @@ export class TwingNodeText<A extends TwingNodeTextAttributes = TwingNodeTextAttr
             .addSourceMapLeave()
         ;
     }
+
+    get outputs(): boolean {
+        return true;
+    }
 }

@@ -43,10 +43,6 @@ export type TwingTemplateMacroHandler = (outputBuffer: TwingOutputBuffer, ...arg
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export abstract class TwingTemplate {
-    static ANY_CALL = 'any';
-    static ARRAY_CALL = 'array';
-    static METHOD_CALL = 'method';
-
     private readonly _environment: TwingEnvironment;
     private _source: TwingSource;
 

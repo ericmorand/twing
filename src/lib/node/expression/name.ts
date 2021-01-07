@@ -3,15 +3,15 @@ import {TwingCompiler} from "../../compiler";
 
 import type {TwingNodeExpressionAttributes} from "../expression";
 
-export type TwingNodeExpressionNameAttributes = TwingNodeExpressionAttributes & {
+export type TwingNodeExpressionNameAttributes = {
     value: string
 };
 
-export class TwingNodeExpressionName<A extends TwingNodeExpressionNameAttributes = TwingNodeExpressionNameAttributes> extends TwingNodeExpression<A> {
+export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpressionNameAttributes> {
     private specialVars: Map<string, string>;
 
-    constructor(attributes: A, nodes: null, line: number, column: number) {
-        super(attributes, null, line, column);
+    constructor(attributes: TwingNodeExpressionAttributes<TwingNodeExpressionNameAttributes>, nodes: null, line: number, column: number) {
+        super(attributes, nodes, line, column);
 
         this.specialVars = new Map([
             ['_self', 'this.templateName'],
@@ -21,7 +21,7 @@ export class TwingNodeExpressionName<A extends TwingNodeExpressionNameAttributes
     }
 
     compile(compiler: TwingCompiler) {
-        let name = this.attributes.value;
+        const name = this.attributes.value;
 
         if (this.attributes.isDefinedTest) {
             if (this.isSpecial()) {

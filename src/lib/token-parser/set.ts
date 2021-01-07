@@ -1,14 +1,3 @@
-/**
- * Loops over each item of a sequence.
- *
- * <pre>
- * <ul>
- *  {% for user in users %}
- *    <li>{{ user.username|e }}</li>
- *  {% endfor %}
- * </ul>
- * </pre>
- */
 import {TwingTokenParser} from "../token-parser";
 import {TwingErrorSyntax} from "../error/syntax";
 import {TwingNodeSet} from "../node/set";
@@ -16,10 +5,9 @@ import {Token, TokenType} from "twig-lexer";
 
 export class TwingTokenParserSet extends TwingTokenParser {
     parse(token: Token) {
-        let lineno = token.line;
-        let columnno = token.column;
-        let stream = this.parser.getStream();
-        let names = this.parser.parseAssignmentExpression();
+        const {line, column} = token;
+        const stream = this.parser.getStream();
+        const names = this.parser.parseAssignmentExpression();
 
         let capture = false;
         let values;
@@ -29,14 +17,13 @@ export class TwingTokenParserSet extends TwingTokenParser {
 
             stream.expect(TokenType.TAG_END);
 
-            if (names.getNodes().size !== values.getNodes().size) {
+            if (names.nodesCount !== values.nodesCount) {
                 throw new TwingErrorSyntax('When using set, you must have the same number of variables and assignments.', stream.getCurrent().line, stream.getSourceContext());
             }
-        }
-        else {
+        } else {
             capture = true;
 
-            if (names.getNodes().size > 1) {
+            if (names.nodesCount > 1) {
                 throw new TwingErrorSyntax('When using set with a block, you cannot have a multi-target.', stream.getCurrent().line, stream.getSourceContext());
             }
 
@@ -47,7 +34,7 @@ export class TwingTokenParserSet extends TwingTokenParser {
             stream.expect(TokenType.TAG_END);
         }
 
-        return new TwingNodeSet(capture, names, values, lineno, columnno, this.getTag());
+        return new TwingNodeSet({capture}, {names, values}, line, column, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

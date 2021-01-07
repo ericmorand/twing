@@ -1,14 +1,11 @@
 import {TwingNode} from "../node";
-import {TwingNodeOutputInterface} from "../node-output-interface";
 import {TwingCompiler} from "../compiler";
 
 export type TwingNodePrintNodes = {
     content: TwingNode
 };
 
-export class TwingNodePrint extends TwingNode<TwingNodePrintNodes> implements TwingNodeOutputInterface {
-    TwingNodeOutputInterfaceImpl: TwingNodeOutputInterface;
-
+export class TwingNodePrint extends TwingNode<null, TwingNodePrintNodes> {
     compile(compiler: TwingCompiler) {
         compiler
             .addSourceMapEnter(this)
@@ -17,5 +14,9 @@ export class TwingNodePrint extends TwingNode<TwingNodePrintNodes> implements Tw
             .raw(');\n')
             .addSourceMapLeave()
         ;
+    }
+
+    get outputs(): boolean {
+        return true;
     }
 }

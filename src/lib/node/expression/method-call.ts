@@ -8,33 +8,33 @@ import type {TwingNodeExpressionAttributes} from "../expression";
 
 export const type = new TwingNodeType('expression_method_call');
 
-type Nodes = {
+export type TwingNodeExpressionMethodCallAttributes = {
+    method: string
+};
+
+export type Nodes = {
     node: TwingNodeExpressionName,
     arguments: TwingNodeExpressionArray
 };
 
-type Attributes = TwingNodeExpressionAttributes & {
-    method: string
-};
-
-export class TwingNodeExpressionMethodCall extends TwingNodeExpression<Nodes, Attributes> {
-    constructor(node: TwingNodeExpressionName, method: string, methodArguments: TwingNodeExpressionArray, line: number, column: number) {
-        super({
-            node,
-            arguments: methodArguments
-        }, {
-            method,
-            isDefinedTest: false,
-            safe: true
-        }, line, column);
-    }
+export class TwingNodeExpressionMethodCall extends TwingNodeExpression<TwingNodeExpressionMethodCallAttributes, Nodes> {
+    // constructor(node: TwingNodeExpressionName, method: string, methodArguments: TwingNodeExpressionArray, line: number, column: number) {
+    //     super({
+    //         node,
+    //         arguments: methodArguments
+    //     }, {
+    //         method,
+    //         isDefinedTest: false,
+    //         safe: true
+    //     }, line, column);
+    // }
 
     get type() {
         return type;
     }
 
     compile(compiler: TwingCompiler) {
-        if (this.getAttribute('is_defined_test')) {
+        if (this.attributes.isDefinedTest) {
             compiler
                 .raw('(await aliases.proxy[')
                 .repr(this.getNode('node').getAttribute('value'))
