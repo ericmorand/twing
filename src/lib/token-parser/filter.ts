@@ -1,5 +1,5 @@
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpressionBlockReference} from "../node/expression/block-reference";
 import {TwingNodeExpressionConstant} from "../node/expression/constant";
 import {TwingNodeBlock} from "../node/block";
@@ -16,7 +16,7 @@ import {Token, TokenType} from "twig-lexer";
  * </pre>
  */
 export class TwingTokenParserFilter extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         let stream = this.parser.getStream();
         let line = token.line;
         let column = token.column;

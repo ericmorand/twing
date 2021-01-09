@@ -1,5 +1,5 @@
 import {TwingNodeExpression} from "./node/expression";
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {TwingNodeExpressionTest} from "./node/expression/test";
 import {
     TwingCallable,
@@ -22,8 +22,13 @@ export class TwingTest extends TwingCallableWrapper<boolean> {
     constructor(name: string, callable: TwingCallable<boolean>, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         super(name, callable, acceptedArguments);
 
-        this.options.expression_factory = function (node: TwingNodeExpression, name: string, nodeArguments: TwingNode, lineno: number, columnno: number) {
-            return new TwingNodeExpressionTest(node, name, nodeArguments, lineno, columnno);
+        this.options.expressionFactory = (node: TwingNodeExpression<any>, name: string, testArguments: Node, line: number, column: number) => {
+            return new TwingNodeExpressionTest({
+                name
+            }, {
+                node,
+                arguments: testArguments
+            }, line, column);
         };
 
         this.options = Object.assign({}, this.options, options);

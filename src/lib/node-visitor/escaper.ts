@@ -1,5 +1,5 @@
 import {TwingBaseNodeVisitor} from "../base-node-visitor";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingEnvironment} from "../environment";
 import {TwingNodeVisitorSafeAnalysis} from "./safe-analysis";
 import {TwingNodeTraverser} from "../node-traverser";
@@ -20,12 +20,12 @@ import {type as filterType} from "../node/expression/filter";
 import {type as conditionalType} from "../node/expression/conditional";
 
 export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
-    private statusStack: Array<TwingNode | string | false> = [];
+    private statusStack: Array<Node | string | false> = [];
     private blocks: Map<string, any> = new Map();
     private safeAnalysis: TwingNodeVisitorSafeAnalysis;
     private traverser: TwingNodeTraverser;
     private defaultStrategy: string | false = false;
-    private safeVars: Array<TwingNode> = [];
+    private safeVars: Array<Node> = [];
 
     constructor() {
         super();
@@ -35,7 +35,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         this.safeAnalysis = new TwingNodeVisitorSafeAnalysis();
     }
 
-    protected doEnterNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
         if (node.is(moduleType)) {
             this.defaultStrategy = env.getCoreExtension().getDefaultStrategy(node.getTemplateName());
             this.safeVars = [];
@@ -51,7 +51,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         return node;
     }
 
-    protected doLeaveNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
         if (node.is(moduleType)) {
             this.defaultStrategy = false;
             this.safeVars = [];
@@ -109,8 +109,8 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         return new TwingNodeExpressionConditional(expression.getNode('expr1'), expr2, expr3, expression.getLine(), expression.getColumn());
     }
 
-    private escapeInlinePrintNode(node: TwingNodeInlinePrint, env: TwingEnvironment, type: any): TwingNode {
-        let expression: TwingNode = node.getNode('node');
+    private escapeInlinePrintNode(node: TwingNodeInlinePrint, env: TwingEnvironment, type: any): Node {
+        let expression: Node = node.getNode('node');
 
         if (this.isSafeFor(type, expression, env)) {
             return node;
@@ -149,7 +149,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         return filter;
     }
 
-    private isSafeFor(type: TwingNode | string | false, expression: TwingNode, env: TwingEnvironment) {
+    private isSafeFor(type: Node | string | false, expression: Node, env: TwingEnvironment) {
         let safe = this.safeAnalysis.getSafe(expression);
 
         if (!safe) {
@@ -178,7 +178,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         return this.defaultStrategy ? this.defaultStrategy : false;
     }
 
-    private getEscaperFilter(type: any, node: TwingNode) {
+    private getEscaperFilter(type: any, node: Node) {
         let line = node.getLine();
         let column = node.getColumn();
 
@@ -190,7 +190,7 @@ export class TwingNodeVisitorEscaper extends TwingBaseNodeVisitor {
         nodes.set(1, new TwingNodeExpressionConstant(null, line, column));
         nodes.set(2, new TwingNodeExpressionConstant(true, line, column));
 
-        let nodeArgs = new TwingNode(nodes);
+        let nodeArgs = new Node(nodes);
 
         return new TwingNodeExpressionFilter(node, name, nodeArgs, line, column);
     }

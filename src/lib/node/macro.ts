@@ -3,20 +3,20 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingNode} from "../node";
-import {TwingErrorSyntax} from "../error/syntax";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {SyntaxError} from "../error/syntax";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('macro');
 
-export class TwingNodeMacro extends TwingNode {
+export class TwingNodeMacro extends Node {
     static VARARGS_NAME = 'varargs';
 
-    constructor(name: string, body: TwingNode, macroArguments: TwingNode, lineno: number, columnno: number, tag: string = null) {
+    constructor(name: string, body: Node, macroArguments: Node, lineno: number, columnno: number, tag: string = null) {
         for (let [argumentName, macroArgument] of macroArguments.getNodes()) {
             if (argumentName === TwingNodeMacro.VARARGS_NAME) {
-                throw new TwingErrorSyntax(`The argument "${TwingNodeMacro.VARARGS_NAME}" in macro "${name}" cannot be defined because the variable "${TwingNodeMacro.VARARGS_NAME}" is reserved for arbitrary arguments.`, macroArgument.getTemplateLine());
+                throw new SyntaxError(`The argument "${TwingNodeMacro.VARARGS_NAME}" in macro "${name}" cannot be defined because the variable "${TwingNodeMacro.VARARGS_NAME}" is reserved for arbitrary arguments.`, macroArgument.getTemplateLine());
             }
         }
 
@@ -32,7 +32,7 @@ export class TwingNodeMacro extends TwingNode {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw(`async (`)
             .raw('outputBuffer, ')

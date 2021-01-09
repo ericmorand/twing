@@ -1,9 +1,9 @@
 import {TwingEnvironment} from "../../src/lib/environment";
-import {TwingCompiler} from "../../src/lib/compiler";
+import {Compiler} from "../../src/lib/compiler";
 import {MockLoader} from "./loader";
 import {MockEnvironment} from "./environment";
 
-export class MockCompiler extends TwingCompiler {
+export class MockCompiler extends Compiler {
     constructor(env: TwingEnvironment = null) {
         let loader = new MockLoader();
 

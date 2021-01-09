@@ -78,7 +78,7 @@ tape('TwingExtensionCore', (test) => {
             if (!fixture) {
                 test.fail(`${name} function has no registered fixture`);
             } else {
-                test.same(f.getAcceptedArgments(), fixture.arguments, `${name} function accepted arguments are as expected`);
+                test.same(f.getAcceptedArguments(), fixture.arguments, `${name} function accepted arguments are as expected`);
             }
         };
 
@@ -171,7 +171,7 @@ tape('TwingExtensionCore', (test) => {
             if (!fixture) {
                 test.fail(`${name} filter has no registered fixture`);
             } else {
-                test.same(f.getAcceptedArgments(), fixture.arguments, `${name} filter accepted arguments are as expected`);
+                test.same(f.getAcceptedArguments(), fixture.arguments, `${name} filter accepted arguments are as expected`);
             }
         };
 

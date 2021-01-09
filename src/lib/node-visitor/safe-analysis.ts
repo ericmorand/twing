@@ -1,5 +1,5 @@
 import {TwingBaseNodeVisitor} from "../base-node-visitor";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingEnvironment} from "../environment";
 import {type as nameType} from "../node/expression/name";
 import {type as filterType} from "../node/expression/filter";
@@ -34,10 +34,10 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
 
     /**
      *
-     * @param {TwingNode} node
+     * @param {Node} node
      * @returns {Array<string>}
      */
-    getSafe(node: TwingNode): Array<TwingNode | string | false> {
+    getSafe(node: Node): Array<Node | string | false> {
         let hash = objectHash(node);
 
         if (!this.data.has(hash)) {
@@ -57,7 +57,7 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
         return bucket ? bucket.value : null;
     }
 
-    private setSafe(node: TwingNode, safe: Array<string>) {
+    private setSafe(node: Node, safe: Array<string>) {
         let hash = objectHash(node);
         let bucket = null;
 
@@ -83,11 +83,11 @@ export class TwingNodeVisitorSafeAnalysis extends TwingBaseNodeVisitor {
         }
     }
 
-    protected doEnterNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
         return node;
     }
 
-    protected doLeaveNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
         if (node.is(constantType)) {
             // constants are marked safe for all
             this.setSafe(node, ['all']);

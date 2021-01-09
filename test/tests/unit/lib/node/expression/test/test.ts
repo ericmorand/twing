@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../../src/lib/node/expression/constant";
 import {TwingNodeExpressionTest, type} from "../../../../../../../src/lib/node/expression/test";
-import {TwingNode} from "../../../../../../../src/lib/node";
+import {Node} from "../../../../../../../src/lib/node";
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockEnvironment} from "../../../../../../mock/environment";
 import {TwingTest} from "../../../../../../../src/lib/test";
@@ -11,15 +11,15 @@ function twig_tests_test_barbar(string: string, arg1: any = null, arg2: any = nu
     return Promise.resolve(true);
 }
 
-function createTest(node: TwingNode, name: string, args: Map<any, any> = new Map()) {
-    return new TwingNodeExpressionTest(node, name, new TwingNode(args), 1, 1);
+function createTest(node: Node, name: string, args: Map<any, any> = new Map()) {
+    return new TwingNodeExpressionTest(node, name, new Node(args), 1, 1);
 }
 
 tape('node/expression/test', (test) => {
     test.test('constructor', (test) => {
         let expr = new TwingNodeExpressionConstant('foo', 1, 1);
         let name = new TwingNodeExpressionConstant('null', 1, 1);
-        let args = new TwingNode();
+        let args = new Node();
         let node = new TwingNodeExpressionTest(expr, name, args, 1, 1);
 
         test.same(node.getNode('node'), expr);
@@ -38,8 +38,8 @@ tape('node/expression/test', (test) => {
             {name: 'arg1', defaultValue: null},
             {name: 'arg2', defaultValue: null}
         ], {
-            is_variadic: true,
-            needs_context: true
+            isVariadic: true,
+            needsContext: true
         }));
         environment.addTest(new TwingTest('anonymous', () => Promise.resolve(true), []));
 
@@ -68,7 +68,7 @@ tape('node/expression/test', (test) => {
 
             test.same(compiler.compile(node).getSource(), 'await this.environment.getTest(\'barbar\').traceableCallable(1, this.source)(...[\`abc\`, null, null, new Map([[\`foo\`, \`bar\`]])])');
 
-            node = createTest(string, 'barbar', new Map<any, TwingNode>([
+            node = createTest(string, 'barbar', new Map<any, Node>([
                 [0, new TwingNodeExpressionConstant('1', 1, 1)],
                 [1, new TwingNodeExpressionConstant('2', 1, 1)],
                 [2, new TwingNodeExpressionConstant('3', 1, 1)],

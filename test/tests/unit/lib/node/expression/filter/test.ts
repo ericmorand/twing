@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../../src/lib/node/expression/constant";
-import {TwingNode} from "../../../../../../../src/lib/node";
+import {Node} from "../../../../../../../src/lib/node";
 import {TwingNodeExpressionFilter} from "../../../../../../../src/lib/node/expression/filter";
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockCompiler} from "../../../../../../mock/compiler";
@@ -15,9 +15,9 @@ function twig_tests_filter_barbar(context: any, string: string, arg1: any = null
     return Promise.resolve();
 }
 
-function createFilter(node: TwingNode, name: string, args: Map<any, any> = new Map()) {
+function createFilter(node: Node, name: string, args: Map<any, any> = new Map()) {
     let nameNode = new TwingNodeExpressionConstant(name, 1, 1);
-    let argumentsNode = new TwingNode(args);
+    let argumentsNode = new Node(args);
 
     return new TwingNodeExpressionFilter(node, nameNode, argumentsNode, 1, 1);
 }
@@ -26,7 +26,7 @@ tape('node/expression/filter', (test) => {
     test.test('constructor', (test) => {
         let expr = new TwingNodeExpressionConstant('foo', 1, 1);
         let name = new TwingNodeExpressionConstant('upper', 1, 1);
-        let args = new TwingNode();
+        let args = new Node();
         let node = new TwingNodeExpressionFilter(expr, name, args, 1, 1);
 
         test.same(node.getNode('node'), expr);
@@ -40,13 +40,13 @@ tape('node/expression/filter', (test) => {
         let loader = new MockLoader();
         let environment = new MockEnvironment(loader);
 
-        environment.addFilter(new TwingFilter('bar', twig_tests_filter_dummy, [], {needs_template: true}));
+        environment.addFilter(new TwingFilter('bar', twig_tests_filter_dummy, [], {needsTemplate: true}));
         environment.addFilter(new TwingFilter('barbar', twig_tests_filter_barbar, [
             {name: 'arg1', defaultValue: null},
             {name: 'arg2', defaultValue: null}
         ], {
-            needs_context: true,
-            is_variadic: true
+            needsContext: true,
+            isVariadic: true
         }));
         environment.addFilter(new TwingFilter('anonymous', () => Promise.resolve(), []));
 

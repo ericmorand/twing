@@ -1,5 +1,5 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
 
 export const type = new TwingNodeType('expression_parent');
@@ -22,7 +22,7 @@ export class TwingNodeExpressionParent extends TwingNodeExpression<TwingNodeExpr
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         let name = this.attributes.name;
 
         compiler

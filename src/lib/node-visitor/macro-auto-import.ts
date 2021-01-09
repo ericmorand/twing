@@ -1,5 +1,5 @@
 import {TwingBaseNodeVisitor} from "../base-node-visitor";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingEnvironment} from "../environment";
 import {TwingNodeImport} from "../node/import";
 import {TwingNodeExpressionName, type as nameType} from "../node/expression/name";
@@ -13,7 +13,7 @@ import {type as constantType} from "../node/expression/constant";
 export class TwingNodeVisitorMacroAutoImport extends TwingBaseNodeVisitor {
     private hasMacroCalls: boolean = false;
 
-    public doEnterNode(node: TwingNode, env: TwingEnvironment) {
+    public doEnterNode(node: Node, env: TwingEnvironment) {
         if (node.type == moduleType) {
             this.hasMacroCalls = false;
         }
@@ -21,7 +21,7 @@ export class TwingNodeVisitorMacroAutoImport extends TwingBaseNodeVisitor {
         return node;
     }
 
-    public doLeaveNode(node: TwingNode, env: TwingEnvironment) {
+    public doLeaveNode(node: Node, env: TwingEnvironment) {
         if (node.type == moduleType) {
             if (this.hasMacroCalls) {
                 node.getNode('constructor_end').setNode('_auto_macro_import', new TwingNodeImport(new TwingNodeExpressionName('_self', 0, 0), new TwingNodeExpressionAssignName('_self', 0, 0), 0, 0, 'import', true));

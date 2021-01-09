@@ -3,7 +3,7 @@ import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expres
 import {TwingNodeExpressionAssignName} from "../../../../../../src/lib/node/expression/assign-name";
 import {TwingNodeExpressionName} from "../../../../../../src/lib/node/expression/name";
 import {TwingNodePrint} from "../../../../../../src/lib/node/print";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeFor, type} from "../../../../../../src/lib/node/for";
 import {MockCompiler} from "../../../../../mock/compiler";
 
@@ -18,7 +18,7 @@ tape('node/for', (test) => {
             [0, new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1)]
         ]);
 
-        let body = new TwingNode(bodyNodes, new Map(), 1, 1);
+        let body = new Node(bodyNodes, new Map(), 1, 1);
         let else_ = null;
 
         let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifExpr, body, else_, 1, 1);
@@ -57,7 +57,7 @@ tape('node/for', (test) => {
                 [0, new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1)]
             ]);
 
-            let body = new TwingNode(bodyNodes, new Map(), 1, 1);
+            let body = new Node(bodyNodes, new Map(), 1, 1);
             let else_ = null;
 
             let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifexpr, body, else_, 1, 1);
@@ -112,7 +112,7 @@ await this.iterate(context.get('_seq'), async (__key__, __value__) => {
                 [0, new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1)]
             ]);
 
-            let body = new TwingNode(bodyNodes, new Map(), 1, 1);
+            let body = new Node(bodyNodes, new Map(), 1, 1);
             let else_ = null;
 
             let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifexpr, body, else_, 1, 1);
@@ -192,7 +192,7 @@ await this.iterate(context.get('_seq'), async (__key__, __value__) => {
                 [0, new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1)]
             ]);
 
-            let body = new TwingNode(bodyNodes, new Map(), 1, 1);
+            let body = new Node(bodyNodes, new Map(), 1, 1);
             let else_ = null;
 
             let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifexpr, body, else_, 1, 1);
@@ -261,7 +261,7 @@ await this.iterate(context.get('_seq'), async (__key__, __value__) => {
                 [0, new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1)]
             ]);
 
-            let body = new TwingNode(bodyNodes, new Map(), 1, 1);
+            let body = new Node(bodyNodes, new Map(), 1, 1);
             let else_ = new TwingNodePrint(new TwingNodeExpressionName('foo', 1, 1), 1, 1);
 
             let node = new TwingNodeFor(keyTarget, valueTarget, seq, ifexpr, body, else_, 1, 1);

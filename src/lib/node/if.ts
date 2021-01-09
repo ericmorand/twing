@@ -1,11 +1,11 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('if');
 
-export class TwingNodeIf extends TwingNode {
-    constructor(tests: TwingNode, elseNode: TwingNode, lineno: number, columnno: number, tag: string = null) {
+export class TwingNodeIf extends Node {
+    constructor(tests: Node, elseNode: Node, lineno: number, columnno: number, tag: string = null) {
         let nodes = new Map();
 
         nodes.set('tests', tests);
@@ -21,7 +21,7 @@ export class TwingNodeIf extends TwingNode {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         let count = this.getNode('tests').getNodes().size;
 
         for (let i = 0; i < count; i += 2) {

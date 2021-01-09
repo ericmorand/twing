@@ -1,6 +1,6 @@
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
-import {TwingErrorSyntax} from "../error/syntax";
+import {Node} from "../node";
+import {SyntaxError} from "../error/syntax";
 
 import {TwingNodeBlock} from "../node/block";
 import {TwingNodePrint} from "../node/print";
@@ -18,16 +18,16 @@ import {Token, TokenType} from "twig-lexer";
  * </pre>
  */
 export class TwingTokenParserBlock extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         const {line, column} = token;
         const stream = this.parser.getStream();
         const name = stream.expect(TokenType.NAME).value;
 
         if (this.parser.hasBlock(name)) {
-            throw new TwingErrorSyntax(`The block '${name}' has already been defined line ${this.parser.getBlock(name).getLine()}.`, stream.getCurrent().line, stream.getSourceContext());
+            throw new SyntaxError(`The block '${name}' has already been defined line ${this.parser.getBlock(name).getLine()}.`, stream.getCurrent().line, stream.getSourceContext());
         }
 
-        let block = new TwingNodeBlock(name, new TwingNode(new Map()), line, column);
+        let block = new TwingNodeBlock(name, new Node(new Map()), line, column);
 
         this.parser.setBlock(name, block);
         this.parser.pushLocalScope();
@@ -44,7 +44,7 @@ export class TwingTokenParserBlock extends TwingTokenParser {
                 let value = token.value;
 
                 if (value != name) {
-                    throw new TwingErrorSyntax(`Expected endblock for block "${name}" (but "${value}" given).`, stream.getCurrent().line, stream.getSourceContext());
+                    throw new SyntaxError(`Expected endblock for block "${name}" (but "${value}" given).`, stream.getCurrent().line, stream.getSourceContext());
                 }
             }
         }
@@ -53,7 +53,7 @@ export class TwingTokenParserBlock extends TwingTokenParser {
 
             nodes.set(0, new TwingNodePrint(this.parser.parseExpression(), line, column));
 
-            body = new TwingNode(nodes);
+            body = new Node(nodes);
         }
 
         stream.expect(TokenType.TAG_END);

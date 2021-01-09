@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {TwingNodeForLoop} from "../../../../../../src/lib/node/for-loop";
-import {TwingCompiler} from "../../../../../../src/lib/compiler";
+import {Compiler} from "../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 
@@ -18,7 +18,7 @@ tape('node/for-loop', (test) => {
     test.test('compile', (test) => {
         test.test('with_loop', (test) => {
             let node = new TwingNodeForLoop(1, 1);
-            let compiler = new TwingCompiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
+            let compiler = new Compiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
 
             node.setAttribute('with_loop', true);
 

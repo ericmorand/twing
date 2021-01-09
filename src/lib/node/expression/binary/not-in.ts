@@ -1,4 +1,4 @@
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeExpressionBinary} from "../binary";
 import {TwingNodeType} from "../../../node-type";
 
@@ -9,7 +9,7 @@ export class TwingNodeExpressionBinaryNotIn extends TwingNodeExpressionBinary {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw('!this.isIn(')
             .subcompile(this.getNode('left'))

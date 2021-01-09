@@ -1,6 +1,5 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 
 /**
  * Represents an autoescape node.
@@ -13,16 +12,12 @@ import {TwingNodeType} from "../node-type";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingNodeAutoEscape extends TwingNode<{
+export class TwingNodeAutoEscape extends Node<{
     value: any
 }, {
-    body: TwingNode
+    body: Node
 }> {
-    constructor(value: any, body: TwingNode, line: number, column: number, tag: string) {
-        super({value}, {body}, line, column, tag);
-    }
-
-    compile(compiler: TwingCompiler) {
-        compiler.subcompile(this.nodes.body);
+    compile(compiler: Compiler) {
+        compiler.subcompile(this.children.body);
     }
 }

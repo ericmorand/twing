@@ -10,22 +10,22 @@
  * </pre>
  */
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
-import {TwingErrorSyntax} from "../error/syntax";
+import {Node} from "../node";
+import {SyntaxError} from "../error/syntax";
 import {Token, TokenType} from "twig-lexer";
 
 export class TwingTokenParserExtends extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         let stream = this.parser.getStream();
 
         if (this.parser.peekBlockStack()) {
-            throw new TwingErrorSyntax('Cannot use "extend" in a block.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Cannot use "extend" in a block.', token.line, stream.getSourceContext());
         } else if (!this.parser.isMainScope()) {
-            throw new TwingErrorSyntax('Cannot use "extend" in a macro.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Cannot use "extend" in a macro.', token.line, stream.getSourceContext());
         }
 
         if (this.parser.getParent() !== null) {
-            throw new TwingErrorSyntax('Multiple extends tags are forbidden.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Multiple extends tags are forbidden.', token.line, stream.getSourceContext());
         }
 
         this.parser.setParent(this.parser.parseExpression());

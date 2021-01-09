@@ -1,11 +1,11 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('sandbox');
 
-export class TwingNodeSandbox extends TwingNode {
-    constructor(body: TwingNode, lineno: number, columnno: number, tag: string = null) {
+export class TwingNodeSandbox extends Node {
+    constructor(body: Node, lineno: number, columnno: number, tag: string = null) {
         super(new Map([['body', body]]), new Map(), lineno, columnno, tag);
     }
 
@@ -13,7 +13,7 @@ export class TwingNodeSandbox extends TwingNode {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .write('await (async () => {\n')
             .indent()

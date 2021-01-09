@@ -1,38 +1,35 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
-import {TwingNode} from "../../node";
-import {TwingNodeType} from "../../node-type";
+import {Compiler} from "../../compiler";
+import {Node} from "../../node";
 
-export const type = new TwingNodeType('expression_arrow_function');
+import type {NodeChildren} from "../../node";
+
+export type TwingNodeExpressionArrowFunctionNodes = {
+    expr: TwingNodeExpression<any>,
+    names: Node<null, NodeChildren<TwingNodeExpression<{
+        value: string
+    }>>>
+};
 
 /**
  * Represents an arrow function.
  */
-export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{
-    expr: TwingNodeExpression,
-    names: TwingNode
-}, null> {
-    constructor(expr: TwingNodeExpression, names: TwingNode, lineno: number, columnno: number, tag: string = null) {
-        super({expr, names}, null, lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
-    compile(compiler: TwingCompiler) {
+export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{}, TwingNodeExpressionArrowFunctionNodes> {
+    compile(compiler: Compiler) {
         compiler.raw('async (');
 
         let i: number = 0;
 
-        for (let [k, name] of this.getNode('names').getNodes()) {
+        const names = this.children.names;
+
+        for (let [, name] of names) {
             if (i > 0) {
                 compiler.raw(', ');
             }
 
             compiler
                 .raw('$__')
-                .raw(name.getAttribute('name'))
+                .raw(name.attributes.value)
                 .raw('__');
 
             i++;
@@ -42,18 +39,18 @@ export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{
             .raw(') => {')
         ;
 
-        for (let [k, name] of this.getNode('names').getNodes()) {
+        for (let [, name] of names) {
             compiler
                 .raw('context.proxy[\'')
-                .raw(name.getAttribute('name'))
+                .raw(name.attributes.value)
                 .raw('\'] = $__')
-                .raw(name.getAttribute('name'))
+                .raw(name.attributes.value)
                 .raw('__; ');
         }
 
         compiler
             .raw('return ')
-            .subcompile(this.getNode('expr'))
+            .subcompile(this.children.expr)
             .raw(';}');
     }
 }

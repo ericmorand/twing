@@ -1,8 +1,8 @@
 import * as tape from 'tape';
-import {TwingError} from "../../../../../src/lib/error";
+import {Error} from "../../../../../src/lib/error";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
-import {TwingErrorRuntime} from "../../../../../src/lib/error/runtime";
+import {RuntimeError} from "../../../../../src/lib/error/runtime";
 import {TwingLoaderFilesystem} from "../../../../../src/lib/loader/filesystem";
 import {TwingSource} from "../../../../../src/lib/source";
 
@@ -17,13 +17,13 @@ class TwingTestsErrorTestFoo {
 tape('TwingError', (test) => {
     test.test('constructor', (test) => {
         let previous = new Error();
-        let error = new TwingError('foo', -1, new TwingSource('', 'bar'), previous);
+        let error = new Error('foo', -1, new TwingSource('', 'bar'), previous);
 
         test.same(error.getRawMessage(), 'foo', 'raw message should be set');
-        test.same(error.getTemplateLine(), -1, 'template line should be set');
+        test.same(error.getLocation(), -1, 'template line should be set');
         test.same(error.getMessage(), 'foo in "bar"', 'message should be set');
 
-        error = new TwingError('foo');
+        error = new Error('foo');
 
         test.same(error.getSourceContext(), undefined);
 
@@ -59,7 +59,7 @@ tape('TwingError', (test) => {
             test.same(e.getMessage(), 'Variable \`foo\` does not exist in "index.html" at line 3.');
             test.same(e.getTemplateLine(), 3);
             test.same(e.getSourceContext().getName(), 'index.html');
-            test.true(e instanceof TwingErrorRuntime);
+            test.true(e instanceof RuntimeError);
         }
 
         test.end();
@@ -93,7 +93,7 @@ tape('TwingError', (test) => {
             test.fail();
         }
         catch (e) {
-            test.true(e instanceof TwingErrorRuntime);
+            test.true(e instanceof RuntimeError);
             test.same(e.getMessage(), 'An exception has been thrown during the rendering of a template ("Runtime error...") in "index.html" at line 3.');
             test.same(e.getTemplateLine(), 3);
             test.same(e.getSourceContext().getName(), 'index.html');
@@ -119,7 +119,7 @@ tape('TwingError', (test) => {
             test.fail();
         }
         catch (e) {
-            test.true(e instanceof TwingErrorRuntime);
+            test.true(e instanceof RuntimeError);
             test.same(e.getMessage(), `Variable \`foo\` does not exist in "${path.resolve('test/tests/integration/fixtures/errors/index.html')}" at line 3.`);
             test.same(e.getTemplateLine(), 3);
             test.same(e.getSourceContext().getName(), path.resolve('test/tests/integration/fixtures/errors/index.html'));
@@ -195,7 +195,7 @@ tape('TwingError', (test) => {
                 test.fail();
             }
             catch (e) {
-                test.true(e instanceof TwingErrorRuntime);
+                test.true(e instanceof RuntimeError);
                 test.same(e.getMessage(), `Variable \`foo\` does not exist in "${erroredTemplate.name}" at line ${erroredTemplate.line}.`);
                 test.same(e.getTemplateLine(), erroredTemplate.line);
                 test.same(e.getSourceContext().getName(), erroredTemplate.name);
@@ -209,7 +209,7 @@ tape('TwingError', (test) => {
                 test.fail();
             }
             catch (e) {
-                test.true(e instanceof TwingErrorRuntime);
+                test.true(e instanceof RuntimeError);
                 test.same(e.getMessage(), `An exception has been thrown during the rendering of a template ("Runtime error...") in "${erroredTemplate.name}" at line ${erroredTemplate.line}.`);
                 test.same(e.getTemplateLine(), erroredTemplate.line);
                 test.same(e.getSourceContext().getName(), erroredTemplate.name);
@@ -220,7 +220,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('setSourceContext', (test) => {
-        let error = new TwingError('foo', -1, new TwingSource('', 'bar'));
+        let error = new Error('foo', -1, new TwingSource('', 'bar'));
 
         error.setSourceContext(null);
 
@@ -230,7 +230,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('updateRepr', function(test) {
-        let error = new TwingError('foo', -1);
+        let error = new Error('foo', -1);
 
         error.setSourceContext(new TwingSource('', 'bar'));
 

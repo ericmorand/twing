@@ -1,6 +1,6 @@
 import {DateTime, Duration} from "luxon";
 import {modifyDate} from "../../../helpers/modify-date";
-import {TwingErrorRuntime} from "../../../error/runtime";
+import {RuntimeError} from "../../../error/runtime";
 import {formatDateTime} from "../../../helpers/format-date-time";
 import {TwingTemplate} from "../../../template";
 
@@ -80,7 +80,7 @@ export function date(template: TwingTemplate, date: Date | DateTime | Duration |
         }
 
         if (!result || !result.isValid) {
-            throw new TwingErrorRuntime(`Failed to parse date "${date}".`);
+            throw new RuntimeError(`Failed to parse date "${date}".`);
         }
 
         if (timezone !== false) {

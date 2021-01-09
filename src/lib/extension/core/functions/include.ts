@@ -3,7 +3,7 @@ import {merge} from "../../../helpers/merge";
 import {TwingErrorLoader} from "../../../error/loader";
 import {TwingTemplate} from "../../../template";
 import {isTraversable} from "../../../helpers/is-traversable";
-import {TwingErrorRuntime} from "../../../error/runtime";
+import {RuntimeError} from "../../../error/runtime";
 import {isNullOrUndefined} from "util";
 import {isPlainObject} from "../../../helpers/is-plain-object";
 import {TwingOutputBuffer} from "../../../output-buffer";
@@ -30,7 +30,7 @@ export function include(template: TwingTemplate, context: TwingContext<any, any>
     let alreadySandboxed = env.isSandboxed();
 
     if (!isPlainObject(variables) && !isTraversable(variables)) {
-        return Promise.reject(new TwingErrorRuntime(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, -1, from));
+        return Promise.reject(new RuntimeError(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, -1, from));
     }
 
     variables = iteratorToMap(variables);

@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../../src/lib/node/expression/constant";
 import {TwingNodeExpressionFunction} from "../../../../../../../src/lib/node/expression/function";
-import {TwingNode} from "../../../../../../../src/lib/node";
+import {Node} from "../../../../../../../src/lib/node";
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockEnvironment} from "../../../../../../mock/environment";
 import {TwingFunction} from "../../../../../../../src/lib/function";
@@ -20,13 +20,13 @@ function twig_tests_function_needs_source() {
 }
 
 function createFunction(name: string, args = new Map()) {
-    return new TwingNodeExpressionFunction(name, new TwingNode(args), 1, 1);
+    return new TwingNodeExpressionFunction(name, new Node(args), 1, 1);
 }
 
 tape('node/expression/function', (test) => {
     test.test('constructor', (test) => {
         let name = 'function';
-        let args = new TwingNode();
+        let args = new Node();
         let node = new TwingNodeExpressionFunction(name, args, 1, 1);
 
         test.same(node.getAttribute('name'), name);
@@ -39,19 +39,19 @@ tape('node/expression/function', (test) => {
         let loader = new MockLoader();
         let environment = new MockEnvironment(loader);
         environment.addFunction(new TwingFunction('foo', twig_tests_function_dummy, [], {}));
-        environment.addFunction(new TwingFunction('bar', twig_tests_function_dummy, [], {needs_template: true}));
-        environment.addFunction(new TwingFunction('foofoo', twig_tests_function_dummy, [], {needs_context: true}));
+        environment.addFunction(new TwingFunction('bar', twig_tests_function_dummy, [], {needsTemplate: true}));
+        environment.addFunction(new TwingFunction('foofoo', twig_tests_function_dummy, [], {needsContext: true}));
         environment.addFunction(new TwingFunction('foobar', twig_tests_function_dummy, [], {
-            needs_template: true,
-            needs_context: true
+            needsTemplate: true,
+            needsContext: true
         }));
         environment.addFunction(new TwingFunction('barbar', twig_tests_function_barbar, [
             {name: 'arg1', defaultValue: null},
             {name: 'arg2', defaultValue: null}
-        ], {is_variadic: true}));
+        ], {isVariadic: true}));
         environment.addFunction(new TwingFunction('anonymous', () => Promise.resolve(), []));
         environment.addFunction(new TwingFunction('needs_source', twig_tests_function_needs_source, [], {
-            needs_template: true,
+            needsTemplate: true,
         }));
 
         let compiler = new MockCompiler(environment);

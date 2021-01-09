@@ -1,16 +1,16 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 
 export type TwingNodePrintNodes = {
-    content: TwingNode
+    content: Node
 };
 
-export class TwingNodePrint extends TwingNode<null, TwingNodePrintNodes> {
-    compile(compiler: TwingCompiler) {
+export class TwingNodePrint extends Node<null, TwingNodePrintNodes> {
+    compile(compiler: Compiler) {
         compiler
             .addSourceMapEnter(this)
             .write('outputBuffer.echo(')
-            .subcompile(this.nodes.content)
+            .subcompile(this.children.content)
             .raw(');\n')
             .addSourceMapLeave()
         ;

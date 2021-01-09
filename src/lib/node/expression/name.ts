@@ -1,7 +1,8 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 
 import type {TwingNodeExpressionAttributes} from "../expression";
+import type {Location} from "../../node";
 
 export type TwingNodeExpressionNameAttributes = {
     value: string
@@ -10,8 +11,8 @@ export type TwingNodeExpressionNameAttributes = {
 export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpressionNameAttributes> {
     private specialVars: Map<string, string>;
 
-    constructor(attributes: TwingNodeExpressionAttributes<TwingNodeExpressionNameAttributes>, nodes: null, line: number, column: number) {
-        super(attributes, nodes, line, column);
+    constructor(attributes: TwingNodeExpressionAttributes<TwingNodeExpressionNameAttributes>, nodes: null, location: Location) {
+        super(attributes, nodes, location);
 
         this.specialVars = new Map([
             ['_self', 'this.templateName'],
@@ -20,7 +21,7 @@ export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpres
         ]);
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         const name = this.attributes.value;
 
         if (this.attributes.isDefinedTest) {
@@ -52,6 +53,8 @@ export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpres
                 ;
             }
             else {
+                const {line, column} = this.location;
+
                 compiler
                     .raw('(context.has(')
                     .string(name)
@@ -60,8 +63,8 @@ export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpres
                     .raw(') : (() => { throw new this.RuntimeError(\'Variable ')
                     .string(name)
                     .raw(' does not exist.\', ')
-                    .repr(this.line)
-                    .raw(', this.source); })()')
+                    .raw(`{line: ${line}, column: ${column}}, `)
+                    .raw('this.source); })()')
                     .raw(')')
                 ;
             }

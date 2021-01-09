@@ -12,7 +12,7 @@
  * </pre>
  */
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeIf} from "../node/if";
 import {Token, TokenType} from "twig-lexer";
 
@@ -59,7 +59,7 @@ export class TwingTokenParserIf extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeIf(new TwingNode(tests), elseNode, lineno, columnno, this.getTag());
+        return new TwingNodeIf(new Node(tests), elseNode, lineno, columnno, this.getTag());
     }
 
     decideIfFork(token: Token) {

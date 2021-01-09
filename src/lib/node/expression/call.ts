@@ -1,9 +1,9 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingNode} from "../../node";
-import {TwingErrorSyntax} from "../../error/syntax";
+import {Node} from "../../node";
+import {SyntaxError} from "../../error/syntax";
 import {TwingNodeExpressionConstant} from "./constant";
 import {TwingNodeExpressionArray, TwingNodeExpressionArrayElement} from "./array";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 import {TwingCallableArgument, TwingCallableWrapper} from "../../callable-wrapper";
 import {TwingEnvironment} from "../../environment";
 
@@ -13,18 +13,17 @@ const array_merge = require('locutus/php/array/array_merge');
 const snakeCase = require('snake-case');
 const capitalize = require('capitalize');
 
-export type TwingNodeExpressionCallAttributes = TwingNodeExpressionAttributes & {
+export type TwingNodeExpressionCallAttributes = TwingNodeExpressionAttributes<{
     type: string,
-    name: string,
-    is_defined_test: boolean
-};
+    name: string
+}>;
 
 export type TwingNodeExpressionCallNodes = {
-    node?: TwingNode,
-    arguments?: TwingNode
+    node?: Node,
+    arguments?: Node
 };
 
-export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallAttributes = TwingNodeExpressionCallAttributes, N extends TwingNodeExpressionCallNodes = TwingNodeExpressionCallNodes> extends TwingNodeExpression<A, N> {
+export abstract class TwingNodeExpressionCall extends TwingNodeExpression<TwingNodeExpressionCallAttributes, TwingNodeExpressionCallNodes> {
     // constructor(node: TwingNode, type: string, name: string, _arguments: TwingNode, line: number, column: number) {
     //     super({
     //         name,
@@ -38,14 +37,14 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
 
     protected abstract getCallableWrapper(environment: TwingEnvironment, name: string): TwingCallableWrapper<any>;
 
-    public compile(compiler: TwingCompiler) {
-        const callableWrapper = this.getCallableWrapper(compiler.getEnvironment(), this.getAttribute('name'));
+    public compile(compiler: Compiler) {
+        const callableWrapper = this.getCallableWrapper(compiler.getEnvironment(), this.attributes.name);
         const callable = callableWrapper.callable;
 
         if (typeof callable === 'string') {
             compiler.raw(callable);
         } else {
-            compiler.raw(`await this.environment.get${capitalize(this.getAttribute('type'))}('${this.getAttribute('name')}').traceableCallable(${this.getLine()}, this.source)`);
+            compiler.raw(`await this.environment.get${capitalize(this.attributes.type)}('${this.attributes.name}').traceableCallable({line: ${this.location.line}, column: ${this.location.column}}, this.source)`);
         }
 
         compiler.raw('(...[');
@@ -55,7 +54,7 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
         compiler.raw('])');
     }
 
-    protected compileArguments(compiler: TwingCompiler, callableWrapper: TwingCallableWrapper<any>) {
+    protected compileArguments(compiler: Compiler, callableWrapper: TwingCallableWrapper<any>) {
         let first: boolean = true;
 
         if (callableWrapper.needsTemplate) {
@@ -96,18 +95,18 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
             }
         }
 
-        if (this.hasNode('node')) {
+        if (this.children.node) {
             if (!first) {
                 compiler.raw(', ');
             }
 
-            compiler.subcompile(this.getNode('node'));
+            compiler.subcompile(this.children.node);
 
             first = false;
         }
 
-        if (this.hasNode('arguments')) {
-            let arguments_ = this.getArguments(this.getNode('arguments'), callableWrapper);
+        if (this.children.arguments) {
+            let arguments_ = this.getArguments(this.children.arguments, callableWrapper);
 
             for (let node of arguments_) {
                 if (!first) {
@@ -121,21 +120,19 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
         }
     }
 
-    protected getArguments(argumentsNode: TwingNode, callableWrapper: TwingCallableWrapper<any>): Array<TwingNode> {
-        const {line, column} = this;
-
+    protected getArguments(argumentsNode: Node, callableWrapper: TwingCallableWrapper<any>): Array<Node> {
         let callType = this.attributes.type;
         let callName = this.attributes.name;
 
-        let parameters: Map<string | number, TwingNode> = new Map();
+        let parameters: Map<string | number, Node> = new Map();
         let named = false;
 
-        for (let [name, node] of argumentsNode.getNodes()) {
+        for (let [name, node] of argumentsNode) {
             if (typeof name !== 'number') {
                 named = true;
                 name = this.normalizeName(name);
             } else if (named) {
-                throw new TwingErrorSyntax(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, line);
+                throw new SyntaxError(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, this.location);
             }
 
             parameters.set(name, node);
@@ -149,7 +146,7 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
 
         let callableParameters: TwingCallableArgument[] = callableWrapper.acceptedArguments || [];
 
-        let arguments_: Array<TwingNode> = [];
+        let arguments_: Array<Node> = [];
 
         let names: Array<string> = [];
         let optionalArguments: Array<string | TwingNodeExpressionConstant> = [];
@@ -162,7 +159,7 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
 
             if (parameters.has(name)) {
                 if (parameters.has(pos)) {
-                    throw new TwingErrorSyntax(`Argument "${name}" is defined twice for ${callType} "${callName}".`, line);
+                    throw new SyntaxError(`Argument "${name}" is defined twice for ${callType} "${callName}".`, this.location);
                 }
 
                 arguments_ = array_merge(arguments_, optionalArguments);
@@ -176,9 +173,9 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
                 optionalArguments = [];
                 ++pos;
             } else if (callableParameter.defaultValue !== undefined) {
-                optionalArguments.push(new TwingNodeExpressionConstant(callableParameter.defaultValue, line, column));
+                optionalArguments.push(new TwingNodeExpressionConstant({value: callableParameter.defaultValue}, null, this.location));
             } else {
-                throw new TwingErrorSyntax(`Value for argument "${name}" is required for ${callType} "${callName}".`, line);
+                throw new SyntaxError(`Value for argument "${name}" is required for ${callType} "${callName}".`, this.location);
             }
         }
 
@@ -199,13 +196,13 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
                 resolvedKeys.push(key);
             }
 
-            const arbitraryArguments = new TwingNodeExpressionArray({elements}, null, line, column);
+            const arbitraryArguments = new TwingNodeExpressionArray({elements}, null, this.location);
 
             for (let key of resolvedKeys) {
                 parameters.delete(key);
             }
 
-            if (arbitraryArguments.count()) {
+            if (arbitraryArguments.nodesCount) {
                 arguments_ = array_merge(arguments_, optionalArguments);
                 arguments_.push(arbitraryArguments);
             }
@@ -214,10 +211,10 @@ export abstract class TwingNodeExpressionCall<A extends TwingNodeExpressionCallA
         if (parameters.size > 0) {
             let unknownParameter = [...parameters.values()].find(function (parameter) {
                 // todo: what other type of data can parameter be?
-                return parameter instanceof TwingNode;
+                return parameter instanceof Node;
             });
 
-            throw new TwingErrorSyntax(`Unknown argument${parameters.size > 1 ? 's' : ''} "${[...parameters.keys()].join('", "')}" for ${callType} "${callName}(${names.join(', ')})".`, unknownParameter ? unknownParameter.getLine() : this.getLine());
+            throw new SyntaxError(`Unknown argument${parameters.size > 1 ? 's' : ''} "${[...parameters.keys()].join('", "')}" for ${callType} "${callName}(${names.join(', ')})".`, unknownParameter ? unknownParameter.location : this.location);
         }
 
         return arguments_;

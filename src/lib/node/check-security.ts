@@ -1,15 +1,15 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('check_security');
 
-export class TwingNodeCheckSecurity extends TwingNode {
-    private usedFilters: Map<string, TwingNode | string>;
-    private usedTags: Map<string, TwingNode | string>;
-    private usedFunctions: Map<string, TwingNode | string>;
+export class TwingNodeCheckSecurity extends Node {
+    private usedFilters: Map<string, Node | string>;
+    private usedTags: Map<string, Node | string>;
+    private usedFunctions: Map<string, Node | string>;
 
-    constructor(usedFilters: Map<string, TwingNode | string>, usedTags: Map<string, TwingNode | string>, usedFunctions: Map<string, TwingNode | string>) {
+    constructor(usedFilters: Map<string, Node | string>, usedTags: Map<string, Node | string>, usedFunctions: Map<string, Node | string>) {
         super();
 
         this.usedFilters = usedFilters;
@@ -21,7 +21,7 @@ export class TwingNodeCheckSecurity extends TwingNode {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         let tags = new Map();
 
         for (let [name, node] of this.usedTags) {

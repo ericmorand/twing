@@ -1,14 +1,12 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 
-export class TwingNodeComment extends TwingNode<{
+export type CommentNodeAttributes = {
     data: string
-}, null> {
-    constructor(data: string, line: number, column: number) {
-        super({data}, null, line, column);
-    }
+};
 
-    compile(compiler: TwingCompiler) {
+export class CommentNode extends Node<CommentNodeAttributes, null> {
+    compile(compiler: Compiler) {
         // noop
     }
 }

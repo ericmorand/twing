@@ -1,5 +1,5 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeExpressionConstant} from "./expression/constant";
 import {TwingNodeText} from "./text";
 
@@ -9,11 +9,11 @@ export type TwingNodeSetAttributes = {
 };
 
 export type TwingNodeSetNodes = {
-    names: TwingNode,
-    values: TwingNode
+    names: Node,
+    values: Node
 };
 
-export class TwingNodeSet extends TwingNode<TwingNodeSetAttributes, TwingNodeSetNodes> {
+export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes> {
     constructor(attributes: TwingNodeSetAttributes, nodes: TwingNodeSetNodes, line: number, column: number, tag: string) {
         /*
          * Optimizes the node when capture is used for a large block of text.
@@ -39,13 +39,13 @@ export class TwingNodeSet extends TwingNode<TwingNodeSetAttributes, TwingNodeSet
         return true;
     }
 
-    compile(compiler: TwingCompiler) {
-        if (this.nodes.names.nodesCount > 1) {
+    compile(compiler: Compiler) {
+        if (this.children.names.nodesCount > 1) {
             compiler.write('[');
 
             let i: number = 0;
 
-            for (let [, node] of this.nodes.names) {
+            for (let [, node] of this.children.names) {
                 if (i > 0) {
                     compiler.raw(', ');
                 }
@@ -60,11 +60,11 @@ export class TwingNodeSet extends TwingNode<TwingNodeSetAttributes, TwingNodeSet
             if (this.attributes.capture) {
                 compiler
                     .write("outputBuffer.start();\n")
-                    .subcompile(this.nodes.values)
+                    .subcompile(this.children.values)
                 ;
             }
 
-            compiler.subcompile(this.nodes.names, false);
+            compiler.subcompile(this.children.names, false);
 
             if (this.attributes.capture) {
                 compiler
@@ -76,12 +76,12 @@ export class TwingNodeSet extends TwingNode<TwingNodeSetAttributes, TwingNodeSet
         if (!this.attributes.capture) {
             compiler.raw(' = ');
 
-            if (this.nodes.names.nodesCount > 1) {
+            if (this.children.names.nodesCount > 1) {
                 compiler.raw('[');
 
                 let i: number = 0;
 
-                for (let [, value] of this.nodes.values) {
+                for (let [, value] of this.children.values) {
                     if (i > 0) {
                         compiler.raw(', ');
                     }
@@ -96,11 +96,11 @@ export class TwingNodeSet extends TwingNode<TwingNodeSetAttributes, TwingNodeSet
                 if (this.attributes.safe) {
                     compiler
                         .raw("await (async () => {let tmp = ")
-                        .subcompile(this.nodes.values)
+                        .subcompile(this.children.values)
                         .raw("; return tmp === '' ? '' : new this.Markup(tmp, this.environment.getCharset());})()")
                     ;
                 } else {
-                    compiler.subcompile(this.nodes.values);
+                    compiler.subcompile(this.children.values);
                 }
             }
         }

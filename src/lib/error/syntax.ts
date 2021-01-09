@@ -1,39 +1,58 @@
-import {TwingError} from "../error";
-import {TwingSource} from "../source";
+import {Error} from "../error";
+
+import type {Location} from "../node";
+import type {TwingSource} from "../source";
 
 const Levenshtein = require('levenshtein');
 
-export class TwingErrorSyntax extends TwingError {
-    constructor(message: string, lineno: number = -1, source: TwingSource = null, previous?: Error) {
-        super(message, lineno, source, previous);
+// todo: rename that type, this is not a suggestion but some candidates for an eroneous word
+export type SyntaxErrorSuggestion = {
+    value: string,
+    candidates: string[]
+};
 
-        this.name = 'TwingErrorSyntax';
+export class SyntaxError extends Error {
+    // todo: rename that property, this is not a suggestion but some candidates for an eroneous word
+    private readonly _suggestion: SyntaxErrorSuggestion;
+
+    constructor(message: string, suggestion: SyntaxErrorSuggestion, location: Location, source?: TwingSource, previous?: Error) {
+        super(message, location, source, previous);
+
+        this._suggestion = suggestion;
     }
 
-    /**
-     * Tweaks the error message to include suggestions.
-     *
-     * @param {string} name The original name of the item that does not exist
-     * @param {Array<string>} items An array of possible items
-     */
-    addSuggestions(name: string, items: string[]) {
-        let alternatives: string[] = [];
+    get message(): string {
+        let message = super.message;
+
+        let suggestions: string[] = [];
         let levenshtein = new Levenshtein();
 
-        items.forEach(function (item) {
-            levenshtein = new Levenshtein(name, item);
+        if (this.suggestion) {
+            const {value, candidates} = this.suggestion;
 
-            if (levenshtein.distance <= (name.length / 3) || item.indexOf(name) > -1) {
-                alternatives.push(item);
+            for (let candidate of candidates) {
+                levenshtein = new Levenshtein(value, candidate);
+
+                if (levenshtein.distance <= (value.length / 3) || candidate.indexOf(value) > -1) {
+                    suggestions.push(candidate);
+                }
             }
-        });
 
-        if (alternatives.length < 1) {
-            return;
+            if (suggestions.length > 0) {
+                suggestions.sort();
+
+                message = `${message} Did you mean "${suggestions.join(', ')}"?`;
+            }
         }
 
-        alternatives.sort();
+        return message;
+    }
 
-        this.appendMessage(` Did you mean "${alternatives.join(', ')}"?`);
+    get name(): string {
+        return 'TwingErrorSyntax';
+    }
+
+    get suggestion(): SyntaxErrorSuggestion {
+        return this._suggestion;
     }
 }

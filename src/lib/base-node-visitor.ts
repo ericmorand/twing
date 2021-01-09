@@ -1,5 +1,5 @@
 import {TwingNodeVisitorInterface} from "./node-visitor-interface";
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {TwingEnvironment} from "./environment";
 
 export abstract class TwingBaseNodeVisitor implements TwingNodeVisitorInterface {
@@ -14,32 +14,32 @@ export abstract class TwingBaseNodeVisitor implements TwingNodeVisitorInterface 
     /**
      * Called before child nodes are visited.
      *
-     * @returns {TwingNode} The modified node
+     * @returns {Node} The modified node
      */
-    enterNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    enterNode(node: Node, env: TwingEnvironment): Node {
         return this.doEnterNode(node, env);
     }
 
     /**
      * Called after child nodes are visited.
      *
-     * @returns {TwingNode|false} The modified node or null if the node must be removed
+     * @returns {Node|false} The modified node or null if the node must be removed
      */
-    leaveNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    leaveNode(node: Node, env: TwingEnvironment): Node {
         return this.doLeaveNode(node, env);
     }
 
     /**
      * Called before child nodes are visited.
      *
-     * @returns {TwingNode} The modified node
+     * @returns {Node} The modified node
      */
-    protected abstract doEnterNode(node: TwingNode, env: TwingEnvironment): TwingNode;
+    protected abstract doEnterNode(node: Node, env: TwingEnvironment): Node;
 
     /**
      * Called after child nodes are visited.
      *
-     * @returns {TwingNode|false} The modified node or null if the node must be removed
+     * @returns {Node|false} The modified node or null if the node must be removed
      */
-    protected abstract doLeaveNode(node: TwingNode, env: TwingEnvironment): TwingNode;
+    protected abstract doLeaveNode(node: Node, env: TwingEnvironment): Node;
 }

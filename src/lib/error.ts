@@ -1,123 +1,84 @@
 import {TwingSource} from "./source";
+import {Location} from "./node";
+import {NativeError} from "./native-error";
 
 /**
  * Twing base error.
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingError extends Error {
-    private lineno: number | boolean;
-    private rawMessage: string = null;
-    private source: TwingSource = null;
-    private previous: Error = null;
+export class Error extends NativeError {
+    private readonly _location: Location;
+    private readonly _rawMessage: string;
+    private readonly _source: TwingSource;
+    private readonly _previous: Error;
 
-    protected type: string;
+    constructor(message: string, location: Location, source?: TwingSource, previous?: Error) {
+        super();
 
-    constructor(message: string, lineno: number = -1, source?: TwingSource, previous?: Error) {
-        super(message);
-
-        this.name = 'TwingError';
-        this.previous = previous;
+        this._previous = previous;
 
         if (previous) {
             this.stack = previous.stack;
         }
 
-        this.rawMessage = message;
-        this.lineno = lineno;
-        this.source = source;
-
-        this.updateRepr();
+        this._rawMessage = message;
+        this._location = location;
+        this._source = source;
     }
 
-    getMessage() {
-        return this.message;
+    get name(): string {
+        return 'TwingError';
     }
 
-    /**
-     * Gets the raw message.
-     *
-     * @return string The raw message
-     */
-    getRawMessage() {
-        return this.rawMessage;
-    }
-
-    /**
-     * Gets the template line where the error occurred.
-     *
-     * @return int The template line
-     */
-    getTemplateLine() {
-        return this.lineno;
-    }
-
-    /**
-     * Sets the template line where the error occurred.
-     *
-     * @param {number} lineno The template line
-     */
-    setTemplateLine(lineno: number | boolean) {
-        this.lineno = lineno;
-
-        this.updateRepr();
-    }
-
-    /**
-     * Gets the source context of the Twig template where the error occurred.
-     *
-     * @return {TwingSource}
-     */
-    getSourceContext() {
-        return this.source;
-    }
-
-    /**
-     * Sets the source context of the Twig template where the error occurred.
-     */
-    setSourceContext(source: TwingSource) {
-        this.source = source;
-
-        this.updateRepr();
-    }
-
-    appendMessage(rawMessage: string) {
-        this.rawMessage += rawMessage;
-
-        this.updateRepr();
-    }
-
-    private updateRepr() {
-        this.message = this.rawMessage;
-
+    get message(): string {
+        let message = this._rawMessage;
         let dot = false;
 
-        if (this.message.substr(-1) === '.') {
-            this.message = this.message.slice(0, -1);
+        if (message.substr(-1) === '.') {
+            message = message.slice(0, -1);
             dot = true;
         }
 
         let questionMark = false;
 
-        if (this.message.substr(-1) === '?') {
-            this.message = this.message.slice(0, -1);
+        if (message.substr(-1) === '?') {
+            message = message.slice(0, -1);
             questionMark = true;
         }
 
         if (this.source) {
-            this.message += ` in "${this.source.getName()}"`;
+            message = `${message} in "${this.source.getName()}"`;
         }
 
-        if (this.lineno && this.lineno >= 0) {
-            this.message += ` at line ${this.lineno}`;
+        if (this.location) {
+            message = `${message} at line ${this.location.line}, column ${this.location.column}`;
         }
 
         if (dot) {
-            this.message += '.';
+            message = `${message}.`;
         }
 
         if (questionMark) {
-            this.message += '?';
+            message = `${message}?`;
         }
+
+        return message;
+    }
+
+    get rawMessage() {
+        return this._rawMessage;
+    }
+
+    get location(): Location {
+        return this._location;
+    }
+
+    get previous(): Error {
+        return this._previous;
+    }
+
+    get source() {
+        return this._source;
     }
 }

@@ -1,5 +1,5 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
 
 import type {TwingNodeExpressionAttributes} from "../expression";
@@ -14,7 +14,7 @@ export class TwingNodeExpressionTempName extends TwingNodeExpression<null, Twing
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw(`${this.getAttribute('declaration') ? 'let ' : ''}$_`)
             .raw(this.getAttribute('value'))

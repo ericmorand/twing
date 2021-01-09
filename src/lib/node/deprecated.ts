@@ -3,20 +3,16 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpression} from "./expression";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 import {TwingNodeExpressionConstant} from "./expression/constant";
 
-export class TwingNodeDeprecated extends TwingNode<null, {
-    expr: TwingNodeExpression
+export class TwingNodeDeprecated extends Node<null, {
+    expr: TwingNodeExpression<any>
 }> {
-    constructor(expr: TwingNodeExpression, line: number, column: number, tag: string) {
-        super(null, {expr}, line, column, tag);
-    }
-
-    compile(compiler: TwingCompiler) {
-        let expr = this.getNode('expr');
+    compile(compiler: Compiler) {
+        let expr = this.children.expr;
 
         compiler
             .write('{\n')
@@ -37,7 +33,7 @@ export class TwingNodeDeprecated extends TwingNode<null, {
 
         compiler
             .raw(' + ')
-            .string(` ("${this.getTemplateName()}" at line ${this.line})`)
+            .string(` ("${this.getTemplateName()}" at line ${this.location.line})`)
             .raw(');\n')
             .outdent()
             .write('}\n')

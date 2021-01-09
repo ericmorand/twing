@@ -7,7 +7,7 @@ import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 import {TwingLoaderFilesystem} from "../../../../../../src/lib/loader/filesystem";
 import {TwingLoaderRelativeFilesystem} from "../../../../../../src/lib/loader/relative-filesystem";
 import {TwingErrorLoader} from "../../../../../../src/lib/error/loader";
-import {TwingError} from "../../../../../../src/lib/error";
+import {Error} from "../../../../../../src/lib/error";
 
 let fixturesPath = resolve('test/tests/integration/fixtures');
 
@@ -326,7 +326,7 @@ tape('loader chain', (test) => {
 
         test.test('when some loaders throw an error', async (test) => {
             let loader1 = new TwingLoaderArray({});
-            sinon.stub(loader1, 'resolve').returns(Promise.reject(new TwingError('foo')));
+            sinon.stub(loader1, 'resolve').returns(Promise.reject(new Error('foo')));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
             let loader2 = new TwingLoaderArray({'bar': 'foo'});
@@ -405,11 +405,11 @@ tape('loader chain', (test) => {
 
         test.test('when all loaders throw non loader-related errors', async (test) => {
             let loader1 = new TwingLoaderArray({});
-            sinon.stub(loader1, 'resolve').returns(Promise.reject(new TwingError('foo')));
+            sinon.stub(loader1, 'resolve').returns(Promise.reject(new Error('foo')));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
             let loader2 = new TwingLoaderArray({});
-            sinon.stub(loader2, 'resolve').returns(Promise.reject(new TwingError('bar')));
+            sinon.stub(loader2, 'resolve').returns(Promise.reject(new Error('bar')));
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
 
             loader = new TwingLoaderChain([

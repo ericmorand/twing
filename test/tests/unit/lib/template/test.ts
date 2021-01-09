@@ -5,7 +5,7 @@ import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingLoaderChain} from "../../../../../src/lib/loader/chain";
 import {TwingSource} from "../../../../../src/lib/source";
-import {TwingErrorRuntime} from "../../../../../src/lib/error/runtime";
+import {RuntimeError} from "../../../../../src/lib/error/runtime";
 import {TwingErrorLoader} from "../../../../../src/lib/error/loader";
 import {TwingEnvironment} from "../../../../../src/lib/environment";
 import {MockEnvironment} from "../../../../mock/environment";
@@ -160,7 +160,7 @@ tape('template', function (test) {
         try {
             await template.displayBlock('foo', {}, null);
         } catch (e) {
-            test.true(e instanceof TwingErrorRuntime);
+            test.true(e instanceof RuntimeError);
             test.same(e.rawMessage, 'Block "foo" on template "foo" does not exist.')
         }
 

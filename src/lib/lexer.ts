@@ -7,7 +7,7 @@ import {Lexer, SyntaxError, TokenType} from "twig-lexer";
 import {TwingEnvironment} from "./environment";
 import {TwingSource} from "./source";
 import {TwingTokenStream} from "./token-stream";
-import {TwingErrorSyntax} from "./error/syntax";
+import {SyntaxError} from "./error/syntax";
 
 export const typeToEnglish = (type: TokenType): string => {
     switch (type) {
@@ -95,7 +95,7 @@ export class TwingLexer extends Lexer {
 
             return new TwingTokenStream(tokens, source);
         } catch (e) {
-            throw new TwingErrorSyntax(e.message, e.line, source, e);
+            throw new SyntaxError(e.message, e.line, source, e);
         }
     }
 }

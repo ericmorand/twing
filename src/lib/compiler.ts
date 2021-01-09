@@ -1,9 +1,9 @@
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {TwingEnvironment} from "./environment";
 import {isNullOrUndefined} from "util";
 import {addcslashes} from "locutus/php/strings";
 
-export class TwingCompiler {
+export class Compiler {
     private readonly environment: TwingEnvironment;
     private lastLine: number;
     private source: string;
@@ -27,7 +27,7 @@ export class TwingCompiler {
         return this.source;
     }
 
-    compile(node: TwingNode, indentation: number = 0): TwingCompiler {
+    compile(node: Node, indentation: number = 0): Compiler {
         this.lastLine = null;
         this.source = '';
         this.indentation = indentation;
@@ -38,7 +38,7 @@ export class TwingCompiler {
         return this;
     }
 
-    subcompile(node: TwingNode, raw: boolean = true): TwingCompiler {
+    subcompile(node: Node, raw: boolean = true): Compiler {
         if (raw === false) {
             this.source += ' '.repeat(this.indentation * 4);
         }
@@ -53,7 +53,7 @@ export class TwingCompiler {
      * @param string
      * @returns
      */
-    raw(string: any): TwingCompiler {
+    raw(string: any): Compiler {
         this.source += string;
 
         return this;
@@ -64,7 +64,7 @@ export class TwingCompiler {
      *
      * @returns {TwingCompiler}
      */
-    write(...strings: Array<string>): TwingCompiler {
+    write(...strings: Array<string>): Compiler {
         for (let string of strings) {
             this.source += ' '.repeat(this.indentation * 4) + string;
         }
@@ -79,7 +79,7 @@ export class TwingCompiler {
      *
      * @returns {TwingCompiler}
      */
-    string(value: string): TwingCompiler {
+    string(value: string): Compiler {
         if (!isNullOrUndefined(value)) {
             if (typeof value === 'string') {
                 value = '`' + addcslashes(value, "\0\t\\`").replace(/\${/g, '\\${') + '`';
@@ -93,7 +93,7 @@ export class TwingCompiler {
         return this;
     }
 
-    repr(value: any): TwingCompiler {
+    repr(value: any): Compiler {
         if (typeof value === 'number') {
             this.raw(value);
         } else if (isNullOrUndefined(value)) {
@@ -154,7 +154,7 @@ export class TwingCompiler {
      *
      * @returns TwingCompiler
      */
-    addSourceMapEnter(node: TwingNode) {
+    addSourceMapEnter(node: Node) {
         if (this.getEnvironment().isSourceMap()) {
             this
                 .write('this.environment.enterSourceMapBlock(')

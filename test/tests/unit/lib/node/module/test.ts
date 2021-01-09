@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeModule, type} from "../../../../../../src/lib/node/module";
 import {TwingSource} from "../../../../../../src/lib/source";
 import {MockCompiler} from "../../../../../mock/compiler";
@@ -16,9 +16,9 @@ tape('node/module', (test) => {
     test.test('constructor', (test) => {
         let body = new TwingNodeText('foo', 1, 1, null);
         let parent = new TwingNodeExpressionConstant('layout.twig', 1, 1);
-        let blocks = new TwingNode();
-        let macros = new TwingNode();
-        let traits = new TwingNode();
+        let blocks = new Node();
+        let macros = new Node();
+        let traits = new Node();
         let source = new TwingSource('{{ foo }}', 'foo.twig');
         let node = new TwingNodeModule(body, parent, blocks, macros, traits, [], source);
 
@@ -40,9 +40,9 @@ tape('node/module', (test) => {
         test.test('basic', (test) => {
             let body = new TwingNodeText('foo', 1, 1);
             let parent = null;
-            let blocks = new TwingNode();
-            let macros = new TwingNode();
-            let traits = new TwingNode();
+            let blocks = new Node();
+            let macros = new Node();
+            let traits = new Node();
             let source = new TwingSource('{{ foo }}', 'foo.twig');
             let node = new TwingNodeModule(body, parent, blocks, macros, traits, [], source);
 
@@ -77,12 +77,12 @@ tape('node/module', (test) => {
                 [0, import_]
             ]);
 
-            let body = new TwingNode(bodyNodes);
+            let body = new Node(bodyNodes);
             let extends_ = new TwingNodeExpressionConstant('layout.twig', 1, 1);
 
-            let blocks = new TwingNode();
-            let macros = new TwingNode();
-            let traits = new TwingNode();
+            let blocks = new Node();
+            let macros = new Node();
+            let traits = new Node();
             let source = new TwingSource('{{ foo }}', 'foo.twig');
 
             let node = new TwingNodeModule(body, extends_, blocks, macros, traits, [], source);
@@ -133,13 +133,13 @@ tape('node/module', (test) => {
                 [0, new TwingNodeExpressionConstant('foo', 4, 1)]
             ]);
 
-            let set = new TwingNodeSet(false, new TwingNode(setNames), new TwingNode(setValues), 4, 1);
+            let set = new TwingNodeSet(false, new Node(setNames), new Node(setValues), 4, 1);
 
             let bodyNodes = new Map([
                 [0, set]
             ]);
 
-            let body = new TwingNode(bodyNodes);
+            let body = new Node(bodyNodes);
             let extends_ = new TwingNodeExpressionConditional(
                 new TwingNodeExpressionConstant(true, 2, 1),
                 new TwingNodeExpressionConstant('foo', 2, 1),
@@ -147,9 +147,9 @@ tape('node/module', (test) => {
                 2, 1
             );
 
-            let blocks = new TwingNode();
-            let macros = new TwingNode();
-            let traits = new TwingNode();
+            let blocks = new Node();
+            let macros = new Node();
+            let traits = new Node();
             let source = new TwingSource('{{ foo }}', 'foo.twig');
 
             let loader = new MockLoader();

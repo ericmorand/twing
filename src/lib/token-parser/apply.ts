@@ -1,5 +1,5 @@
 import {TwingTokenParser} from "../token-parser";
-import {toAnonymousNodes, TwingNode} from "../node";
+import {toTwingNodeNodes, Node} from "../node";
 import {TwingNodePrint} from "../node/print";
 import {TwingNodeSet} from "../node/set";
 import {TwingNodeExpressionTempName} from "../node/expression/temp-name";
@@ -13,7 +13,7 @@ import {Token, TokenType} from "twig-lexer";
  *   {% endapply %}
  */
 export class TwingTokenParserApply extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         const {line, column} = token;
         const name = this.parser.getVarName();
 
@@ -34,7 +34,7 @@ export class TwingTokenParserApply extends TwingTokenParser {
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        let nodes: Map<string, TwingNode> = new Map();
+        let nodes: Map<string, Node> = new Map();
 
         ref = new TwingNodeExpressionTempName(null, {
             value: name,
@@ -44,7 +44,7 @@ export class TwingTokenParserApply extends TwingTokenParser {
         nodes.set('0', new TwingNodeSet(true, ref, body, line, column, this.getTag()));
         nodes.set('1', new TwingNodePrint(null, {content: filter}, line, column, this.getTag()));
 
-        return new TwingNode(toAnonymousNodes(nodes), null, line, column);
+        return new Node(toTwingNodeNodes(nodes), null, line, column);
     }
 
     decideBlockEnd(token: Token) {

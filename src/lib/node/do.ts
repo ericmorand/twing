@@ -1,6 +1,6 @@
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpression} from "./expression";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 
 /**
  * Represents a do node.
@@ -10,14 +10,14 @@ import {TwingCompiler} from "../compiler";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingNodeDo extends TwingNode<null, {
+export class TwingNodeDo extends Node<null, {
     expr: TwingNodeExpression
 }> {
     constructor(expr: TwingNodeExpression, line: number, column: number, tag: string) {
         super(null, {expr}, line, column, tag);
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .subcompile(this.getNode('expr'), true)
             .raw(";\n")

@@ -6,7 +6,7 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {TwingEnvironment} from "./environment";
 
 export interface TwingNodeVisitorInterface {
@@ -17,14 +17,14 @@ export interface TwingNodeVisitorInterface {
      *
      * @return Twig_Node The modified node
      */
-    enterNode(node: TwingNode, env: TwingEnvironment): TwingNode;
+    enterNode(node: Node, env: TwingEnvironment): Node;
 
     /**
      * Called after child nodes are visited.
      *
      * @return Twig_Node The modified node or null if the node must be removed
      */
-    leaveNode(node: TwingNode, env: TwingEnvironment): TwingNode;
+    leaveNode(node: Node, env: TwingEnvironment): Node;
 
     /**
      * Returns the priority for this visitor.

@@ -1,15 +1,15 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingNode} from "../../node";
-import {TwingCompiler} from "../../compiler";
+import {Node} from "../../node";
+import {Compiler} from "../../compiler";
 
 export abstract class TwingNodeExpressionUnary extends TwingNodeExpression<{
-    node: TwingNode
+    node: Node
 }> {
-    constructor(node: TwingNode, lineno: number, columno: number) {
+    constructor(node: Node, lineno: number, columno: number) {
         super({node}, null, lineno, columno);
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         this.operator(compiler);
 
         compiler
@@ -18,7 +18,7 @@ export abstract class TwingNodeExpressionUnary extends TwingNodeExpression<{
             .raw(')');
     }
 
-    operator(compiler: TwingCompiler): TwingCompiler {
+    operator(compiler: Compiler): Compiler {
         return compiler;
     }
 }

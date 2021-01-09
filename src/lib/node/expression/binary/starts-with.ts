@@ -1,5 +1,5 @@
 import {TwingNodeExpressionBinary} from "../binary";
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_binary_starts_with');
@@ -9,7 +9,7 @@ export class TwingNodeExpressionBinaryStartsWith extends TwingNodeExpressionBina
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw('await (async () => {')
             .raw(`let left = `)

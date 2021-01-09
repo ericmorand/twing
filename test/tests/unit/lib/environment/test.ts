@@ -4,7 +4,7 @@ import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
 import {TwingTokenParser} from "../../../../../src/lib/token-parser";
 import {Token, TokenType} from "twig-lexer";
-import {TwingNode} from "../../../../../src/lib/node";
+import {Node} from "../../../../../src/lib/node";
 import {TwingEnvironment, TwingTemplatesModule} from "../../../../../src/lib/environment";
 import {TwingExtension} from "../../../../../src/lib/extension";
 import {TwingFilter} from "../../../../../src/lib/filter";
@@ -41,7 +41,7 @@ function escapingStrategyCallback(name: string) {
 }
 
 class TwingTestsEnvironmentTestTokenParser extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         return null;
     }
 
@@ -55,11 +55,11 @@ class TwingTestsEnvironmentTestNodeVisitor extends TwingBaseNodeVisitor {
         return 0;
     }
 
-    protected doEnterNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
         return node;
     }
 
-    protected doLeaveNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
         return node;
     }
 }
@@ -129,10 +129,10 @@ class TwingTestsEnvironmentParserBar extends TwingParser {
     parse(stream: TwingTokenStream, test: any, dropNeedle: any): TwingNodeModule {
         return new TwingNodeModule(
             new TwingNodeText('bar', 1, 1),
-            new TwingNode(),
-            new TwingNode(),
-            new TwingNode(),
-            new TwingNode(),
+            new Node(),
+            new Node(),
+            new Node(),
+            new Node(),
             [],
             new TwingSource('', 'index')
         );

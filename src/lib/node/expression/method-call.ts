@@ -1,6 +1,6 @@
 import {TwingNodeExpression} from "../expression";
 import {TwingNodeExpressionArray} from "./array";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 import {TwingNodeType} from "../../node-type";
 import {TwingNodeExpressionName} from "./name";
 
@@ -33,7 +33,7 @@ export class TwingNodeExpressionMethodCall extends TwingNodeExpression<TwingNode
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         if (this.attributes.isDefinedTest) {
             compiler
                 .raw('(await aliases.proxy[')

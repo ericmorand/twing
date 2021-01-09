@@ -1,5 +1,5 @@
 import {TwingNodeExpressionFunction} from "./node/expression/function";
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {
     TwingCallableWrapperOptions,
     TwingCallableWrapper,
@@ -21,8 +21,8 @@ export class TwingFunction extends TwingCallableWrapper<any> {
     constructor(name: string, callable: TwingCallable<any>, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
         super (name, callable, acceptedArguments);
 
-        this.options.expression_factory = function (name: string, functionArguments: TwingNode, line: number, columnno: number) {
-            return new TwingNodeExpressionFunction(name, functionArguments, line, columnno);
+        this.options.expressionFactory = (node: Node, name: string, functionArguments: Node, line: number, column: number) => {
+            return new TwingNodeExpressionFunction({name}, {node, arguments: functionArguments}, line, column);
         };
 
         this.options = Object.assign({}, this.options, options);

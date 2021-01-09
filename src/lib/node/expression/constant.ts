@@ -1,15 +1,13 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingNode} from "../../node";
-import {TwingCompiler} from "../../compiler";
+import {Node} from "../../node";
+import {Compiler} from "../../compiler";
 
-import type {TwingNodeExpressionAttributes} from "../expression";
-
-export type TwingNodeExpressionConstantAttributes<T> = TwingNodeExpressionAttributes & {
+export type TwingNodeExpressionConstantAttributes<T> = {
     value: T
 };
 
-export class TwingNodeExpressionConstant<T = TwingNode | string | number | boolean> extends TwingNodeExpression<TwingNodeExpressionConstantAttributes<T>> {
-    compile(compiler: TwingCompiler) {
+export class TwingNodeExpressionConstant<T = Node | string | number | boolean> extends TwingNodeExpression<TwingNodeExpressionConstantAttributes<T>> {
+    compile(compiler: Compiler) {
         compiler.repr(this.attributes.value);
     }
 }

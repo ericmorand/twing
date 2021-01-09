@@ -1,7 +1,7 @@
 import {TwingTokenParser} from "../token-parser";
-import {TwingErrorSyntax} from "../error/syntax";
+import {SyntaxError} from "../error/syntax";
 import {TwingNodeExpressionConstant, type as constantType} from "../node/expression/constant";
-import {toAnonymousNodes, TwingNode} from "../node";
+import {toTwingNodeNodes, Node} from "../node";
 import {Token, TokenType} from "twig-lexer";
 import {TwingNodeTrait} from "../node/trait";
 
@@ -13,7 +13,7 @@ export class TwingTokenParserUse extends TwingTokenParser {
         let stream = this.parser.getStream();
 
         if (template.type !== constantType) {
-            throw new TwingErrorSyntax('The template references in a "use" statement must be a string.', stream.getCurrent().line, stream.getSourceContext());
+            throw new SyntaxError('The template references in a "use" statement must be a string.', stream.getCurrent().line, stream.getSourceContext());
         }
 
         let targets: Map<string, TwingNodeExpressionConstant<string>> = new Map();
@@ -37,9 +37,9 @@ export class TwingTokenParserUse extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        this.parser.addTrait(new TwingNodeTrait(template, new TwingNode(toAnonymousNodes(targets), null, line, column), line, column))
+        this.parser.addTrait(new TwingNodeTrait(template, new Node(toTwingNodeNodes(targets), null, line, column), line, column))
 
-        return new TwingNode<null, null>(null, null);
+        return new Node<null, null>(null, null);
     }
 
     getTag() {

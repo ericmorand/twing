@@ -1,5 +1,5 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('with');
@@ -9,13 +9,13 @@ export type TwingNodeWithAttributes = {
 };
 
 export type TwingNodeWithNodes = {
-    body: TwingNode,
-    variables?: TwingNode
+    body: Node,
+    variables?: Node
 };
 
-export class TwingNodeWith<A extends TwingNodeWithAttributes = TwingNodeWithAttributes, N extends TwingNodeWithNodes = TwingNodeWithNodes> extends TwingNode<A, N> {
-    compile(compiler: TwingCompiler) {
-        const variables = this.nodes.variables;
+export class TwingNodeWith<A extends TwingNodeWithAttributes = TwingNodeWithAttributes, N extends TwingNodeWithNodes = TwingNodeWithNodes> extends Node<A, N> {
+    compile(compiler: Compiler) {
+        const variables = this.children.variables;
 
         if (variables) {
             compiler
@@ -48,7 +48,7 @@ export class TwingNodeWith<A extends TwingNodeWithAttributes = TwingNodeWithAttr
         }
 
         compiler
-            .subcompile(this.nodes.body)
+            .subcompile(this.children.body)
             .write("context = context.get('_parent');\n")
         ;
     }

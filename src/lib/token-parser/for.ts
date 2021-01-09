@@ -10,8 +10,8 @@
  * </pre>
  */
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
-import {TwingErrorSyntax} from "../error/syntax";
+import {Node} from "../node";
+import {SyntaxError} from "../error/syntax";
 import {TwingTokenStream} from "../token-stream";
 import {TwingNodeExpressionAssignName} from "../node/expression/assign-name";
 import {TwingNodeFor, type as forType} from "../node/for";
@@ -86,11 +86,11 @@ export class TwingTokenParserFor extends TwingTokenParser {
     }
 
     // the loop variable cannot be used in the condition
-    checkLoopUsageCondition(stream: TwingTokenStream, node: TwingNode) {
+    checkLoopUsageCondition(stream: TwingTokenStream, node: Node) {
         let self = this;
 
         if ((node.is(getAttrType)) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === 'loop')) {
-            throw new TwingErrorSyntax('The "loop" variable cannot be used in a looping condition.', node.getLine(), stream.getSourceContext());
+            throw new SyntaxError('The "loop" variable cannot be used in a looping condition.', node.getLine(), stream.getSourceContext());
         }
 
         node.getNodes().forEach(function (n) {
@@ -105,12 +105,12 @@ export class TwingTokenParserFor extends TwingTokenParser {
     }
 
     // it does not catch all problems (for instance when a for is included into another or when the variable is used in an include)
-    private checkLoopUsageBody(stream: TwingTokenStream, node: TwingNode) {
+    private checkLoopUsageBody(stream: TwingTokenStream, node: Node) {
         if ((node.is(getAttrType)) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === 'loop')) {
             let attribute = node.getNode('attribute');
 
             if ((attribute.is(constantType)) && (['length', 'revindex0', 'revindex', 'last'].indexOf(attribute.getAttribute('value')) > -1)) {
-                throw new TwingErrorSyntax(`The "loop.${attribute.getAttribute('value')}" variable is not defined when looping with a condition.`, node.getLine(), stream.getSourceContext());
+                throw new SyntaxError(`The "loop.${attribute.getAttribute('value')}" variable is not defined when looping with a condition.`, node.getLine(), stream.getSourceContext());
             }
         }
 

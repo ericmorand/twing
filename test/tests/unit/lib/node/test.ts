@@ -1,12 +1,12 @@
 import * as tape from 'tape';
-import {TwingNode} from "../../../../../src/lib/node";
+import {Node} from "../../../../../src/lib/node";
 
 tape('token', (test) => {
     test.test('should provide textual representation', (test) => {
-        let node = new TwingNode(new Map([
-            ['foo', new TwingNode(new Map(), new Map(), 2, 1, 'foo')]
+        let node = new Node(new Map([
+            ['foo', new Node(new Map(), new Map(), 2, 1, 'foo')]
         ]), new Map([
-            ['foo-attr', new TwingNode(new Map(), new Map(), 2, 1, 'bar')]
+            ['foo-attr', new Node(new Map(), new Map(), 2, 1, 'bar')]
         ]), 1, 1, 'foo');
 
         test.same(node.toString(), `TwingNode(foo-attr: TwingNode(line: 2, column: 1), line: 1, column: 1
@@ -17,9 +17,9 @@ tape('token', (test) => {
     });
 
     test.test('clone', (test) => {
-        let childNode = new TwingNode();
-        let childAttribute = new TwingNode();
-        let node = new TwingNode(new Map([[0, childNode]]), new Map([['foo', childAttribute]]));
+        let childNode = new Node();
+        let childAttribute = new Node();
+        let node = new Node(new Map([[0, childNode]]), new Map([['foo', childAttribute]]));
         let clone = node.clone();
 
         test.notEquals(clone, node);
@@ -34,7 +34,7 @@ tape('token', (test) => {
     });
 
     test.test('getAttribute', (test) => {
-        let node = new TwingNode();
+        let node = new Node();
 
         try {
             node.getAttribute('foo');
@@ -49,7 +49,7 @@ tape('token', (test) => {
     });
 
     test.test('removeAttribute', (test) => {
-        let node = new TwingNode(new Map(), new Map([['foo', new TwingNode()]]));
+        let node = new Node(new Map(), new Map([['foo', new Node()]]));
 
         node.removeAttribute('foo');
 
@@ -59,7 +59,7 @@ tape('token', (test) => {
     });
 
     test.test('getNode', (test) => {
-        let node = new TwingNode();
+        let node = new Node();
 
         try {
             node.getNode(0);
@@ -74,7 +74,7 @@ tape('token', (test) => {
     });
 
     test.test('toString', (test) => {
-        let node = new TwingNode(new Map(), new Map([['foo', 'bar']]));
+        let node = new Node(new Map(), new Map([['foo', 'bar']]));
 
         test.same(node.toString(), 'TwingNode(foo: \'bar\', line: 0, column: 0)');
 

@@ -1,5 +1,5 @@
 import {TwingNodeExpressionTest} from "../test";
-import {TwingNode} from "../../../node";
+import {Node} from "../../../node";
 import {TwingNodeExpression} from "../../expression";
 import {TwingNodeExpressionConstant, type as constantType} from "../constant";
 import {type as nameType} from "../name";
@@ -8,8 +8,8 @@ import {type as blockreferenceType} from "../block-reference";
 import {TwingNodeExpressionFunction} from "../function";
 import {type as arrayType} from "../array";
 import {type as methodCallType} from "../method-call";
-import {TwingErrorSyntax} from "../../../error/syntax";
-import {TwingCompiler} from "../../../compiler";
+import {SyntaxError} from "../../../error/syntax";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_test_defined');
@@ -25,7 +25,7 @@ export const type = new TwingNodeType('expression_test_defined');
  * </pre>
  */
 export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
-    constructor(node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) {
+    constructor(node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) {
         let changeIgnoreStrictCheck = false;
         let error = null;
 
@@ -53,7 +53,7 @@ export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
         }
 
         if (error) {
-            throw new TwingErrorSyntax(error, this.getLine());
+            throw new SyntaxError(error, this.getLine());
         }
     }
 
@@ -72,7 +72,7 @@ export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
         }
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler.subcompile(this.getNode('node'));
     }
 }

@@ -1,5 +1,5 @@
 import {TwingNodeExpressionTest} from "../test";
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_test_constant');
@@ -9,7 +9,7 @@ export class TwingNodeExpressionTestConstant extends TwingNodeExpressionTest {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw('(')
             .subcompile(this.getNode('node'))

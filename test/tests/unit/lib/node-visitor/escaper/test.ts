@@ -4,7 +4,7 @@ import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 import {TwingNodeVisitorEscaper} from "../../../../../../src/lib/node-visitor/escaper";
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
 import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingSource} from "../../../../../../src/lib/source";
 import {TwingNodeModule} from "../../../../../../src/lib/node/module";
 import {TwingNodeVisitorSafeAnalysis} from "../../../../../../src/lib/node-visitor/safe-analysis";
@@ -19,9 +19,9 @@ tape('node-visitor/escaper', (test) => {
             let visitor = new TwingNodeVisitorEscaper();
             let body = new TwingNodeText('foo', 1, 1);
             let parent = new TwingNodeExpressionConstant('layout.twig', 1, 1);
-            let blocks = new TwingNode();
-            let macros = new TwingNode();
-            let traits = new TwingNode();
+            let blocks = new Node();
+            let macros = new Node();
+            let traits = new Node();
             let source = new TwingSource('{{ foo }}', 'foo.twig');
             let module = new TwingNodeModule(body, parent, blocks, macros, traits, [], source);
 

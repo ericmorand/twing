@@ -10,12 +10,12 @@
  * </pre>
  */
 import {TwingTokenParser} from "../token-parser";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeSpaceless} from "../node/spaceless";
 import {Token, TokenType} from "twig-lexer";
 
 export class TwingTokenParserSpaceless extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         let line = token.line;
         let column = token.column;
         let stream = this.parser.getStream();

@@ -2,7 +2,7 @@ import {TwingEnvironment} from "../../../environment";
 import {iconv} from "../../../helpers/iconv";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {iteratorToArray} from "../../../helpers/iterator-to-array";
-import {TwingErrorRuntime} from "../../../error/runtime";
+import {RuntimeError} from "../../../error/runtime";
 
 const runes = require('runes');
 const mt_rand = require('locutus/php/math/mt_rand');
@@ -18,7 +18,7 @@ const array_rand = require('locutus/php/array/array_rand');
  * @param {*} values The values to pick a random item from
  * @param {number} max Maximum value used when values is an integer
  *
- * @throws TwingErrorRuntime when values is an empty array (does not apply to an empty string which is returned as is)
+ * @throws RuntimeError when values is an empty array (does not apply to an empty string which is returned as is)
  *
  * @returns {Promise<any>} A random value from the given sequence
  */
@@ -78,7 +78,7 @@ export function random(env: TwingEnvironment, values: any = null, max: number = 
         }
 
         if (values.length < 1) {
-            throw new TwingErrorRuntime('The random function cannot pick from an empty array.');
+            throw new RuntimeError('The random function cannot pick from an empty array.');
         }
 
         return values[array_rand(values, 1)];

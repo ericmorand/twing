@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeSpaceless, type} from "../../../../../../src/lib/node/spaceless";
 import {MockCompiler} from "../../../../../mock/compiler";
 
@@ -10,7 +10,7 @@ tape('node/spaceless', (test) => {
             [0, new TwingNodeText('<div>   <div>   foo   </div>   </div>', 1, 1)]
         ]);
 
-        let body = new TwingNode(bodyNodes);
+        let body = new Node(bodyNodes);
         let node = new TwingNodeSpaceless(body, 1, 1);
 
         test.same(node.getNode('body'), body);
@@ -26,7 +26,7 @@ tape('node/spaceless', (test) => {
             [0, new TwingNodeText('<div>   <div>   foo   </div>   </div>', 1, 1)]
         ]);
 
-        let body = new TwingNode(bodyNodes);
+        let body = new Node(bodyNodes);
         let node = new TwingNodeSpaceless(body, 1, 1);
         let compiler = new MockCompiler();
 

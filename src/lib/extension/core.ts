@@ -4,7 +4,7 @@ import {TwingNodeExpressionBinaryAnd} from "../node/expression/binary/and";
 import {TwingTokenParserExtends} from "../token-parser/extends";
 import {TwingTokenParserFrom} from "../token-parser/from";
 import {TwingTokenParserMacro} from "../token-parser/macro";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpressionBinaryIn} from "../node/expression/binary/in";
 import {TwingTokenParserIf} from "../token-parser/if";
 import {TwingTokenParserSet} from "../token-parser/set";
@@ -330,7 +330,7 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'preserve_keys', defaultValue: true}
             ]),
             new TwingFilter('capitalize', capitalize, [], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('column', column, [
                 {name: 'name'}
@@ -339,24 +339,24 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'to'},
                 {name: 'from'}
             ], {
-                pre_escape: 'html',
-                is_safe: ['html']
+                preEscape: 'html',
+                isSafe: ['html']
             }),
             new TwingFilter('date', date, [
                 {name: 'format', defaultValue: null},
                 {name: 'timezone', defaultValue: null}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('date_modify', dateModify, [
                 {name: 'modifier'}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('default', defaultFilter, [
                 {name: 'default'}
             ], {
-                expression_factory: (node: TwingNode, filterName: string, filterArguments: TwingNode, line: number, column: number) => {
+                expressionFactory: (node: Node, filterName: string, filterArguments: Node, line: number, column: number) => {
                     return new TwingNodeExpressionFilterDefault(node, filterName, filterArguments, line, column);
                 }
             }),
@@ -364,15 +364,15 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'strategy'},
                 {name: 'charset'}
             ], {
-                needs_template: true,
-                is_safe_callback: this.escapeFilterIsSafe
+                needsTemplate: true,
+                isSafeCallback: this.escapeFilterIsSafe
             }),
             new TwingFilter('escape', escape, [
                 {name: 'strategy'},
                 {name: 'charset'}
             ], {
-                needs_template: true,
-                is_safe_callback: this.escapeFilterIsSafe
+                needsTemplate: true,
+                isSafeCallback: this.escapeFilterIsSafe
             }),
             new TwingFilter('filter', filter, [
                 {name: 'array'},
@@ -390,28 +390,28 @@ export class TwingExtensionCore extends TwingExtension {
             new TwingFilter('keys', arrayKeys, []),
             new TwingFilter('last', last, []),
             new TwingFilter('length', length, [], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('lower', lower, [], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('map', map, [
                 {name: 'arrow'}
             ]),
             new TwingFilter('merge', mergeFilter, []),
             new TwingFilter('nl2br', nl2br, [], {
-                pre_escape: 'html',
-                is_safe: ['html']
+                preEscape: 'html',
+                isSafe: ['html']
             }),
             new TwingFilter('number_format', numberFormat, [
                 {name: 'decimal'},
                 {name: 'decimal_point'},
                 {name: 'thousand_sep'}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFilter('raw', raw, [], {
-                is_safe: ['all']
+                isSafe: ['all']
             }),
             new TwingFilter('reduce', reduce, [
                 {name: 'arrow'},
@@ -434,7 +434,7 @@ export class TwingExtensionCore extends TwingExtension {
             ]),
             new TwingFilter('sort', sort, []),
             new TwingFilter('spaceless', spaceless, [], {
-                is_safe: ['html']
+                isSafe: ['html']
             }),
             new TwingFilter('split', split, [
                 {name: 'delimiter'},
@@ -459,7 +459,7 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'name'},
                 {name: 'object', defaultValue: null}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFunction('cycle', cycle, [
                 {name: 'values'},
@@ -469,11 +469,11 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'date'},
                 {name: 'timezone'}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFunction('dump', dump, [], {
-                is_safe: ['html'],
-                needs_context: true
+                isSafe: ['html'],
+                needsContext: true
             }),
             new TwingFunction('include', include, [
                 {name: 'template'},
@@ -482,10 +482,10 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'ignore_missing', defaultValue: false},
                 {name: 'sandboxed', defaultValue: false}
             ], {
-                needs_template: true,
-                needs_context: true,
-                needs_output_buffer: true,
-                is_safe: ['all']
+                needsTemplate: true,
+                needsContext: true,
+                needsOutputBuffer: true,
+                isSafe: ['all']
             }),
             new TwingFunction('max', max, []),
             new TwingFunction('min', min, []),
@@ -493,7 +493,7 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'values', defaultValue: null},
                 {name: 'max', defaultValue: null}
             ], {
-                needs_template: true
+                needsTemplate: true
             }),
             new TwingFunction('range', range, [
                 {name: 'low'},
@@ -504,14 +504,14 @@ export class TwingExtensionCore extends TwingExtension {
                 {name: 'name'},
                 {name: 'ignore_missing', defaultValue: false}
             ], {
-                needs_template: true,
-                is_safe: ['all']
+                needsTemplate: true,
+                isSafe: ['all']
             }),
             new TwingFunction('template_from_string', templateFromString, [
                 {name: 'template'},
                 {name: 'name', defaultValue: null}
             ], {
-                needs_template: true
+                needsTemplate: true
             })
         ];
     }
@@ -519,13 +519,13 @@ export class TwingExtensionCore extends TwingExtension {
     getTests(): Array<TwingTest> {
         return [
             new TwingTest('constant', null, [], {
-                expression_factory: (node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) => {
+                expressionFactory: (node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) => {
                     return new TwingNodeExpressionTestConstant(node, name, testArguments, line, column);
                 }
             }),
             new TwingTest('divisible by', divisibleBy, []),
             new TwingTest('defined', null, [], {
-                expression_factory: (node: TwingNodeExpression, name: string, testArguments: TwingNode, line: number, column: number) => {
+                expressionFactory: (node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) => {
                     return new TwingNodeExpressionTestDefined(node, name, testArguments, line, column);
                 }
             }),
@@ -541,93 +541,93 @@ export class TwingExtensionCore extends TwingExtension {
 
     getOperators(): TwingOperator[] {
         return [
-            new TwingOperator('not', TwingOperatorType.UNARY, 50, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('not', TwingOperatorType.UNARY, 50, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionUnaryNot(operands[0], lineno, columnno);
             }),
-            new TwingOperator('-', TwingOperatorType.UNARY, 500, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('-', TwingOperatorType.UNARY, 500, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionUnaryNeg(operands[0], lineno, columnno);
             }),
-            new TwingOperator('+', TwingOperatorType.UNARY, 500, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('+', TwingOperatorType.UNARY, 500, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionUnaryPos(operands[0], lineno, columnno);
             }),
-            new TwingOperator('or', TwingOperatorType.BINARY, 10, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('or', TwingOperatorType.BINARY, 10, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryOr(operands, lineno, columnno);
             }),
-            new TwingOperator('and', TwingOperatorType.BINARY, 15, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('and', TwingOperatorType.BINARY, 15, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryAnd(operands, lineno, columnno);
             }),
-            new TwingOperator('b-or', TwingOperatorType.BINARY, 16, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('b-or', TwingOperatorType.BINARY, 16, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryBitwiseOr(operands, lineno, columnno);
             }),
-            new TwingOperator('b-xor', TwingOperatorType.BINARY, 17, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('b-xor', TwingOperatorType.BINARY, 17, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryBitwiseXor(operands, lineno, columnno);
             }),
-            new TwingOperator('b-and', TwingOperatorType.BINARY, 18, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('b-and', TwingOperatorType.BINARY, 18, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryBitwiseAnd(operands, lineno, columnno);
             }),
-            new TwingOperator('==', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('==', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryEqual(operands, lineno, columnno);
             }),
-            new TwingOperator('!=', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('!=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryNotEqual(operands, lineno, columnno);
             }),
-            new TwingOperator('<', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('<', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryLess(operands, lineno, columnno);
             }),
-            new TwingOperator('<=', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('<=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryLessEqual(operands, lineno, columnno);
             }),
-            new TwingOperator('>', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('>', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryGreater(operands, lineno, columnno);
             }),
-            new TwingOperator('>=', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('>=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryGreaterEqual(operands, lineno, columnno);
             }),
-            new TwingOperator('not in', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('not in', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryNotIn(operands, lineno, columnno);
             }),
-            new TwingOperator('in', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('in', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryIn(operands, lineno, columnno);
             }),
-            new TwingOperator('matches', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('matches', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryMatches(operands, lineno, columnno);
             }),
-            new TwingOperator('starts with', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('starts with', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryStartsWith(operands, lineno, columnno);
             }),
-            new TwingOperator('ends with', TwingOperatorType.BINARY, 20, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('ends with', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryEndsWith(operands, lineno, columnno);
             }),
-            new TwingOperator('..', TwingOperatorType.BINARY, 25, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('..', TwingOperatorType.BINARY, 25, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryRange(operands, lineno, columnno);
             }),
-            new TwingOperator('+', TwingOperatorType.BINARY, 30, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('+', TwingOperatorType.BINARY, 30, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryAdd(operands, lineno, columnno);
             }),
-            new TwingOperator('-', TwingOperatorType.BINARY, 30, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('-', TwingOperatorType.BINARY, 30, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinarySub(operands, lineno, columnno);
             }),
-            new TwingOperator('~', TwingOperatorType.BINARY, 40, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('~', TwingOperatorType.BINARY, 40, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryConcat(operands, lineno, columnno);
             }),
-            new TwingOperator('*', TwingOperatorType.BINARY, 60, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('*', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryMul(operands, lineno, columnno);
             }),
-            new TwingOperator('/', TwingOperatorType.BINARY, 60, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('/', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryDiv(operands, lineno, columnno);
             }),
-            new TwingOperator('//', TwingOperatorType.BINARY, 60, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('//', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryFloorDiv(operands, lineno, columnno);
             }),
-            new TwingOperator('%', TwingOperatorType.BINARY, 60, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('%', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryMod(operands, lineno, columnno);
             }),
             new TwingOperator('is', TwingOperatorType.BINARY, 100, null),
             new TwingOperator('is not', TwingOperatorType.BINARY, 100, null),
-            new TwingOperator('**', TwingOperatorType.BINARY, 200, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('**', TwingOperatorType.BINARY, 200, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionBinaryPower(operands, lineno, columnno);
             }, TwingOperatorAssociativity.RIGHT),
-            new TwingOperator('??', TwingOperatorType.BINARY, 300, function (operands: [TwingNode, TwingNode], lineno: number, columnno: number) {
+            new TwingOperator('??', TwingOperatorType.BINARY, 300, function (operands: [Node, Node], lineno: number, columnno: number) {
                 return new TwingNodeExpressionNullCoalesce(operands, lineno, columnno);
             }, TwingOperatorAssociativity.RIGHT)
         ];
@@ -636,7 +636,7 @@ export class TwingExtensionCore extends TwingExtension {
     /**
      * @internal
      */
-    private escapeFilterIsSafe(filterArgs: TwingNode) {
+    private escapeFilterIsSafe(filterArgs: Node) {
         if (filterArgs.getNodes().size > 0) {
             let result: Array<string> = [];
 

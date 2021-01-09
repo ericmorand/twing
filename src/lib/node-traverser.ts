@@ -7,7 +7,7 @@
  */
 import {TwingEnvironment} from "./environment";
 import {TwingNodeVisitorInterface} from "./node-visitor-interface";
-import {TwingNode} from "./node";
+import {Node} from "./node";
 
 import {ksort} from "./helpers/ksort";
 import {push} from "./helpers/push";
@@ -42,11 +42,11 @@ export class TwingNodeTraverser {
     /**
      * Traverses a node and calls the registered visitors.
      *
-     * @return TwingNode
+     * @return Node
      */
-    traverse(node: TwingNode): TwingNode {
+    traverse(node: Node): Node {
         let self = this;
-        let result: TwingNode | false = node;
+        let result: Node | false = node;
 
         ksort(this.visitors);
 
@@ -59,7 +59,7 @@ export class TwingNodeTraverser {
         return result;
     }
 
-    traverseForVisitor(visitor: TwingNodeVisitorInterface, node: TwingNode): TwingNode {
+    traverseForVisitor(visitor: TwingNodeVisitorInterface, node: Node): Node {
         let self = this;
 
         node = visitor.TwingNodeVisitorInterfaceImpl.enterNode(node, this.env);

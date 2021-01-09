@@ -1,5 +1,5 @@
 import {TwingMarkup} from "../../../markup";
-import {TwingErrorRuntime} from "../../../error/runtime";
+import {RuntimeError} from "../../../error/runtime";
 import {TwingTemplate} from "../../../template";
 
 const bin2hex = require('locutus/php/strings/bin2hex');
@@ -173,7 +173,7 @@ export function escape(template: TwingTemplate, string: any, strategy: string = 
 
                 let validStrategies: Array<string> = array_merge(['html', 'js', 'url', 'css', 'html_attr'], [...escapers.keys()]);
 
-                throw new TwingErrorRuntime(`Invalid escaping strategy "${strategy}" (valid ones: ${validStrategies.join(', ')}).`);
+                throw new RuntimeError(`Invalid escaping strategy "${strategy}" (valid ones: ${validStrategies.join(', ')}).`);
         }
     };
 

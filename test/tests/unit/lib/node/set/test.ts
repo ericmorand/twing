@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
 import {TwingNodeExpressionAssignName} from "../../../../../../src/lib/node/expression/assign-name";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeSet, type} from "../../../../../../src/lib/node/set";
 import {MockCompiler} from "../../../../../mock/compiler";
 import {TwingNodePrint} from "../../../../../../src/lib/node/print";
@@ -13,13 +13,13 @@ tape('node/set', (test) => {
             [0, new TwingNodeExpressionAssignName('foo', 1, 1)]
         ]);
 
-        let namesNode = new TwingNode(namesNodes, new Map(), 1, 1);
+        let namesNode = new Node(namesNodes, new Map(), 1, 1);
 
         let valuesNodes = new Map([
             [0, new TwingNodeExpressionConstant('foo', 1, 1)]
         ]);
 
-        let valuesNode = new TwingNode(valuesNodes, new Map(), 1, 1);
+        let valuesNode = new Node(valuesNodes, new Map(), 1, 1);
 
         let node = new TwingNodeSet(false, namesNode, valuesNode, 1, 1);
 
@@ -41,13 +41,13 @@ tape('node/set', (test) => {
                 [0, new TwingNodeExpressionAssignName('foo', 1, 1)]
             ]);
 
-            let namesNode = new TwingNode(namesNodes, new Map(), 1, 1);
+            let namesNode = new Node(namesNodes, new Map(), 1, 1);
 
             let valuesNodes = new Map([
                 [0, new TwingNodeExpressionConstant('foo', 1, 1)]
             ]);
 
-            let valuesNode = new TwingNode(valuesNodes, new Map(), 1, 1);
+            let valuesNode = new Node(valuesNodes, new Map(), 1, 1);
 
             let node = new TwingNodeSet(false, namesNode, valuesNode, 1, 1);
 
@@ -62,13 +62,13 @@ tape('node/set', (test) => {
                 [0, new TwingNodeExpressionAssignName('foo', 1, 1)]
             ]);
 
-            let namesNode = new TwingNode(namesNodes, new Map(), 1, 1);
+            let namesNode = new Node(namesNodes, new Map(), 1, 1);
 
             let valuesNodes = new Map([
                 [0, new TwingNodePrint(new TwingNodeExpressionConstant('foo', 1, 1), 1, 1)]
             ]);
 
-            let valuesNode = new TwingNode(valuesNodes, new Map(), 1, 1);
+            let valuesNode = new Node(valuesNodes, new Map(), 1, 1);
 
             let node = new TwingNodeSet(true, namesNode, valuesNode, 1, 1);
 
@@ -85,7 +85,7 @@ context.proxy[\`foo\`] = (() => {let tmp = outputBuffer.getAndClean(); return tm
                 [0, new TwingNodeExpressionAssignName('foo', 1, 1)]
             ]);
 
-            let namesNode = new TwingNode(namesNodes, new Map(), 1, 1);
+            let namesNode = new Node(namesNodes, new Map(), 1, 1);
             let valuesNode = new TwingNodeText('foo', 1, 1);
 
             let node = new TwingNodeSet(true, namesNode, valuesNode, 1, 1);
@@ -102,14 +102,14 @@ context.proxy[\`foo\`] = (() => {let tmp = outputBuffer.getAndClean(); return tm
                 [1, new TwingNodeExpressionAssignName('bar', 1, 1)]
             ]);
 
-            let namesNode = new TwingNode(namesNodes, new Map(), 1, 1);
+            let namesNode = new Node(namesNodes, new Map(), 1, 1);
 
             let valuesNodes = new Map([
                 [0, new TwingNodeExpressionConstant('foo', 1, 1)],
                 [1, new TwingNodeExpressionConstant('bar', 1, 1)]
             ]);
 
-            let valuesNode = new TwingNode(valuesNodes, new Map(), 1, 1);
+            let valuesNode = new Node(valuesNodes, new Map(), 1, 1);
 
             let node = new TwingNodeSet(false, namesNode, valuesNode, 1, 1);
 

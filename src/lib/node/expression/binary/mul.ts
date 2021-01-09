@@ -1,5 +1,5 @@
 import {TwingNodeExpressionBinary} from "../binary";
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_binary_mul');
@@ -9,7 +9,7 @@ export class TwingNodeExpressionBinaryMul extends TwingNodeExpressionBinary {
         return type;
     }
 
-    operator(compiler: TwingCompiler): TwingCompiler {
+    operator(compiler: Compiler): Compiler {
         return compiler.raw('*');
     }
 }

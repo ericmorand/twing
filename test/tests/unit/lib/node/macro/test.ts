@@ -2,7 +2,7 @@ import * as tape from 'tape';
 import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
 import {TwingNodeExpressionName} from "../../../../../../src/lib/node/expression/name";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeMacro, type} from "../../../../../../src/lib/node/macro";
 import {MockCompiler} from "../../../../../mock/compiler";
 
@@ -14,7 +14,7 @@ tape('node/macro', (test) => {
             [0, new TwingNodeExpressionName('foo', 1, 1)]
         ]);
 
-        let arguments_ = new TwingNode(argumentsNode, new Map(), 1, 1);
+        let arguments_ = new Node(argumentsNode, new Map(), 1, 1);
         let node = new TwingNodeMacro('foo', body, arguments_, 1, 1);
 
         test.same(node.getNode('body'), body);
@@ -30,7 +30,7 @@ tape('node/macro', (test) => {
     test.test('compile', (test) => {
         let body = new TwingNodeText('foo', 1, 1);
 
-        let arguments_ = new TwingNode(new Map([
+        let arguments_ = new Node(new Map([
             ['foo', new TwingNodeExpressionConstant(null, 1, 1)],
             ['bar', new TwingNodeExpressionConstant('Foo', 1, 1)]
         ]), new Map(), 1, 1);

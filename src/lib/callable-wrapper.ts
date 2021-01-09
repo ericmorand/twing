@@ -1,8 +1,9 @@
-import {TwingError} from "./error";
+import {Error} from "./error";
 import {TwingSource} from "./source";
-import {TwingNode} from "./node";
-import {TwingNodeExpressionConstant} from "./node/expression/constant";
+import {Node} from "./node";
 import {TwingNodeExpression} from "./node/expression";
+
+import type {Location} from "./node";
 
 export type TwingCallable<T> = (...args: any[]) => Promise<T>;
 
@@ -11,18 +12,18 @@ export type TwingCallableArgument = {
     defaultValue?: any
 };
 
-export type CallableWrapperExpressionFactory = (node: TwingNode, name: string, callableArguments: TwingNode, line: number, column: number) => TwingNodeExpression;
+export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: Node, location: Location) => TwingNodeExpression<any>;
 
 export type TwingCallableWrapperOptions = {
-    needs_template?: boolean;
-    needs_context?: boolean;
-    needs_output_buffer?: boolean;
-    is_variadic?: boolean;
-    is_safe?: Array<any>;
-    is_safe_callback?: Function;
+    needsTemplate?: boolean;
+    needsContext?: boolean;
+    needsOutputBuffer?: boolean;
+    isVariadic?: boolean;
+    isSafe?: Array<any>;
+    isSafeCallback?: Function;
     deprecated?: boolean | string;
     alternative?: string;
-    expression_factory?: CallableWrapperExpressionFactory;
+    expressionFactory?: CallableWrapperExpressionFactory;
 }
 
 export abstract class TwingCallableWrapper<T> {
@@ -39,12 +40,12 @@ export abstract class TwingCallableWrapper<T> {
         this.acceptedArguments = acceptedArguments;
 
         this.options = Object.assign({}, {
-            needs_template: false,
-            needs_context: false,
-            needs_output_buffer: false,
-            is_variadic: false,
-            is_safe: null,
-            is_safe_callback: null,
+            needsTemplate: false,
+            needsContext: false,
+            needsOutputBuffer: false,
+            isVariadic: false,
+            isSafe: null,
+            isSafeCallback: null,
             deprecated: false,
             alternative: null
         }, options);
@@ -64,26 +65,17 @@ export abstract class TwingCallableWrapper<T> {
     /**
      * @return TwingCallableArgument[]
      */
-    getAcceptedArgments(): TwingCallableArgument[] {
+    getAcceptedArguments(): TwingCallableArgument[] {
         return this.acceptedArguments;
     }
 
-    /**
-     * Returns the traceable callable.
-     *
-     * @param {number} lineno
-     * @param {TwingSource} source
-     *
-     * @return {TwingCallable<T>}
-     */
-    traceableCallable(lineno: number, source: TwingSource): TwingCallable<T> {
+    traceableCallable(location: Location, source: TwingSource): TwingCallable<T> {
         let callable = this.callable;
 
         return function () {
-            return (callable.apply(null, arguments) as Promise<T>).catch((e: TwingError) => {
-                if (e.getTemplateLine() === -1) {
-                    e.setTemplateLine(lineno);
-                    e.setSourceContext(source);
+            return (callable.apply(null, arguments) as Promise<T>).catch((e: Error) => {
+                if (!e.location) {
+                    e = new Error(e.message, location, source, e.previous);
                 }
 
                 throw e;
@@ -92,7 +84,7 @@ export abstract class TwingCallableWrapper<T> {
     }
 
     get isVariadic(): boolean {
-        return this.options.is_variadic;
+        return this.options.isVariadic;
     }
 
     get isDeprecated(): boolean {
@@ -100,15 +92,15 @@ export abstract class TwingCallableWrapper<T> {
     }
 
     get needsTemplate(): boolean {
-        return this.options.needs_template;
+        return this.options.needsTemplate;
     }
 
     get needsContext(): boolean {
-        return this.options.needs_context;
+        return this.options.needsContext;
     }
 
     get needsOutputBuffer(): boolean {
-        return this.options.needs_output_buffer;
+        return this.options.needsOutputBuffer;
     }
 
     get deprecatedVersion() {
@@ -128,16 +120,16 @@ export abstract class TwingCallableWrapper<T> {
     }
 
     get expressionFactory(): CallableWrapperExpressionFactory {
-        return this.options.expression_factory;
+        return this.options.expressionFactory;
     }
 
-    isSafe(functionArgs: TwingNode): any[] {
-        if (this.options.is_safe !== null) {
-            return this.options.is_safe;
+    isSafe(functionArgs: Node): any[] {
+        if (this.options.isSafe !== null) {
+            return this.options.isSafe;
         }
 
-        if (this.options.is_safe_callback) {
-            return this.options.is_safe_callback(functionArgs);
+        if (this.options.isSafeCallback) {
+            return this.options.isSafeCallback(functionArgs);
         }
 
         return [];

@@ -1,6 +1,6 @@
-import {TwingErrorRuntime} from "./error/runtime";
+import {RuntimeError} from "./error/runtime";
 import {TwingSource} from "./source";
-import {TwingError} from "./error";
+import {Error} from "./error";
 import {TwingEnvironment} from "./environment";
 import {TwingOutputBuffer} from './output-buffer';
 import {iteratorToMap} from "./helpers/iterator-to-map";
@@ -169,9 +169,9 @@ export abstract class TwingTemplate {
                     if (parent) {
                         return parent.displayBlock(name, context, outputBuffer, merge(ownBlocks, blocks), false);
                     } else if (blocks.has(name)) {
-                        throw new TwingErrorRuntime(`Block "${name}" should not call parent() in "${blocks.get(name)[0].templateName}" as the block does not exist in the parent template "${this.templateName}".`, -1, blocks.get(name)[0].source);
+                        throw new RuntimeError(`Block "${name}" should not call parent() in "${blocks.get(name)[0].templateName}" as the block does not exist in the parent template "${this.templateName}".`, -1, blocks.get(name)[0].source);
                     } else {
-                        throw new TwingErrorRuntime(`Block "${name}" on template "${this.templateName}" does not exist.`, -1, this.source);
+                        throw new RuntimeError(`Block "${name}" on template "${this.templateName}" does not exist.`, -1, this.source);
                     }
                 });
 
@@ -198,7 +198,7 @@ export abstract class TwingTemplate {
                     if (template !== false) {
                         return template.displayBlock(name, context, outputBuffer, blocks, false);
                     } else {
-                        throw new TwingErrorRuntime(`The template has no parent and no traits defining the "${name}" block.`, -1, this.source);
+                        throw new RuntimeError(`The template has no parent and no traits defining the "${name}" block.`, -1, this.source);
                     }
                 });
             }
@@ -310,8 +310,8 @@ export abstract class TwingTemplate {
             promise = this.environment.resolveTemplate([...templates.values()], this.source);
         }
 
-        return promise.catch((e: TwingError) => {
-            if (e.getTemplateLine() !== -1) {
+        return promise.catch((e: Error) => {
+            if (e.getLocation() !== -1) {
                 throw e;
             }
 
@@ -364,12 +364,12 @@ export abstract class TwingTemplate {
 
     protected displayWithErrorHandling(context: any, outputBuffer: TwingOutputBuffer, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
         return this.doDisplay(context, outputBuffer, blocks).catch((e) => {
-            if (e instanceof TwingError) {
+            if (e instanceof Error) {
                 if (!e.getSourceContext()) {
                     e.setSourceContext(this.source);
                 }
             } else {
-                e = new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.source, e);
+                e = new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.source, e);
             }
 
             throw e;
@@ -430,7 +430,7 @@ export abstract class TwingTemplate {
             if (handler) {
                 return handler(outputBuffer, ...args);
             } else {
-                throw new TwingErrorRuntime(`Macro "${name}" is not defined in template "${template.templateName}".`, lineno, source);
+                throw new RuntimeError(`Macro "${name}" is not defined in template "${template.templateName}".`, lineno, source);
             }
         });
     }
@@ -438,13 +438,13 @@ export abstract class TwingTemplate {
     public traceableMethod<T>(method: Function, lineno: number, source: TwingSource): TwingTemplateTraceableMethod<T> {
         return function () {
             return (method.apply(null, arguments) as Promise<T>).catch((e) => {
-                if (e instanceof TwingError) {
-                    if (e.getTemplateLine() === -1) {
+                if (e instanceof Error) {
+                    if (e.getLocation() === -1) {
                         e.setTemplateLine(lineno);
                         e.setSourceContext(source);
                     }
                 } else {
-                    throw new TwingErrorRuntime(`An exception has been thrown during the rendering of a template ("${e.message}").`, lineno, source, e);
+                    throw new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, lineno, source, e);
                 }
 
                 throw e;
@@ -520,8 +520,8 @@ export abstract class TwingTemplate {
 
     protected get include(): (context: any, outputBuffer: TwingOutputBuffer, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number) => Promise<string> {
         return (context, outputBuffer, templates, variables, withContext, ignoreMissing, line) => {
-            return include(this, context, outputBuffer, templates, variables, withContext, ignoreMissing).catch((e: TwingError) => {
-                if (e.getTemplateLine() === -1) {
+            return include(this, context, outputBuffer, templates, variables, withContext, ignoreMissing).catch((e: Error) => {
+                if (e.getLocation() === -1) {
                     e.setTemplateLine(line);
                 }
 
@@ -558,8 +558,8 @@ export abstract class TwingTemplate {
         return TwingMarkup;
     }
 
-    protected get RuntimeError(): typeof TwingErrorRuntime {
-        return TwingErrorRuntime;
+    protected get RuntimeError(): typeof RuntimeError {
+        return RuntimeError;
     }
 
     protected get SandboxSecurityError(): typeof TwingSandboxSecurityError {

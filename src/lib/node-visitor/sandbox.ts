@@ -1,6 +1,6 @@
 import {TwingBaseNodeVisitor} from "../base-node-visitor";
 import {TwingEnvironment} from "../environment";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeCheckSecurity} from "../node/check-security";
 import {TwingNodeCheckToString} from "../node/check-to-string";
 import {type as moduleType} from "../node/module";
@@ -14,9 +14,9 @@ import {type as setType} from "../node/set";
 import {type as printType} from "../node/print";
 
 export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
-    private tags: Map<string, TwingNode>;
-    private filters: Map<string, TwingNode>;
-    private functions: Map<string, TwingNode>;
+    private tags: Map<string, Node>;
+    private filters: Map<string, Node>;
+    private functions: Map<string, Node>;
     private needsToStringWrap: boolean;
 
     constructor() {
@@ -25,7 +25,7 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
         this.TwingNodeVisitorInterfaceImpl = this;
     }
 
-    protected doEnterNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
         if (!env.isSandboxed()) {
             return node;
         }
@@ -88,7 +88,7 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
         return node;
     }
 
-    protected doLeaveNode(node: TwingNode, env: TwingEnvironment): TwingNode {
+    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
         if (!env.isSandboxed()) {
             return node;
         }
@@ -100,7 +100,7 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
             nodes.set(i++, new TwingNodeCheckSecurity(this.filters, this.tags, this.functions));
             nodes.set(i++, node.getNode('display_start'));
 
-            node.getNode('constructor_end').setNode('_security_check', new TwingNode(nodes));
+            node.getNode('constructor_end').setNode('_security_check', new Node(nodes));
         } else {
             if (node.is(printType) || node.is(setType)) {
                 this.needsToStringWrap = false;
@@ -110,7 +110,7 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
         return node;
     }
 
-    private wrapNode(node: TwingNode, name: string) {
+    private wrapNode(node: Node, name: string) {
         let expr = node.getNode(name);
 
         if (expr.is(nameType) || expr.is(getAttrType)) {
@@ -118,7 +118,7 @@ export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
         }
     }
 
-    private wrapArrayNode(node: TwingNode, name: string) {
+    private wrapArrayNode(node: Node, name: string) {
         let args = node.getNode(name);
 
         for (let [name] of args.getNodes()) {

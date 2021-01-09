@@ -1,7 +1,7 @@
-import {TwingNode} from "../node";
+import {Node} from "../node";
 
 export type TwingNodeBodyNodes = {
-    content: TwingNode
+    content: Node
 };
 
 /**
@@ -9,6 +9,6 @@ export type TwingNodeBodyNodes = {
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingNodeBody extends TwingNode<null, TwingNodeBodyNodes> {
+export class TwingNodeBody extends Node<null, TwingNodeBodyNodes> {
 
 }

@@ -1,17 +1,17 @@
 import * as tape from 'tape';
-import {TwingNode} from "../../../../../src/lib/node";
+import {Node} from "../../../../../src/lib/node";
 import {TwingNodeExpressionConstant} from "../../../../../src/lib/node/expression/constant";
-import {TwingCompiler} from "../../../../../src/lib/compiler";
+import {Compiler} from "../../../../../src/lib/compiler";
 import {MockEnvironment} from "../../../../mock/environment";
 import {MockLoader} from "../../../../mock/loader";
 import {TwingNodeBody} from "../../../../../src/lib/node/body";
 
 tape('compiler', (test) => {
     test.test('subcompile method', (test) => {
-        let node = new TwingNode(new Map([
+        let node = new Node(new Map([
             [0, new TwingNodeExpressionConstant(1, 1, 1)]
         ]), new Map(), 1, 1, 'foo');
-        let compiler = new TwingCompiler(new MockEnvironment(new MockLoader()));
+        let compiler = new Compiler(new MockEnvironment(new MockLoader()));
 
         test.same(compiler.compile(node).indent().subcompile(node).getSource(), '11', 'doesn\'t add indentation when raw is not set');
         test.same(compiler.compile(node).indent().subcompile(node, true).getSource(), '11', 'doesn\'t add indentation when raw is set to true');
@@ -21,9 +21,9 @@ tape('compiler', (test) => {
     });
 
     test.test('string method', (test) => {
-        let node = new TwingNode(new Map(), new Map(), 1, 1, 'foo');
+        let node = new Node(new Map(), new Map(), 1, 1, 'foo');
 
-        let compiler = new TwingCompiler(new MockEnvironment(new MockLoader));
+        let compiler = new Compiler(new MockEnvironment(new MockLoader));
 
         test.same(compiler.compile(node).string('').getSource(), '\`\`', 'supports empty parameter');
         test.same(compiler.compile(node).string(null).getSource(), '\`\`', 'supports null parameter');
@@ -35,9 +35,9 @@ tape('compiler', (test) => {
     });
 
     test.test('repr method', (test) => {
-        let node = new TwingNode(new Map(), new Map(), 1, 1, 'foo');
+        let node = new Node(new Map(), new Map(), 1, 1, 'foo');
 
-        let compiler = new TwingCompiler(new MockEnvironment(new MockLoader));
+        let compiler = new Compiler(new MockEnvironment(new MockLoader));
 
         test.same(compiler.compile(node).repr({1: 'a', 'b': 2, 'c': '3'}).getSource(), '{"1": \`a\`, "b": 2, "c": \`3\`}', 'supports hashes');
         test.same(compiler.compile(node).repr(undefined).getSource(), 'undefined', 'supports undefined');
@@ -47,9 +47,9 @@ tape('compiler', (test) => {
     });
 
     test.test('outdent method', function(test) {
-        let node = new TwingNode(new Map(), new Map(), 1, 1, 'foo');
+        let node = new Node(new Map(), new Map(), 1, 1, 'foo');
 
-        let compiler = new TwingCompiler(new MockEnvironment(new MockLoader));
+        let compiler = new Compiler(new MockEnvironment(new MockLoader));
 
         try {
             compiler.compile(node).outdent();
@@ -64,7 +64,7 @@ tape('compiler', (test) => {
     });
 
     test.test('addSourceMapEnter', function(test) {
-        let compiler = new TwingCompiler(new MockEnvironment(new MockLoader, {
+        let compiler = new Compiler(new MockEnvironment(new MockLoader, {
             source_map: true
         }));
 
@@ -73,7 +73,7 @@ tape('compiler', (test) => {
                 super(new Map(), new Map(), line, column);
             }
 
-            compile(compiler: TwingCompiler) {
+            compile(compiler: Compiler) {
                 compiler.addSourceMapEnter(this);
             }
         }

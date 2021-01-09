@@ -12,14 +12,14 @@ import {TwingLoaderInterface} from "./loader-interface";
 import {TwingErrorLoader} from "./error/loader";
 import {TwingTest} from "./test";
 import {TwingFunction} from "./function";
-import {TwingErrorSyntax} from "./error/syntax";
+import {SyntaxError} from "./error/syntax";
 import {TwingTemplate} from "./template";
-import {TwingError} from "./error";
+import {Error} from "./error";
 import {TwingCacheInterface} from "./cache-interface";
-import {TwingCompiler} from "./compiler";
+import {Compiler} from "./compiler";
 import {TwingNodeModule} from "./node/module";
 import {TwingCacheNull} from "./cache/null";
-import {TwingErrorRuntime} from "./error/runtime";
+import {RuntimeError} from "./error/runtime";
 import {EventEmitter} from 'events';
 import {TwingOutputBuffer} from "./output-buffer";
 import {TwingSourceMapNode} from "./source-map/node";
@@ -270,8 +270,8 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {Promise<void>}
      *
      * @throws TwingErrorLoader  When the template cannot be found
-     * @throws TwingErrorSyntax  When an error occurred during compilation
-     * @throws TwingErrorRuntime When an error occurred during rendering
+     * @throws SyntaxError  When an error occurred during compilation
+     * @throws RuntimeError When an error occurred during rendering
      */
     display(name: string, context: any = {}): Promise<void> {
         return this.loadTemplate(name).then((template) => template.display(context));
@@ -283,8 +283,8 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {string | TwingTemplate} name The template name
      *
      * @throws {TwingErrorLoader}  When the template cannot be found
-     * @throws {TwingErrorRuntime} When a previously generated cache is corrupted
-     * @throws {TwingErrorSyntax}  When an error occurred during compilation
+     * @throws {RuntimeError} When a previously generated cache is corrupted
+     * @throws {SyntaxError}  When an error occurred during compilation
      *
      * @return {Promise<TwingTemplate>}
      */
@@ -331,8 +331,8 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {Promise<TwingTemplate>} A template instance representing the given template name
      *
      * @throws {TwingErrorLoader}  When the template cannot be found
-     * @throws {TwingErrorRuntime} When a previously generated cache is corrupted
-     * @throws {TwingErrorSyntax}  When an error occurred during compilation
+     * @throws {RuntimeError} When a previously generated cache is corrupted
+     * @throws {SyntaxError}  When an error occurred during compilation
      */
     loadTemplate(name: string, index: number = 0, from: TwingSource = null): Promise<TwingTemplate> {
         this.emit('template', name, from);
@@ -434,7 +434,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {Promise<TwingTemplate>} A template instance representing the given template name
      *
      * @throws TwingErrorLoader When the template cannot be found
-     * @throws TwingErrorSyntax When an error occurred during compilation
+     * @throws SyntaxError When an error occurred during compilation
      */
     createTemplate(template: string, name: string = null): Promise<TwingTemplate> {
         let hash: string = hex.stringify(sha256(template));
@@ -463,7 +463,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {Promise<TwingTemplate>}
      *
      * @throws {TwingErrorLoader} When none of the templates can be found
-     * @throws {TwingErrorSyntax} When an error occurred during compilation
+     * @throws {SyntaxError} When an error occurred during compilation
      */
     resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: TwingSource): Promise<TwingTemplate> {
         let namesArray: Array<any>;
@@ -515,7 +515,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {TwingSource} source The source to tokenize
      * @return {TwingTokenStream}
      *
-     * @throws {TwingErrorSyntax} When the code is syntactically wrong
+     * @throws {SyntaxError} When the code is syntactically wrong
      */
     tokenize(source: TwingSource): TwingTokenStream {
         if (!this.lexer) {
@@ -537,7 +537,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {TwingTokenStream} stream
      * @return {TwingNodeModule}
      *
-     * @throws {TwingErrorSyntax} When the token stream is syntactically or semantically wrong
+     * @throws {SyntaxError} When the token stream is syntactically or semantically wrong
      */
     parse(stream: TwingTokenStream): TwingNodeModule {
         if (!this.parser) {
@@ -553,7 +553,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {string}
      */
     compile(node: TwingNodeModule) {
-        let compiler = new TwingCompiler(this);
+        let compiler = new Compiler(this);
 
         return compiler.compile(node).getSource();
     }
@@ -567,14 +567,14 @@ export abstract class TwingEnvironment extends EventEmitter {
         try {
             return this.compile(this.parse(this.tokenize(source)));
         } catch (e) {
-            if (e instanceof TwingError) {
+            if (e instanceof Error) {
                 if (!e.getSourceContext()) {
                     e.setSourceContext(source);
                 }
 
                 throw e;
             } else {
-                throw new TwingErrorSyntax(`An exception has been thrown during the compilation of a template ("${e.message}").`, -1, source);
+                throw new SyntaxError(`An exception has been thrown during the compilation of a template ("${e.message}").`, -1, source);
             }
         }
     }

@@ -2,7 +2,7 @@ import * as tape from 'tape';
 import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
 import {TwingTokenParserUse} from "../../../../../../src/lib/token-parser/use";
 import {getParser} from "../../../../../mock-builder/parser";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
 
 const sinon = require('sinon');
@@ -17,7 +17,7 @@ tape('token-parser/use', (test) => {
 
             tokenParser.setParser(parser);
 
-            sinon.stub(parser, 'parseExpression').returns(new TwingNode());
+            sinon.stub(parser, 'parseExpression').returns(new Node());
             sinon.stub(stream, 'getCurrent').returns({
                 line: 1
             });
@@ -53,10 +53,10 @@ tape('token-parser/use', (test) => {
 
             tokenParser.setParser(parser);
 
-            let trait: TwingNode;
+            let trait: Node;
 
             sinon.stub(parser, 'parseExpression').returns(new TwingNodeExpressionConstant('foo', 1, 1));
-            sinon.stub(parser, 'addTrait').callsFake((node: TwingNode) => {
+            sinon.stub(parser, 'addTrait').callsFake((node: Node) => {
                 trait = node;
             });
 

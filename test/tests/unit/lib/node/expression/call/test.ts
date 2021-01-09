@@ -1,18 +1,18 @@
 import * as tape from 'tape';
 import {TwingNodeExpressionCall, type} from "../../../../../../../src/lib/node/expression/call";
-import {TwingNode} from "../../../../../../../src/lib/node";
-import {TwingCompiler} from "../../../../../../../src/lib/compiler";
+import {Node} from "../../../../../../../src/lib/node";
+import {Compiler} from "../../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../../../src/lib/loader/array";
 
 class TwingTestsNodeExpressionCall extends TwingNodeExpressionCall {
-    getArguments(callable: Function, argumentsNode: TwingNode): TwingNode[] {
+    getArguments(callable: Function, argumentsNode: Node): Node[] {
         return super.getArguments(callable, argumentsNode);
     }
 }
 
 function getArguments(node: TwingTestsNodeExpressionCall, args: [Function, Map<any, any>]) {
-    let argumentsNode = new TwingNode(args[1]);
+    let argumentsNode = new Node(args[1]);
 
     return node.getArguments.apply(node, [args[0], argumentsNode]);
 }
@@ -33,7 +33,7 @@ function custom_Twig_Tests_Node_Expression_CallTest_function(required: boolean) 
 }
 
 class Callable extends TwingNodeExpressionCall {
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         this.setAttribute('type', 'function');
 
         this.compileCallable(compiler);
@@ -275,7 +275,7 @@ tape('node/expression/call', (test) => {
     });
 
     test.test('compile', (test) => {
-        let compiler = new TwingCompiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
+        let compiler = new Compiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
 
         let node = new Callable(new Map(), new Map([
             ['callable', 'foo']

@@ -1,5 +1,5 @@
 import {TwingNodeExpressionBinary} from "../binary";
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_binary_or');
@@ -9,7 +9,7 @@ export class TwingNodeExpressionBinaryOr extends TwingNodeExpressionBinary {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw('!!')
         ;
@@ -17,7 +17,7 @@ export class TwingNodeExpressionBinaryOr extends TwingNodeExpressionBinary {
         super.compile(compiler);
     }
 
-    operator(compiler: TwingCompiler): TwingCompiler {
+    operator(compiler: Compiler): Compiler {
         return compiler.raw('||');
     }
 }

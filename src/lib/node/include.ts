@@ -1,6 +1,6 @@
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpression} from "./expression";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 
 export type TwingNodeIncludeAttributes = {
     ignoreMissing: boolean,
@@ -13,15 +13,15 @@ export type TwingNodeIncludeNodes = {
 };
 
 export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIncludeAttributes,
-    N extends TwingNodeIncludeNodes = TwingNodeIncludeNodes> extends TwingNode<A, N> {
-    compile(compiler: TwingCompiler) {
+    N extends TwingNodeIncludeNodes = TwingNodeIncludeNodes> extends Node<A, N> {
+    compile(compiler: Compiler) {
         compiler.write('outputBuffer.echo(await this.include(context, outputBuffer, ');
 
         this.addGetTemplate(compiler);
 
         compiler.raw(', ');
 
-        const variables = this.nodes.variables;
+        const variables = this.children.variables;
 
         if (variables) {
             compiler.subcompile(variables);
@@ -40,7 +40,7 @@ export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIn
             .raw(');\n');
     }
 
-    protected addGetTemplate(compiler: TwingCompiler) {
-        compiler.subcompile(this.nodes.template);
+    protected addGetTemplate(compiler: Compiler) {
+        compiler.subcompile(this.children.template);
     }
 }

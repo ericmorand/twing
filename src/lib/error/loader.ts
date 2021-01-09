@@ -1,4 +1,4 @@
-import {TwingError} from "../error";
+import {Error} from "../error";
 import {TwingSource} from "../source";
 
 /**
@@ -6,7 +6,7 @@ import {TwingSource} from "../source";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingErrorLoader extends TwingError {
+export class TwingErrorLoader extends Error {
     constructor(message: string, lineno: number, source: TwingSource) {
         super('', lineno, source);
 

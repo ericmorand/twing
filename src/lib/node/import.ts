@@ -3,9 +3,9 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpression, TwingNodeExpressionAttributes} from "./expression";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 import {TwingNodeExpressionName} from "./expression/name";
 
 export type TwingNodeImportAttributes = {
@@ -19,8 +19,8 @@ export type TwingNodeImportNodes = {
     }>
 };
 
-export class TwingNodeImport<A extends TwingNodeImportAttributes = TwingNodeImportAttributes, N extends TwingNodeImportNodes = TwingNodeImportNodes> extends TwingNode<TwingNodeImportAttributes, TwingNodeImportNodes> {
-    compile(compiler: TwingCompiler) {
+export class TwingNodeImport<A extends TwingNodeImportAttributes = TwingNodeImportAttributes, N extends TwingNodeImportNodes = TwingNodeImportNodes> extends Node<TwingNodeImportAttributes, TwingNodeImportNodes> {
+    compile(compiler: Compiler) {
         compiler
             .write('aliases.proxy[')
             .repr(this.getNode('variable').getAttribute('value'))

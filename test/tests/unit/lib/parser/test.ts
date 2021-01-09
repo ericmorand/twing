@@ -2,7 +2,7 @@ import * as tape from 'tape';
 import * as sinon from 'sinon';
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingParser} from "../../../../../src/lib/parser";
-import {TwingNode} from "../../../../../src/lib/node";
+import {Node} from "../../../../../src/lib/node";
 import {TwingTokenStream} from "../../../../../src/lib/token-stream";
 import {TwingTokenParser} from "../../../../../src/lib/token-parser";
 import {Token, TokenType} from "twig-lexer";
@@ -10,7 +10,7 @@ import {TwingNodeText} from "../../../../../src/lib/node/text";
 import {TwingNodeSet} from "../../../../../src/lib/node/set";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingSource} from "../../../../../src/lib/source";
-import {TwingErrorSyntax} from "../../../../../src/lib/error/syntax";
+import {SyntaxError} from "../../../../../src/lib/error/syntax";
 import {TwingExtension} from "../../../../../src/lib/extension";
 import {TwingOperator, TwingOperatorType} from "../../../../../src/lib/operator";
 import {TwingNodeExpressionConstant} from "../../../../../src/lib/node/expression/constant";
@@ -31,7 +31,7 @@ let testEnv = new TwingEnvironmentNode(null);
 let getParser = function () {
     let parser = new TwingParser(testEnv);
 
-    parser.setParent(new TwingNode());
+    parser.setParent(new Node());
     parser['stream'] = new TwingTokenStream([], new TwingSource('', 'foo'));
 
     return parser;
@@ -103,7 +103,7 @@ class TestTokenParser extends TwingTokenParser {
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new TwingNode();
+        return new Node();
     }
 
     getTag() {
@@ -120,20 +120,20 @@ let getFilterBodyNodesData = function () {
 
     return [
         {
-            input: new TwingNode(new Map([[0, new TwingNodeText('   ', 1, 0)]])),
-            expected: new TwingNode(),
+            input: new Node(new Map([[0, new TwingNodeText('   ', 1, 0)]])),
+            expected: new Node(),
         },
         {
-            input: input = new TwingNode(new Map([[0, new TwingNodeSet(false, new TwingNode(), new TwingNode(), 1, 0)]])),
+            input: input = new Node(new Map([[0, new TwingNodeSet(false, new Node(), new Node(), 1, 0)]])),
             expected: input
         },
         {
-            input: input = new TwingNode(new Map([
+            input: input = new Node(new Map([
                     ['0', new TwingNodeSet(
                         true,
-                        new TwingNode(),
-                        new TwingNode(new Map([[
-                            0, new TwingNode(new Map([[
+                        new Node(),
+                        new Node(new Map([[
+                            0, new Node(new Map([[
                                 0, new TwingNodeText('foo', 1, 0)
                             ]]))
                         ]])),
@@ -213,8 +213,8 @@ tape('parser', (test) => {
 
         let fixtures = [
             new TwingNodeText('foo', 1, 0),
-            new TwingNode(
-                new Map([[0, new TwingNode(
+            new Node(
+                new Map([[0, new Node(
                     new Map([[0, new TwingNodeText('foo', 1, 0)]])
                 )]])
             )
@@ -340,7 +340,7 @@ tape('parser', (test) => {
             test.same(e.message, 'foo');
         }
 
-        stub.throws(new TwingErrorSyntax('foo.'));
+        stub.throws(new SyntaxError('foo.'));
 
         try {
             parser.parse(new TwingTokenStream([], new TwingSource('', 'foo')));

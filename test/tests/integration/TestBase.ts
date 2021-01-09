@@ -52,14 +52,14 @@ class TwingTestExtension extends TwingExtension {
     getFilters() {
         return [
             new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
-                needs_template: true,
-                is_safe: ['html']
+                needsTemplate: true,
+                isSafe: ['html']
             }),
             // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
-            new TwingFilter('nl2br_', nl2br, [], {'pre_escape': 'html', 'is_safe': ['html']}),
+            new TwingFilter('nl2br_', nl2br, [], {'preEscape': 'html', 'isSafe': ['html']}),
             new TwingFilter('§', this.sectionFilter, []),
-            new TwingFilter('escape_something', escape_something, [], {'is_safe': ['something']}),
-            new TwingFilter('preserves_safety', preserves_safety, [], {'preserves_safety': ['html']}),
+            new TwingFilter('escape_something', escape_something, [], {'isSafe': ['something']}),
+            new TwingFilter('preserves_safety', preserves_safety, [], {'preservesSafety': ['html']}),
             new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
             new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
             new TwingFilter('magic_call_string', function () {
@@ -79,7 +79,7 @@ class TwingTestExtension extends TwingExtension {
     getFunctions() {
         return [
             new TwingFunction('§', this.sectionFunction, []),
-            new TwingFunction('safe_br', this.br, [], {'is_safe': ['html']}),
+            new TwingFunction('safe_br', this.br, [], {'isSafe': ['html']}),
             new TwingFunction('unsafe_br', this.br, []),
             new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
             new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
@@ -102,8 +102,8 @@ class TwingTestExtension extends TwingExtension {
                     return (...args: Array<any>) => macroHandler(outputBuffer, ...args);
                 });
             }, [], {
-                needs_template: true,
-                needs_output_buffer: true
+                needsTemplate: true,
+                needsOutputBuffer: true
             }),
         ];
     }

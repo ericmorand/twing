@@ -1,12 +1,12 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 
 export type TwingNodeTextAttributes = {
     data: string
 };
 
-export class TwingNodeText<A extends TwingNodeTextAttributes = TwingNodeTextAttributes> extends TwingNode<A> {
-    compile(compiler: TwingCompiler) {
+export class TwingNodeText extends Node<TwingNodeTextAttributes, null> {
+    compile(compiler: Compiler) {
         compiler
             .addSourceMapEnter(this)
             .write('outputBuffer.echo(')

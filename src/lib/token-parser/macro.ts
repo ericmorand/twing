@@ -8,15 +8,15 @@
  * </pre>
  */
 import {TwingTokenParser} from "../token-parser";
-import {TwingErrorSyntax} from "../error/syntax";
+import {SyntaxError} from "../error/syntax";
 import {TwingNodeBody} from "../node/body";
 
 import {TwingNodeMacro} from "../node/macro";
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {Token, TokenType} from "twig-lexer";
 
 export class TwingTokenParserMacro extends TwingTokenParser {
-    parse(token: Token): TwingNode {
+    parse(token: Token): Node {
         let lineno = token.line;
         let columnno = token.column;
         let stream = this.parser.getStream();
@@ -34,7 +34,7 @@ export class TwingTokenParserMacro extends TwingTokenParser {
             let value = nextToken.value;
 
             if (value != name) {
-                throw new TwingErrorSyntax(`Expected endmacro for macro "${name}" (but "${value}" given).`, stream.getCurrent().line, stream.getSourceContext());
+                throw new SyntaxError(`Expected endmacro for macro "${name}" (but "${value}" given).`, stream.getCurrent().line, stream.getSourceContext());
             }
         }
 

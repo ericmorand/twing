@@ -1,4 +1,4 @@
-import {TwingNode} from "./node";
+import {Node} from "./node";
 import {TwingNodeExpression} from "./node/expression";
 
 export enum TwingOperatorType {
@@ -11,7 +11,7 @@ export enum TwingOperatorAssociativity {
     RIGHT = 'RIGHT'
 }
 
-type TwingOperatorExpressionFactory = (operands: [TwingNode, TwingNode], lineno: number, columno: number) => TwingNodeExpression;
+type TwingOperatorExpressionFactory = (operands: [Node, Node], lineno: number, columno: number) => TwingNodeExpression;
 
 export class TwingOperator {
     private name:string;

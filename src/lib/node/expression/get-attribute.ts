@@ -1,5 +1,5 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 
 import type {TwingNodeExpressionAttributes} from "../expression";
 
@@ -32,16 +32,16 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<TwingNo
     //     }, line, column);
     // }
 
-    constructor(attributes: TwingNodeExpressionGetAttributeAttributes, nodes: TwingNodeExpressionGetAttributeNodes, line: number, column: number) {
-        // todo: replace this, nodes are immutable
-        // if (this.attributes.ignoreStrictCheck) {
-        //     this.nodes.node.setAttribute('ignore_strict_check', true);
-        // }
+    // constructor(attributes: TwingNodeExpressionGetAttributeAttributes, nodes: TwingNodeExpressionGetAttributeNodes, line: number, column: number) {
+    //     // todo: replace this, nodes are immutable
+    //     // if (this.attributes.ignoreStrictCheck) {
+    //     //     this.nodes.node.setAttribute('ignore_strict_check', true);
+    //     // }
+    //
+    //     super(attributes, nodes, line, column);
+    // }
 
-        super(attributes, nodes, line, column);
-    }
-
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         let env = compiler.getEnvironment();
 
         // optimize array, hash and Map calls
@@ -52,9 +52,9 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<TwingNo
 
             compiler
                 .raw('await (async () => {let object = ')
-                .subcompile(this.nodes.node)
+                .subcompile(this.children.node)
                 .raw('; return this.get(object, ')
-                .subcompile(this.nodes.attribute)
+                .subcompile(this.children.attribute)
                 .raw(');})()')
             ;
 
@@ -63,12 +63,12 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<TwingNo
 
         compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.line}, this.source)(this.environment, `);
 
-        compiler.subcompile(this.nodes.node);
+        compiler.subcompile(this.children.node);
 
-        compiler.raw(', ').subcompile(this.nodes.attribute);
+        compiler.raw(', ').subcompile(this.children.attribute);
 
-        if (this.nodes.arguments) {
-            compiler.raw(', ').subcompile(this.nodes.arguments);
+        if (this.children.arguments) {
+            compiler.raw(', ').subcompile(this.children.arguments);
         } else {
             compiler.raw(', new Map()');
         }

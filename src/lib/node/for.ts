@@ -1,17 +1,17 @@
-import {TwingNode} from "../node";
+import {Node} from "../node";
 import {TwingNodeExpression} from "./expression";
 import {TwingNodeExpressionAssignName} from "./expression/assign-name";
 import {TwingNodeForLoop} from "./for-loop";
 import {TwingNodeIf} from "./if";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('for');
 
-export class TwingNodeFor extends TwingNode {
+export class TwingNodeFor extends Node {
     private loop: TwingNodeForLoop;
 
-    constructor(keyTarget: TwingNodeExpressionAssignName, valueTarget: TwingNodeExpressionAssignName, seq: TwingNodeExpression, ifexpr: TwingNodeExpression, body: TwingNode, elseNode: TwingNode, lineno: number, columnno: number, tag: string = null) {
+    constructor(keyTarget: TwingNodeExpressionAssignName, valueTarget: TwingNodeExpressionAssignName, seq: TwingNodeExpression, ifexpr: TwingNodeExpression, body: Node, elseNode: Node, lineno: number, columnno: number, tag: string = null) {
         let loop = new TwingNodeForLoop(lineno, columnno, tag);
 
         let bodyNodes = new Map();
@@ -20,7 +20,7 @@ export class TwingNodeFor extends TwingNode {
         bodyNodes.set(i++, body);
         bodyNodes.set(i++, loop);
 
-        body = new TwingNode(bodyNodes);
+        body = new Node(bodyNodes);
 
         if (ifexpr) {
             let ifNodes = new Map();
@@ -29,7 +29,7 @@ export class TwingNodeFor extends TwingNode {
             ifNodes.set(i++, ifexpr);
             ifNodes.set(i++, body);
 
-            body = new TwingNodeIf(new TwingNode(ifNodes), null, lineno, columnno, tag);
+            body = new TwingNodeIf(new Node(ifNodes), null, lineno, columnno, tag);
         }
 
         let nodes = new Map();
@@ -57,7 +57,7 @@ export class TwingNodeFor extends TwingNode {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .write("context.set('_parent', context.clone());\n\n")
             .write('await (async () => {\n')

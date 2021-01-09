@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {Test} from "tape";
 import {TwingCallableWrapper} from "../../../../../src/lib/callable-wrapper";
-import {TwingError} from "../../../../../src/lib/error";
+import {Error} from "../../../../../src/lib/error";
 import {TwingSource} from "../../../../../src/lib/source";
 
 tape('traceableCallable', (test) => {
@@ -9,7 +9,7 @@ tape('traceableCallable', (test) => {
         class Foo extends TwingCallableWrapper<any> {
             constructor() {
                 super('foo', () => {
-                    return Promise.reject(new TwingError('foo error'));
+                    return Promise.reject(new Error('foo error'));
                 }, [])
             }
         }

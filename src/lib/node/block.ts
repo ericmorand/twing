@@ -1,15 +1,15 @@
-import {TwingNode} from "../node";
-import {TwingCompiler} from "../compiler";
+import {Node} from "../node";
+import {Compiler} from "../compiler";
 import {TwingNodeType} from "../node-type";
 
 export const type = new TwingNodeType('auto_escape');
 
-export class TwingNodeBlock extends TwingNode<{
+export class TwingNodeBlock extends Node<{
     name: string
 }, {
-    body: TwingNode
+    body: Node
 }> {
-    constructor(name: string, body: TwingNode, line: number, column: number, tag: string) {
+    constructor(name: string, body: Node, line: number, column: number, tag: string) {
         super({name}, {body}, line, column, tag);
     }
 
@@ -17,7 +17,7 @@ export class TwingNodeBlock extends TwingNode<{
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw(`async (context, outputBuffer, blocks = new Map()) => {\n`)
             .indent()

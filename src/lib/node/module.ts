@@ -1,6 +1,6 @@
-import {AnonymousNodes, TwingNode} from "../node";
+import {NodeChildren, Node} from "../node";
 import {TwingSource} from "../source";
-import {TwingCompiler} from "../compiler";
+import {Compiler} from "../compiler";
 import {type as constantType} from "./expression/constant";
 import {TwingNodeBody, type as bodyType} from "./body";
 import {TwingNodeType} from "../node-type";
@@ -11,34 +11,34 @@ export const type = new TwingNodeType('module');
 /**
  * Represents a module node that compiles into a JavaScript module.
  */
-export class TwingNodeModule extends TwingNode<{
+export class TwingNodeModule extends Node<{
     body: TwingNodeBody,
-    blocks: TwingNode,
-    macros: TwingNode,
-    traits: TwingNode<AnonymousNodes<TwingNodeTrait>>,
-    display_start: TwingNode,
-    display_end: TwingNode,
-    constructor_start: TwingNode,
-    constructor_end: TwingNode,
-    class_end: TwingNode,
-    parent?: TwingNode
+    blocks: Node,
+    macros: Node,
+    traits: Node<NodeChildren<TwingNodeTrait>>,
+    display_start: Node,
+    display_end: Node,
+    constructor_start: Node,
+    constructor_end: Node,
+    class_end: Node,
+    parent?: Node
 }, {
     index: number,
     embedded_templates: Array<any>
 }> {
     public source: TwingSource;
 
-    constructor(body: TwingNodeBody, parent: TwingNode, blocks: TwingNode, macros: TwingNode, traits: TwingNode<AnonymousNodes<TwingNodeTrait>>, embeddedTemplates: Array<{}>, source: TwingSource) {
+    constructor(body: TwingNodeBody, parent: Node, blocks: Node, macros: Node, traits: Node<NodeChildren<TwingNodeTrait>>, embeddedTemplates: Array<{}>, source: TwingSource) {
         super({
             body,
             blocks,
             macros,
             traits,
-            display_start: new TwingNode({}, {}),
-            display_end: new TwingNode({}, {}),
-            constructor_start: new TwingNode({}, {}),
-            constructor_end: new TwingNode({}, {}),
-            class_end: new TwingNode({}, {}),
+            display_start: new Node({}, {}),
+            display_end: new Node({}, {}),
+            constructor_start: new Node({}, {}),
+            constructor_end: new Node({}, {}),
+            class_end: new Node({}, {}),
             parent
         }, {
             index: 0,
@@ -59,7 +59,7 @@ export class TwingNodeModule extends TwingNode<{
         this.setAttribute('index', index);
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         let index: number = this.getAttribute('index');
 
         if (index === 0) {
@@ -87,7 +87,7 @@ export class TwingNodeModule extends TwingNode<{
         }
     }
 
-    protected compileTemplate(compiler: TwingCompiler) {
+    protected compileTemplate(compiler: Compiler) {
         this.compileClassHeader(compiler);
         this.compileConstructor(compiler);
         this.compileDoGetParent(compiler);
@@ -97,7 +97,7 @@ export class TwingNodeModule extends TwingNode<{
         this.compileClassfooter(compiler);
     }
 
-    protected compileClassHeader(compiler: TwingCompiler) {
+    protected compileClassHeader(compiler: Compiler) {
         let index: number = this.getAttribute('index');
 
         compiler
@@ -105,7 +105,7 @@ export class TwingNodeModule extends TwingNode<{
             .indent();
     }
 
-    protected compileConstructor(compiler: TwingCompiler) {
+    protected compileConstructor(compiler: Compiler) {
         compiler
             .write('constructor(environment) {\n')
             .indent()
@@ -181,7 +181,7 @@ export class TwingNodeModule extends TwingNode<{
             .write('}\n\n');
     }
 
-    protected compileDoGetTraits(compiler: TwingCompiler) {
+    protected compileDoGetTraits(compiler: Compiler) {
         let count = this.getNode('traits').getNodes().size;
 
         if (count > 0) {
@@ -253,7 +253,7 @@ export class TwingNodeModule extends TwingNode<{
         }
     }
 
-    protected compileDoGetParent(compiler: TwingCompiler) {
+    protected compileDoGetParent(compiler: Compiler) {
         if (this.hasNode('parent')) {
             let parent = this.getNode('parent');
 
@@ -286,7 +286,7 @@ export class TwingNodeModule extends TwingNode<{
         }
     }
 
-    protected compileDoDisplay(compiler: TwingCompiler) {
+    protected compileDoDisplay(compiler: Compiler) {
         compiler
             .write("async doDisplay(context, outputBuffer, blocks = new Map()) {\n")
             .indent()
@@ -308,7 +308,7 @@ export class TwingNodeModule extends TwingNode<{
         ;
     }
 
-    protected compileIsTraitable(compiler: TwingCompiler) {
+    protected compileIsTraitable(compiler: Compiler) {
         // A template can be used as a trait if:
         //   * it has no parent
         //   * it has no macros
@@ -321,7 +321,7 @@ export class TwingNodeModule extends TwingNode<{
             let node = this.getNode('body').getNode('node');
 
             if (!node.getNodes().size) {
-                node = new TwingNode({
+                node = new Node({
                     0: node
                 }, null, 1, 1);
             }
@@ -350,7 +350,7 @@ export class TwingNodeModule extends TwingNode<{
         ;
     }
 
-    protected compileClassfooter(compiler: TwingCompiler) {
+    protected compileClassfooter(compiler: Compiler) {
         compiler
             .subcompile(this.getNode('class_end'))
             .outdent()

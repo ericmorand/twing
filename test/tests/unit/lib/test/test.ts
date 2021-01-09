@@ -6,7 +6,7 @@ tape('test', (test) => {
         let factory = () => {};
 
         let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
-            expression_factory: factory
+            expressionFactory: factory
         });
 
         test.same(twingTest.getExpressionFactory(), factory);
@@ -16,7 +16,7 @@ tape('test', (test) => {
 
     test.test('isVariadic', function(test) {
         let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
-            is_variadic: true
+            isVariadic: true
         });
 
         test.same(twingTest.isVariadic(), true);

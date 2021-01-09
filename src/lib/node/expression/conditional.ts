@@ -1,30 +1,21 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
+import {Compiler} from "../../compiler";
 
-export const type = new TwingNodeType('expression_conditional');
+export type TwingNodeExpressionConditionalNodes = {
+    expr1: TwingNodeExpression<any>,
+    expr2: TwingNodeExpression<any>,
+    expr3: TwingNodeExpression<any>
+};
 
-export class TwingNodeExpressionConditional extends TwingNodeExpression<{
-    expr1: TwingNodeExpression,
-    expr2: TwingNodeExpression,
-    expr3: TwingNodeExpression
-}> {
-    constructor(expr1: TwingNodeExpression, expr2: TwingNodeExpression, expr3: TwingNodeExpression, line: number, column: number) {
-        super({expr1, expr2, expr3}, null, line, column);
-    }
-
-    get type() {
-        return type;
-    }
-
-    compile(compiler: TwingCompiler) {
+export class TwingNodeExpressionConditional extends TwingNodeExpression<{}, TwingNodeExpressionConditionalNodes> {
+    compile(compiler: Compiler) {
         compiler
             .raw('((')
-            .subcompile(this.getNode('expr1'))
+            .subcompile(this.children.expr1)
             .raw(') ? (')
-            .subcompile(this.getNode('expr2'))
+            .subcompile(this.children.expr2)
             .raw(') : (')
-            .subcompile(this.getNode('expr3'))
+            .subcompile(this.children.expr3)
             .raw('))')
         ;
     }

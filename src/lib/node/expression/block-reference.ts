@@ -1,14 +1,14 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingNode} from "../../node";
-import {TwingCompiler} from "../../compiler";
-²
+import {Node} from "../../node";
+import {Compiler} from "../../compiler";
+
 export type TwingNodeExpressionBlockReferenceNodes = {
-    name: TwingNode,
-    template?: TwingNode
+    name: Node,
+    template?: Node
 };
 
 export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, TwingNodeExpressionBlockReferenceNodes> {
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         if (this.attributes.isDefinedTest) {
             this.compileTemplateCall(compiler, 'traceableHasBlock', false);
         } else {
@@ -16,15 +16,15 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, T
         }
     }
 
-    compileTemplateCall(compiler: TwingCompiler, method: string, needsOutputBuffer: boolean): TwingCompiler {
+    compileTemplateCall(compiler: Compiler, method: string, needsOutputBuffer: boolean): Compiler {
         compiler.write('await ');
 
-        if (!this.nodes.template) {
+        if (!this.children.template) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('(await this.loadTemplate(')
-                .subcompile(this.nodes.template)
+                .subcompile(this.children.template)
                 .raw(', ')
                 .repr(this.line)
                 .raw('))')
@@ -38,17 +38,17 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, T
         return compiler;
     }
 
-    compileBlockArguments(compiler: TwingCompiler, needsOutputBuffer: boolean) {
+    compileBlockArguments(compiler: Compiler, needsOutputBuffer: boolean) {
         compiler
             .raw('(')
-            .subcompile(this.nodes.name)
+            .subcompile(this.children.name)
             .raw(', context.clone()');
 
         if (needsOutputBuffer) {
             compiler.raw(', outputBuffer');
         }
 
-        if (!this.nodes.template) {
+        if (!this.children.template) {
             compiler.raw(', blocks');
         }
 

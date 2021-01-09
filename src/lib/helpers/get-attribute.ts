@@ -1,6 +1,6 @@
 import {TwingTemplate} from "../template";
 import {isMap} from "./is-map";
-import {TwingErrorRuntime} from "../error/runtime";
+import {RuntimeError} from "../error/runtime";
 import {examineObject} from "./examine-object";
 import {TwingEnvironment} from "../environment";
 import {isPlainObject} from "./is-plain-object";
@@ -82,7 +82,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                     message = `Impossible to access an attribute ("${item}") on a ${typeof object} variable ("${object}").`;
                 }
 
-                throw new TwingErrorRuntime(message);
+                throw new RuntimeError(message);
             }
         }
 
@@ -104,11 +104,11 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                 message = `Impossible to invoke a method ("${item}") on a ${typeof object} variable ("${object}").`;
             }
 
-            throw new TwingErrorRuntime(message);
+            throw new RuntimeError(message);
         }
 
         if (object instanceof TwingTemplate) {
-            throw new TwingErrorRuntime('Accessing TwingTemplate attributes is forbidden.');
+            throw new RuntimeError('Accessing TwingTemplate attributes is forbidden.');
         }
 
         // object property
@@ -201,7 +201,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                 return;
             }
 
-            throw new TwingErrorRuntime(`Neither the property "${item}" nor one of the methods ${item}()" or "get${item}()"/"is${item}()"/"has${item}()" exist and have public access in class "${object.constructor.name}".`);
+            throw new RuntimeError(`Neither the property "${item}" nor one of the methods ${item}()" or "get${item}()"/"is${item}()"/"has${item}()" exist and have public access in class "${object.constructor.name}".`);
         }
 
         if (isDefinedTest) {

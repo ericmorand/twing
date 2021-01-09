@@ -1,11 +1,9 @@
 import {TwingNodeExpression} from "../expression";
-import {TwingCompiler} from "../../compiler";
+import {Compiler} from "../../compiler";
 
-import type {TwingNodeExpressionAttributes} from "../expression";
-
-export type TwingNodeExpressionListAttributes<K> = TwingNodeExpressionAttributes<{
+export type TwingNodeExpressionListAttributes<K> = {
     elements: Array<[K, TwingNodeExpression<any>]>
-}>;
+};
 
 /**
  * An abstract node representing a list of expressions.
@@ -26,9 +24,9 @@ export abstract class TwingNodeExpressionList<K> extends TwingNodeExpression<Twi
         return pairs;
     }
 
-    protected abstract compileKey(compiler: TwingCompiler, key: K): void;
+    protected abstract compileKey(compiler: Compiler, key: K): void;
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler.raw('new Map([');
 
         let first = true;

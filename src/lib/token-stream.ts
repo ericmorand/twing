@@ -1,5 +1,5 @@
 import {TwingSource} from "./source";
-import {TwingErrorSyntax} from "./error/syntax";
+import {SyntaxError} from "./error/syntax";
 import {Token, TokenStream, TokenType, astVisitor} from "twig-lexer";
 import {typeToEnglish} from "./lexer";
 
@@ -49,7 +49,7 @@ export class TwingTokenStream {
         if (!token.test(type, value)) {
             let line = token.line;
 
-            throw new TwingErrorSyntax(
+            throw new SyntaxError(
                 `${message ? message + '. ' : ''}Unexpected token "${typeToEnglish(token.type)}" of value "${token.value}" ("${typeToEnglish(type)}" expected${value ? ` with value "${value}"` : ''}).`,
                 line,
                 this._source

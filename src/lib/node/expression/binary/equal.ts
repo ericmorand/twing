@@ -1,5 +1,5 @@
 import {TwingNodeExpressionBinary} from "../binary";
-import {TwingCompiler} from "../../../compiler";
+import {Compiler} from "../../../compiler";
 import {TwingNodeType} from "../../../node-type";
 
 export const type = new TwingNodeType('expression_binary_equals');
@@ -9,7 +9,7 @@ export class TwingNodeExpressionBinaryEqual extends TwingNodeExpressionBinary {
         return type;
     }
 
-    compile(compiler: TwingCompiler) {
+    compile(compiler: Compiler) {
         compiler
             .raw('this.compare(')
             .subcompile(this.getNode('left'))

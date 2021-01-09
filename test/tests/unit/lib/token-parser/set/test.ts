@@ -2,7 +2,7 @@ import * as tape from 'tape';
 import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
 import {TwingTokenParserSet} from "../../../../../../src/lib/token-parser/set";
 import {getParser} from "../../../../../mock-builder/parser";
-import {TwingNode} from "../../../../../../src/lib/node";
+import {Node} from "../../../../../../src/lib/node";
 
 const sinon = require('sinon');
 const {Token, TokenType} = require('twig-lexer');
@@ -22,8 +22,8 @@ tape('token-parser/set', (test) => {
 
                 tokenParser.setParser(parser);
 
-                sinon.stub(parser, 'parseAssignmentExpression').returns(new TwingNode(new Map<number, any>([[0, 'foo']])));
-                sinon.stub(parser, 'parseMultiTargetExpression').returns(new TwingNode(new Map<number, any>([[0, 'oof'], [1, 'bar']])));
+                sinon.stub(parser, 'parseAssignmentExpression').returns(new Node(new Map<number, any>([[0, 'foo']])));
+                sinon.stub(parser, 'parseMultiTargetExpression').returns(new Node(new Map<number, any>([[0, 'oof'], [1, 'bar']])));
 
                 try {
                     tokenParser.parse(new Token(TokenType.NAME, 'set', 1, 1))
@@ -52,7 +52,7 @@ tape('token-parser/set', (test) => {
 
                 tokenParser.setParser(parser);
 
-                sinon.stub(parser, 'parseAssignmentExpression').returns(new TwingNode(new Map<number, any>([[0, 'foo'], [1, 'bar']])));
+                sinon.stub(parser, 'parseAssignmentExpression').returns(new Node(new Map<number, any>([[0, 'foo'], [1, 'bar']])));
 
                 try {
                     tokenParser.parse(new Token(TokenType.NAME, 'set', 1, 1))
