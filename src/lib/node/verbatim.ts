@@ -5,6 +5,6 @@ import {TwingNodeText} from "./text";
  *
  * @author Eric Morand <eric.morand@gmail.com>
  */
-export class TwingNodeVerbatim extends TwingNodeText {
+export class VerbatimNode extends TwingNodeText {
 
 }

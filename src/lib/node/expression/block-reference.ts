@@ -1,4 +1,4 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Node} from "../../node";
 import {Compiler} from "../../compiler";
 
@@ -7,7 +7,7 @@ export type TwingNodeExpressionBlockReferenceNodes = {
     template?: Node
 };
 
-export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, TwingNodeExpressionBlockReferenceNodes> {
+export class BlockReferenceExpressionNode extends ExpressionNode<{}, TwingNodeExpressionBlockReferenceNodes> {
     compile(compiler: Compiler) {
         if (this.attributes.isDefinedTest) {
             this.compileTemplateCall(compiler, 'traceableHasBlock', false);
@@ -19,19 +19,19 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, T
     compileTemplateCall(compiler: Compiler, method: string, needsOutputBuffer: boolean): Compiler {
         compiler.write('await ');
 
-        if (!this.children.template) {
+        if (!this.edges.template) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('(await this.loadTemplate(')
-                .subcompile(this.children.template)
+                .subCompile(this.edges.template)
                 .raw(', ')
-                .repr(this.line)
+                .repr(this.location)
                 .raw('))')
             ;
         }
 
-        compiler.raw(`.${method}(${this.line}, this.source)`);
+        compiler.raw(`.${method}(${this.location}, this.source)`);
 
         this.compileBlockArguments(compiler, needsOutputBuffer);
 
@@ -41,14 +41,14 @@ export class TwingNodeExpressionBlockReference extends TwingNodeExpression<{}, T
     compileBlockArguments(compiler: Compiler, needsOutputBuffer: boolean) {
         compiler
             .raw('(')
-            .subcompile(this.children.name)
+            .subCompile(this.edges.name)
             .raw(', context.clone()');
 
         if (needsOutputBuffer) {
             compiler.raw(', outputBuffer');
         }
 
-        if (!this.children.template) {
+        if (!this.edges.template) {
             compiler.raw(', blocks');
         }
 

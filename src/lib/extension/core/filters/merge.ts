@@ -22,11 +22,11 @@ import {iteratorToMap} from "../../../helpers/iterator-to-map";
  */
 export function merge(iterable1: any, iterable2: any): Promise<Map<any, any>> {
     if (isNullOrUndefined(iterable1) || (!isTraversable(iterable1) && (typeof iterable1 !== 'object'))) {
-        throw new RuntimeError(`The merge filter only works with arrays or "Traversable", got "${!isNullOrUndefined(iterable1) ? typeof iterable1 : iterable1}" as first argument.`);
+        throw new RuntimeError(`The merge filter only works with arrays or "Traversable", got "${!isNullOrUndefined(iterable1) ? typeof iterable1 : iterable1}" as first argument.`, null);
     }
 
     if (isNullOrUndefined(iterable2) || (!isTraversable(iterable2) && (typeof iterable2 !== 'object'))) {
-        throw new RuntimeError(`The merge filter only works with arrays or "Traversable", got "${!isNullOrUndefined(iterable2) ? typeof iterable2 : iterable2}" as second argument.`);
+        throw new RuntimeError(`The merge filter only works with arrays or "Traversable", got "${!isNullOrUndefined(iterable2) ? typeof iterable2 : iterable2}" as second argument.`, null);
     }
 
     return Promise.resolve(mergeHelper(iteratorToMap(iterable1), iteratorToMap(iterable2)));

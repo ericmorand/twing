@@ -9,6 +9,7 @@ export type TwingNodeBodyNodes = {
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
+// todo: is it really useful?
 export class TwingNodeBody extends Node<null, TwingNodeBodyNodes> {
 
 }

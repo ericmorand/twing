@@ -1,6 +1,6 @@
 import * as tape from 'tape';
-import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
-import {TwingTokenParserSet} from "../../../../../../src/lib/token-parser/set";
+import {TokenStream} from "../../../../../../src/lib/token-stream";
+import {SetTokenParser} from "../../../../../../src/lib/token-parser/set";
 import {getParser} from "../../../../../mock-builder/parser";
 import {Node} from "../../../../../../src/lib/node";
 
@@ -11,13 +11,13 @@ tape('token-parser/set', (test) => {
     test.test('parse', (test) => {
         test.test('when direct assignment', (test) => {
             test.test('when different number of variables and assignments', (test) => {
-                let stream = new TwingTokenStream([
+                let stream = new TokenStream([
                     new Token(TokenType.OPERATOR, '=', 1, 1),
                     new Token(TokenType.TAG_END, null, 1, 1),
                     new Token(TokenType.EOF, null, 1, 1)
                 ]);
 
-                let tokenParser = new TwingTokenParserSet();
+                let tokenParser = new SetTokenParser();
                 let parser = getParser(stream);
 
                 tokenParser.setParser(parser);
@@ -42,12 +42,12 @@ tape('token-parser/set', (test) => {
 
         test.test('when capture', (test) => {
             test.test('when multiple targets', (test) => {
-                let stream = new TwingTokenStream([
+                let stream = new TokenStream([
                     new Token(TokenType.TAG_END, null, 1, 1),
                     new Token(TokenType.EOF, null, 1, 1)
                 ]);
 
-                let tokenParser = new TwingTokenParserSet();
+                let tokenParser = new SetTokenParser();
                 let parser = getParser(stream);
 
                 tokenParser.setParser(parser);

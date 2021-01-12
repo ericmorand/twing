@@ -3,33 +3,31 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {Node} from "../node";
+import {Location, Node} from "../node";
 import {SyntaxError} from "../error/syntax";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
+import {TwingNodeBody} from "./body";
 
-export const type = new TwingNodeType('macro');
+export type MacroNodeAttributes = {
+    name: string
+};
 
-export class TwingNodeMacro extends Node {
+export type MacroNodeEdges = {
+    body: TwingNodeBody,
+    arguments: Node
+};
+
+export class MacroNode extends Node<MacroNodeAttributes, MacroNodeEdges> {
     static VARARGS_NAME = 'varargs';
 
-    constructor(name: string, body: Node, macroArguments: Node, lineno: number, columnno: number, tag: string = null) {
-        for (let [argumentName, macroArgument] of macroArguments.getNodes()) {
-            if (argumentName === TwingNodeMacro.VARARGS_NAME) {
-                throw new SyntaxError(`The argument "${TwingNodeMacro.VARARGS_NAME}" in macro "${name}" cannot be defined because the variable "${TwingNodeMacro.VARARGS_NAME}" is reserved for arbitrary arguments.`, macroArgument.getTemplateLine());
+    constructor(attributes: MacroNodeAttributes, edges: MacroNodeEdges, location: Location, tag: string = null) {
+        for (let [argumentName, macroArgument] of edges.arguments) {
+            if (argumentName === MacroNode.VARARGS_NAME) {
+                throw new SyntaxError(`The argument "${MacroNode.VARARGS_NAME}" in macro "${attributes.name}" cannot be defined because the variable "${MacroNode.VARARGS_NAME}" is reserved for arbitrary arguments.`, null, macroArgument.location);
             }
         }
 
-        let nodes = new Map();
-
-        nodes.set('body', body);
-        nodes.set('arguments', macroArguments);
-
-        super(nodes, new Map([['name', name]]), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
+        super(attributes, edges, location, tag);
     }
 
     compile(compiler: Compiler) {
@@ -38,13 +36,13 @@ export class TwingNodeMacro extends Node {
             .raw('outputBuffer, ')
         ;
 
-        let count = this.getNode('arguments').getNodes().size;
+        let count = this.edges.arguments.edgesCount;
         let pos = 0;
 
-        for (let [name, defaultValue] of this.getNode('arguments').getNodes()) {
+        for (let [name, defaultValue] of this.edges.arguments) {
             compiler
                 .raw('__' + name + '__ = ')
-                .subcompile(defaultValue)
+                .subCompile(defaultValue)
             ;
 
             if (++pos < count) {
@@ -67,7 +65,7 @@ export class TwingNodeMacro extends Node {
 
         let first = true;
 
-        for (let [name, default_] of this.getNode('arguments').getNodes()) {
+        for (let [name] of this.edges.arguments) {
             if (!first) {
                 compiler.raw(',\n');
             }
@@ -76,7 +74,7 @@ export class TwingNodeMacro extends Node {
 
             compiler
                 .write('[')
-                .string(name as string)
+                .string(name)
                 .raw(', __' + name + '__]')
             ;
         }
@@ -87,7 +85,7 @@ export class TwingNodeMacro extends Node {
 
         compiler
             .write('[')
-            .string(TwingNodeMacro.VARARGS_NAME)
+            .string(MacroNode.VARARGS_NAME)
             .raw(', ')
         ;
 
@@ -101,7 +99,7 @@ export class TwingNodeMacro extends Node {
             .write("outputBuffer.start();\n")
             .write("try {\n")
             .indent()
-            .subcompile(this.getNode('body'))
+            .subCompile(this.edges.body)
             .raw("\n")
             .write('let tmp = outputBuffer.getContents();\n')
             .write("result = (tmp === '') ? '' : new this.Markup(tmp, this.environment.getCharset());\n")

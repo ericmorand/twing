@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionName} from "../../../../../../../src/lib/node/expression/name";
+import {NameExpressionNode} from "../../../../../../../src/lib/node/expression/name";
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockCompiler} from "../../../../../../mock/compiler";
 import {MockEnvironment} from "../../../../../../mock/environment";
@@ -8,7 +8,7 @@ import {TwingLoaderArray} from "../../../../../../../src/lib/loader/array";
 
 tape('node/expression/name', (test) => {
     test.test('constructor', (test) => {
-        let node = new TwingNodeExpressionName('foo', 1, 1);
+        let node = new NameExpressionNode('foo', 1, 1);
 
         test.same(node.getAttribute('name'), 'foo');
         test.same(node.getLine(), 1);
@@ -18,9 +18,9 @@ tape('node/expression/name', (test) => {
     });
 
     test.test('compile', (test) => {
-        let node = new TwingNodeExpressionName('foo', 1, 1);
-        let self = new TwingNodeExpressionName('_self', 1, 1);
-        let context = new TwingNodeExpressionName('_context', 1, 1);
+        let node = new NameExpressionNode('foo', 1, 1);
+        let self = new NameExpressionNode('_self', 1, 1);
+        let context = new NameExpressionNode('_context', 1, 1);
 
         let loader = new MockLoader();
         let compiler = new MockCompiler(new MockEnvironment(loader, {strict_variables: true}));
@@ -33,7 +33,7 @@ tape('node/expression/name', (test) => {
 
         test.test('when "is_defined_test" is set to true', function(test) {
             test.test('and name is special', function(test) {
-                let node = new TwingNodeExpressionName('_self', 1, 1);
+                let node = new NameExpressionNode('_self', 1, 1);
 
                 node.setAttribute('is_defined_test', true);
 
@@ -59,12 +59,12 @@ tape('node/expression/name', (test) => {
         ];
 
         for (let testCase of testCases) {
-            test.equals(new TwingNodeExpressionName(testCase[0], 1, 1).isSimple(), testCase[1], `should return ${testCase[1]} for "${testCase[0]}"`);
+            test.equals(new NameExpressionNode(testCase[0], 1, 1).isSimple(), testCase[1], `should return ${testCase[1]} for "${testCase[0]}"`);
         }
 
         test.test('when "is_defined_test" is set to true', function(test) {
             for (let testCase of testCases) {
-                let node = new TwingNodeExpressionName(testCase[0], 1, 1);
+                let node = new NameExpressionNode(testCase[0], 1, 1);
 
                 node.setAttribute('is_defined_test', true);
 

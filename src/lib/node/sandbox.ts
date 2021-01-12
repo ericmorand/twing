@@ -1,18 +1,11 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('sandbox');
+export type TwingNodeSandboxEdges = {
+    body: Node
+};
 
-export class TwingNodeSandbox extends Node {
-    constructor(body: Node, lineno: number, columnno: number, tag: string = null) {
-        super(new Map([['body', body]]), new Map(), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class SandboxNode extends Node<null, TwingNodeSandboxEdges> {
     compile(compiler: Compiler) {
         compiler
             .write('await (async () => {\n')
@@ -23,7 +16,7 @@ export class TwingNodeSandbox extends Node {
             .write("this.environment.enableSandbox();\n")
             .outdent()
             .write("}\n")
-            .subcompile(this.getNode('body'))
+            .subCompile(this.edges.body)
             .write("if (!alreadySandboxed) {\n")
             .indent()
             .write("this.environment.disableSandbox();\n")

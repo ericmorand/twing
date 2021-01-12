@@ -2,13 +2,13 @@ import * as tape from 'tape';
 import * as sinon from 'sinon';
 import {source} from "../../../../../../../../src/lib/extension/core/functions/source";
 import {TwingLoaderArray} from "../../../../../../../../src/lib/loader/array";
-import {TwingSource} from "../../../../../../../../src/lib/source";
+import {Source} from "../../../../../../../../src/lib/source";
 import {MockTemplate} from "../../../../../../../mock/template";
 import {MockEnvironment} from "../../../../../../../mock/environment";
 
 tape('source', async (test) => {
     let loader = new TwingLoaderArray({});
-    let template = new MockTemplate(new MockEnvironment(loader), new TwingSource('', 'index'));
+    let template = new MockTemplate(new MockEnvironment(loader), new Source('', 'index'));
 
     try {
         await source(template, 'foo', false);

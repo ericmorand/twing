@@ -1,15 +1,15 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
-import {TwingNodeExpressionName} from "../../../../../../src/lib/node/expression/name";
-import {TwingNodeWith, type} from "../../../../../../src/lib/node/with";
+import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
+import {NameExpressionNode} from "../../../../../../src/lib/node/expression/name";
+import {WithNode, type} from "../../../../../../src/lib/node/with";
 import {MockCompiler} from "../../../../../mock/compiler";
 
 tape('node/with', (test) => {
-    let bodyNode = new TwingNodeExpressionName('foo', 1, 1);
-    let variablesNode = new TwingNodeExpressionConstant('bar', 1, 1);
+    let bodyNode = new NameExpressionNode('foo', 1, 1);
+    let variablesNode = new ConstantExpressionNode('bar', 1, 1);
 
     test.test('constructor', (test) => {
-        let node = new TwingNodeWith(bodyNode, variablesNode, false, 1, 1);
+        let node = new WithNode(bodyNode, variablesNode, false, 1, 1);
 
         test.same(node.getNode('body'), bodyNode);
         test.same(node.getNode('variables'), variablesNode);
@@ -21,7 +21,7 @@ tape('node/with', (test) => {
     });
 
     test.test('compile', (test) => {
-        let node = new TwingNodeWith(bodyNode, variablesNode, false, 1, 1);
+        let node = new WithNode(bodyNode, variablesNode, false, 1, 1);
         let compiler = new MockCompiler();
 
         test.same(compiler.compile(node).getSource(), `{

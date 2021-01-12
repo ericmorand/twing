@@ -1,20 +1,20 @@
-import {Node} from "../node";
+import {Location, Node} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeExpressionConstant} from "./expression/constant";
+import {ConstantExpressionNode} from "./expression/constant";
 import {TwingNodeText} from "./text";
 
-export type TwingNodeSetAttributes = {
+export type SetNodeAttributes = {
     capture: boolean,
     safe?: boolean
 };
 
-export type TwingNodeSetNodes = {
+export type SetNodeEdges = {
     names: Node,
     values: Node
 };
 
-export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes> {
-    constructor(attributes: TwingNodeSetAttributes, nodes: TwingNodeSetNodes, line: number, column: number, tag: string) {
+export class SetNode extends Node<SetNodeAttributes, SetNodeEdges> {
+    constructor(attributes: SetNodeAttributes, edges: SetNodeEdges, location: Location, tag: string) {
         /*
          * Optimizes the node when capture is used for a large block of text.
          *
@@ -23,16 +23,16 @@ export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes
         if (attributes.capture) {
             attributes.safe = true;
 
-            let values = nodes.values;
+            let values = edges.values;
 
             if (values instanceof TwingNodeText) {
-                nodes.values = new TwingNodeExpressionConstant({value: values.attributes.data}, null, values.line, values.column);
+                edges.values = new ConstantExpressionNode({value: values.attributes.data}, null, values.location);
 
                 attributes.capture = false;
             }
         }
 
-        super(attributes, nodes, line, column, tag);
+        super(attributes, edges, location, tag);
     }
 
     get captures(): boolean {
@@ -40,17 +40,17 @@ export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes
     }
 
     compile(compiler: Compiler) {
-        if (this.children.names.nodesCount > 1) {
+        if (this.edges.names.edgesCount > 1) {
             compiler.write('[');
 
             let i: number = 0;
 
-            for (let [, node] of this.children.names) {
+            for (let [, node] of this.edges.names) {
                 if (i > 0) {
                     compiler.raw(', ');
                 }
 
-                compiler.subcompile(node);
+                compiler.subCompile(node);
 
                 i++;
             }
@@ -60,11 +60,11 @@ export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes
             if (this.attributes.capture) {
                 compiler
                     .write("outputBuffer.start();\n")
-                    .subcompile(this.children.values)
+                    .subCompile(this.edges.values)
                 ;
             }
 
-            compiler.subcompile(this.children.names, false);
+            compiler.subCompile(this.edges.names, false);
 
             if (this.attributes.capture) {
                 compiler
@@ -76,17 +76,17 @@ export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes
         if (!this.attributes.capture) {
             compiler.raw(' = ');
 
-            if (this.children.names.nodesCount > 1) {
+            if (this.edges.names.edgesCount > 1) {
                 compiler.raw('[');
 
                 let i: number = 0;
 
-                for (let [, value] of this.children.values) {
+                for (let [, value] of this.edges.values) {
                     if (i > 0) {
                         compiler.raw(', ');
                     }
 
-                    compiler.subcompile(value);
+                    compiler.subCompile(value);
 
                     i++;
                 }
@@ -96,11 +96,11 @@ export class TwingNodeSet extends Node<TwingNodeSetAttributes, TwingNodeSetNodes
                 if (this.attributes.safe) {
                     compiler
                         .raw("await (async () => {let tmp = ")
-                        .subcompile(this.children.values)
+                        .subCompile(this.edges.values)
                         .raw("; return tmp === '' ? '' : new this.Markup(tmp, this.environment.getCharset());})()")
                     ;
                 } else {
-                    compiler.subcompile(this.children.values);
+                    compiler.subCompile(this.edges.values);
                 }
             }
         }

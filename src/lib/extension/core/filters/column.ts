@@ -23,7 +23,7 @@ export function column(thing: any, columnKey: any): Promise<Array<any>> {
     let map: Map<any, any>;
 
     if (!isTraversable(thing) || isPlainObject(thing)) {
-        throw new RuntimeError(`The column filter only works with arrays or "Traversable", got "${typeof thing}" as first argument.`);
+        throw new RuntimeError(`The column filter only works with arrays or "Traversable", got "${typeof thing}" as first argument.`, null);
     } else {
         map = iteratorToMap(thing);
     }

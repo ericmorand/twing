@@ -3,15 +3,15 @@ import {Compiler} from "./compiler";
 const var_export = require('locutus/php/var/var_export');
 
 export type Location = {
-  line: number,
-  column: number
+    line: number,
+    column: number
 };
 
 export type NodeAttributes = Record<string, any>;
-export type NodeChildren<T extends Node = Node> = Record<string, T>;
+export type NodeEdges<T extends Node = Node> = Record<string, T>;
 
-export const toTwingNodeNodes = <T extends Node>(map: Map<string, T>): NodeChildren<T> => {
-    const nodes: NodeChildren<T> = {};
+export const toNodeEdges = <T extends Node>(map: Map<string, T>): NodeEdges<T> => {
+    const nodes: NodeEdges<T> = {};
 
     for (const [key, value] of map) {
         nodes[key] = value;
@@ -20,58 +20,66 @@ export const toTwingNodeNodes = <T extends Node>(map: Map<string, T>): NodeChild
     return nodes;
 };
 
-export type TwingNodeNodesNode<T> = T extends NodeChildren<infer N> ? N : never;
+export type TwingNodeNodesNode<T> = T extends NodeEdges<infer N> ? N : never;
 
-export class Node<A extends NodeAttributes = any, C extends NodeChildren = any> {
+type Attributes<T> = T extends Node<infer A> ? A : never;
+type Edges<T> = T extends Node<any, infer E> ? E : never;
+
+export const clone = <T extends Node>(node: T, attributes: Partial<Attributes<T>>, edges: Partial<Edges<T>>): T => {
+    return Reflect.construct(node.constructor, [
+        Object.assign({}, node.attributes, attributes),
+        Object.assign({}, node.edges, edges),
+        node.location,
+        node.tag
+    ]);
+};
+
+export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
     private readonly _attributes: A;
-    private readonly _children: C;
+    private readonly _edges: E;
     private readonly _location: Location;
     private readonly _tag: string;
-    private readonly _iterator: IterableIterator<[string, any]>;
-    private readonly _nodesCount: number;
-
-    private name: string = null;
+    private readonly _edgesCount: number;
+    private readonly _edgesMap: Map<string, any>;
 
     /**
-     * @param children
+     * @param edges
      * @param attributes
      * @param location
      * @param tag
      */
-    constructor(attributes: A, children: C, location: Location, tag: string = null) {
+    constructor(attributes: A, edges: E, location: Location, tag: string = null) {
         this._attributes = attributes;
-        this._children = children;
+        this._edges = edges;
         this._location = location;
         this._tag = tag;
+        this._edgesMap = new Map();
 
-        const nodesMap: Map<string, any> = new Map();
-
-        for (const key in children) {
-            nodesMap.set(key, children[key]);
+        for (const key in edges) {
+            this._edgesMap.set(key, edges[key]);
         }
 
-        this._iterator = nodesMap.entries();
-        this._nodesCount = nodesMap.size;
+        this._edgesCount = this._edgesMap.size;
     }
 
-    [Symbol.iterator](): IterableIterator<[string, TwingNodeNodesNode<C>]> {
-        return this._iterator;
+    [Symbol.iterator](): IterableIterator<[string, TwingNodeNodesNode<E>]> {
+        return this._edgesMap.entries();
     }
 
-    get nodesCount(): number {
-        return this._nodesCount;
+    get edgesCount(): number {
+        return this._edgesCount;
     }
 
-    get attributes(): Readonly<A> {
+    get attributes(): A {
         return this._attributes;
     }
 
-    get children(): Readonly<C> {
-        return this._children;
+    get edges(): E {
+        return this._edges;
     }
 
     get location() {
-        return this._location:
+        return this._location;
     }
 
     get tag() {
@@ -86,32 +94,12 @@ export class Node<A extends NodeAttributes = any, C extends NodeChildren = any> 
         return false;
     }
 
-    clone(): Node<C, A> {
-        let result: Node<C, A> = Reflect.construct(this.constructor, []);
-
-        for (let [name, node] of this) {
-            result.setNode(name as string, node.clone());
-        }
-
-        for (let [name, node] of this.attributes) {
-            if (node instanceof Node) {
-                node = node.clone();
-            }
-
-            result.setAttribute(name, node);
-        }
-
-        result.line = this.line;
-        result.column = this.column;
-        result.tag = this.tag;
-
-        return result;
-    }
-
     toString() {
         let attributes = [];
 
-        for (let [name, value] of this.attributes) {
+        for (let name in this.attributes) {
+            const value: any = this.attributes[name];
+
             let attributeRepr: string;
 
             if (value instanceof Node) {
@@ -123,21 +111,25 @@ export class Node<A extends NodeAttributes = any, C extends NodeChildren = any> 
             attributes.push(`${name}: ${attributeRepr.replace(/\n/g, '')}`);
         }
 
-        attributes.push(`line: ${this.line}`);
-        attributes.push(`column: ${this.column}`);
+        attributes.push(`line: ${this.location.line}`);
+        attributes.push(`column: ${this.location.column}`);
 
         let repr = [this.constructor.name + '(' + attributes.join(', ')];
 
-        if (this.nodesCount > 0) {
+        if (this.edgesCount > 0) {
             for (let [name, node] of this) {
-                let len = ('' + name).length + 4;
-                let nodeRepr = [];
+                if (node) {
+                    let len = ('' + name).length + 4;
+                    let nodeRepr = [];
 
-                for (let line of node.toString().split('\n')) {
-                    nodeRepr.push(' '.repeat(len) + line);
+                    for (let line of node.toString().split('\n')) {
+                        nodeRepr.push(' '.repeat(len) + line);
+                    }
+
+                    repr.push(`  ${name}: ${nodeRepr.join('\n').trimLeft()}`);
+                } else {
+                    repr.push(`  ${name}: ${node}`);
                 }
-
-                repr.push(`  ${name}: ${nodeRepr.join('\n').trimLeft()}`);
             }
 
             repr.push(')');
@@ -150,22 +142,9 @@ export class Node<A extends NodeAttributes = any, C extends NodeChildren = any> 
 
     compile(compiler: Compiler): void {
         for (const [, node] of this) {
-            node.compile(compiler);
+            if (node) {
+                node.compile(compiler);
+            }
         }
-    }
-
-    setTemplateName(name: string) {
-        this.name = name;
-
-        for (let node of this.children.values()) {
-            node.setTemplateName(name);
-        }
-    }
-
-    /**
-     * @deprecated should be replace by a TwingCompiler getter - i.e. compiler.templateName
-     */
-    getTemplateName() {
-        return this.name;
     }
 }

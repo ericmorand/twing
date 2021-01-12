@@ -1,16 +1,16 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionConstant} from "../../../../../../../../src/lib/node/expression/constant";
-import {TwingNodeExpressionTestConstant} from "../../../../../../../../src/lib/node/expression/test/constant";
-import {TwingNodeExpressionArray} from "../../../../../../../../src/lib/node/expression/array";
+import {ConstantExpressionNode} from "../../../../../../../../src/lib/node/expression/constant";
+import {ConstantTestExpressionNode} from "../../../../../../../../src/lib/node/expression/test/constant";
+import {ArrayExpressionNode} from "../../../../../../../../src/lib/node/expression/array";
 import {MockCompiler} from "../../../../../../../mock/compiler";
 
 tape('node/expression/test/constant', (test) => {
     test.test('compile', (test) => {
-        let node = new TwingNodeExpressionTestConstant(
-            new TwingNodeExpressionConstant('foo', 1, 1),
+        let node = new ConstantTestExpressionNode(
+            new ConstantExpressionNode('foo', 1, 1),
             'constant',
-            new TwingNodeExpressionArray(new Map([
-                [0, new TwingNodeExpressionConstant('Foo', 1, 1)]
+            new ArrayExpressionNode(new Map([
+                [0, new ConstantExpressionNode('Foo', 1, 1)]
             ]), 1, 1),
             1, 1
         );
@@ -18,12 +18,12 @@ tape('node/expression/test/constant', (test) => {
 
         test.same(compiler.compile(node).getSource(), '(`foo` === this.constant(`Foo`))');
 
-        node = new TwingNodeExpressionTestConstant(
-            new TwingNodeExpressionConstant('foo', 1, 1),
+        node = new ConstantTestExpressionNode(
+            new ConstantExpressionNode('foo', 1, 1),
             'constant',
-            new TwingNodeExpressionArray(new Map([
-                [0, new TwingNodeExpressionConstant('Foo', 1, 1)],
-                [1, new TwingNodeExpressionConstant('Bar', 1, 1)]
+            new ArrayExpressionNode(new Map([
+                [0, new ConstantExpressionNode('Foo', 1, 1)],
+                [1, new ConstantExpressionNode('Bar', 1, 1)]
             ]), 1, 1),
             1, 1
         );

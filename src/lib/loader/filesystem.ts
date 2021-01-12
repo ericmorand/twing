@@ -1,6 +1,6 @@
 import {TwingLoaderInterface} from "../loader-interface";
-import {TwingSource} from "../source";
-import {TwingErrorLoader} from "../error/loader";
+import {Source} from "../source";
+import {LoaderError} from "../error/loader";
 import {Stats, stat, statSync, readFile} from "fs";
 import {
     relative as relativePath,
@@ -84,7 +84,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      * @param {string} path A path where to look for templates
      * @param {string} namespace A path namespace
      *
-     * @throws TwingErrorLoader
+     * @throws LoaderError
      */
     addPath(path: string, namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
         // invalidate the cache
@@ -102,7 +102,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         }
 
         if (!stats || !stats.isDirectory()) {
-            throw new TwingErrorLoader(`The "${path}" directory does not exist ("${checkPath}").`, -1, null);
+            throw new LoaderError(`The "${path}" directory does not exist ("${checkPath}").`, null, null);
         }
 
         if (!this.paths.has(namespace)) {
@@ -118,7 +118,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      * @param {string} path A path where to look for templates
      * @param {string} namespace A path namespace
      *
-     * @throws TwingErrorLoader
+     * @throws LoaderError
      */
     prependPath(path: string, namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
         // invalidate the cache
@@ -130,7 +130,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         let stats = statSync(this.normalizeName(checkPath));
 
         if (!stats.isDirectory()) {
-            throw new TwingErrorLoader(`The "${path}" directory does not exist ("${checkPath}").`, -1, null);
+            throw new LoaderError(`The "${path}" directory does not exist ("${checkPath}").`, null, null);
         }
 
         path = rtrim(path, '\/\\\\');
@@ -142,23 +142,23 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         }
     }
 
-    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
+    getSourceContext(name: string, from: Source): Promise<Source> {
         return this.findTemplate(name, true, from).then((path) => {
             return new Promise((resolve) => {
                 readFile(path, 'UTF-8', (err, data) => {
-                    resolve(new TwingSource(data, name, path));
+                    resolve(new Source(data, name, path));
                 });
             });
         });
     }
 
-    getCacheKey(name: string, from: TwingSource): Promise<string> {
+    getCacheKey(name: string, from: Source): Promise<string> {
         return this.findTemplate(name, true, from).then((path) => {
             return relativePath(this.rootPath, path);
         });
     }
 
-    exists(name: string, from: TwingSource): Promise<boolean> {
+    exists(name: string, from: Source): Promise<boolean> {
         name = this.normalizeName(name);
 
         if (this.cache.has(name)) {
@@ -170,7 +170,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         });
     }
 
-    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+    isFresh(name: string, time: number, from: Source): Promise<boolean> {
         return this.findTemplate(name, true, from).then((path) => {
             return new Promise((resolve) => {
                 stat(path, (err, stats) => {
@@ -180,7 +180,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         });
     }
 
-    protected findTemplate(name: string, throw_: boolean, from: TwingSource): Promise<string> {
+    protected findTemplate(name: string, throw_: boolean, from: Source): Promise<string> {
         name = this.normalizeName(name);
 
         if (this.cache.has(name)) {
@@ -192,7 +192,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
                 return Promise.resolve(null);
             }
 
-            return Promise.reject(new TwingErrorLoader(this.errorCache.get(name), -1, from));
+            return Promise.reject(new LoaderError(this.errorCache.get(name), null, from));
         }
 
         let namespace: string;
@@ -217,7 +217,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
                 return Promise.resolve(null);
             }
 
-            return Promise.reject(new TwingErrorLoader(this.errorCache.get(name), -1, from));
+            return Promise.reject(new LoaderError(this.errorCache.get(name), null, from));
         }
 
         let paths = this.paths.get(namespace);
@@ -257,7 +257,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
                     return null;
                 }
 
-                return Promise.reject(new TwingErrorLoader(this.errorCache.get(name), -1, from));
+                return Promise.reject(new LoaderError(this.errorCache.get(name), null, from));
             }
         });
     }
@@ -275,7 +275,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
             let pos = name.indexOf('/');
 
             if (pos < 0) {
-                throw new TwingErrorLoader(`Malformed namespaced template name "${name}" (expecting "@namespace/template_name").`, -1, null);
+                throw new LoaderError(`Malformed namespaced template name "${name}" (expecting "@namespace/template_name").`, null, null);
             }
 
             let namespace = name.substr(1, pos - 1);
@@ -289,7 +289,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
 
     protected validateName(name: string) {
         if (name.indexOf(`\0`) > -1) {
-            throw new TwingErrorLoader('A template name cannot contain NUL bytes.', -1, null);
+            throw new LoaderError('A template name cannot contain NUL bytes.', null, null);
         }
 
         let parts = name.split(pathSeparator);
@@ -304,7 +304,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         }
 
         if (level < 0) {
-            throw new TwingErrorLoader(`Looks like you try to load a template outside configured directories (${name}).`, -1, null);
+            throw new LoaderError(`Looks like you try to load a template outside configured directories (${name}).`, null, null);
         }
     }
 
@@ -312,7 +312,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         return isAbsolutePath(file);
     }
 
-    resolve(name: string, from: TwingSource, shouldThrow: boolean = false): Promise<string> {
+    resolve(name: string, from: Source, shouldThrow: boolean = false): Promise<string> {
         return this.findTemplate(name, shouldThrow, from);
     }
 }

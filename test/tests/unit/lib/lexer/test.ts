@@ -3,7 +3,7 @@ import {TwingLexer, typeToEnglish} from "../../../../../src/lib/lexer";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingLoaderNull} from "../../../../../src/lib/loader/null";
 import {TokenType} from "twig-lexer";
-import {TwingOperator, TwingOperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
+import {Operator, TwingOperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
 
 tape('lexer', (test) => {
     test.test('constructor', (test) => {
@@ -75,7 +75,7 @@ tape('lexer', (test) => {
             class CustomEnvironment extends TwingEnvironmentNode {
                 getBinaryOperators() {
                     return new Map([
-                        ['foo', new TwingOperator('foo', TwingOperatorType.BINARY, 0, () => {
+                        ['foo', new Operator('foo', TwingOperatorType.BINARY, 0, () => {
                             return null;
                         }, TwingOperatorAssociativity.LEFT)]
                     ]);
@@ -83,7 +83,7 @@ tape('lexer', (test) => {
 
                 getUnaryOperators() {
                     return new Map([
-                        ['bar', new TwingOperator('bar', TwingOperatorType.UNARY, 0, () => {
+                        ['bar', new Operator('bar', TwingOperatorType.UNARY, 0, () => {
                             return null;
                         }, TwingOperatorAssociativity.LEFT)]
                     ]);

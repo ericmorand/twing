@@ -1,11 +1,11 @@
 import * as tape from 'tape';
-import {TwingTest} from "../../../../../src/lib/test";
+import {Test} from "../../../../../src/lib/test";
 
 tape('test', (test) => {
     test.test('getNodeFactory', function(test) {
         let factory = () => {};
 
-        let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        let twingTest = new Test('foo', () => Promise.resolve(true), [], {
             expressionFactory: factory
         });
 
@@ -15,7 +15,7 @@ tape('test', (test) => {
     });
 
     test.test('isVariadic', function(test) {
-        let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        let twingTest = new Test('foo', () => Promise.resolve(true), [], {
             isVariadic: true
         });
 
@@ -25,13 +25,13 @@ tape('test', (test) => {
     });
 
     test.test('isDeprecated', function(test) {
-        let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        let twingTest = new Test('foo', () => Promise.resolve(true), [], {
             deprecated: '1'
         });
 
         test.same(twingTest.isDeprecated(), true);
 
-        twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        twingTest = new Test('foo', () => Promise.resolve(true), [], {
             deprecated: null
         });
 
@@ -41,7 +41,7 @@ tape('test', (test) => {
     });
 
     test.test('getDeprecatedVersion', function(test) {
-        let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        let twingTest = new Test('foo', () => Promise.resolve(true), [], {
             deprecated: '1'
         });
 
@@ -51,7 +51,7 @@ tape('test', (test) => {
     });
 
     test.test('getAlternative', function(test) {
-        let twingTest = new TwingTest('foo', () => Promise.resolve(true), [], {
+        let twingTest = new Test('foo', () => Promise.resolve(true), [], {
             alternative: 'bar'
         });
 

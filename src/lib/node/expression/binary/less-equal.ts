@@ -1,14 +1,7 @@
-import {TwingNodeExpressionBinary} from "../binary";
+import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_binary_less_equal');
-
-export class TwingNodeExpressionBinaryLessEqual extends TwingNodeExpressionBinary {
-    get type() {
-        return type;
-    }
-
+export class TwingNodeExpressionBinaryLessEqual extends BinaryExpressionNode {
     operator(compiler: Compiler) {
         return compiler.raw('<=');
     }

@@ -1,11 +1,11 @@
 import {TwingSandboxSecurityPolicyInterface} from "./security-policy-interface";
-import {TwingSandboxSecurityNotAllowedFilterError} from "./security-not-allowed-filter-error";
-import {TwingSandboxSecurityNotAllowedTagError} from "./security-not-allowed-tag-error";
-import {TwingSandboxSecurityNotAllowedFunctionError} from "./security-not-allowed-function-error";
+import {NotAllowedFilterSandboxSecurityError} from "./security-not-allowed-filter-error";
+import {NotAllowedTagSandboxSecurityError} from "./security-not-allowed-tag-error";
+import {NotAllowedFunctionSandboxSecurityError} from "./security-not-allowed-function-error";
 import {TwingSandboxSecurityNotAllowedPropertyError} from "./security-not-allowed-property-error";
-import {TwingSandboxSecurityNotAllowedMethodError} from "./security-not-allowed-method-error";
+import {NotAllowedMethodSandboxSecurityError} from "./security-not-allowed-method-error";
 import {TwingTemplate} from "../template";
-import {TwingMarkup} from "../markup";
+import {Markup} from "../markup";
 
 export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInterface {
     TwingSandboxSecurityPolicyInterfaceImpl: TwingSandboxSecurityPolicyInterface;
@@ -55,25 +55,25 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
 
         for (let tag of tags) {
             if (!self.allowedTags.includes(tag)) {
-                throw new TwingSandboxSecurityNotAllowedTagError(`Tag "${tag}" is not allowed.`, tag);
+                throw new NotAllowedTagSandboxSecurityError(`Tag "${tag}" is not allowed.`, tag, null);
             }
         }
 
         for (let filter of filters) {
             if (!self.allowedFilters.includes(filter)) {
-                throw new TwingSandboxSecurityNotAllowedFilterError(`Filter "${filter}" is not allowed.`, filter);
+                throw new NotAllowedFilterSandboxSecurityError(`Filter "${filter}" is not allowed.`, filter, null);
             }
         }
 
         for (let function_ of functions) {
             if (!self.allowedFunctions.includes(function_)) {
-                throw new TwingSandboxSecurityNotAllowedFunctionError(`Function "${function_}" is not allowed.`, function_);
+                throw new NotAllowedFunctionSandboxSecurityError(`Function "${function_}" is not allowed.`, function_, null);
             }
         }
     }
 
     checkMethodAllowed(obj: any, method: string): void {
-        if (obj instanceof TwingTemplate || obj instanceof TwingMarkup) {
+        if (obj instanceof TwingTemplate || obj instanceof Markup) {
             return;
         }
 
@@ -89,7 +89,7 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
         }
 
         if (!allowed) {
-            throw new TwingSandboxSecurityNotAllowedMethodError(`Calling "${method}" method on a "${obj.constructor.name}" is not allowed.`);
+            throw new NotAllowedMethodSandboxSecurityError(`Calling "${method}" method on a "${obj.constructor.name}" is not allowed.`, null);
         }
     }
 
@@ -105,7 +105,7 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
         }
 
         if (!allowed) {
-            throw new TwingSandboxSecurityNotAllowedPropertyError(`Calling "${property}" property on a "${obj.constructor.name}" is not allowed.`);
+            throw new TwingSandboxSecurityNotAllowedPropertyError(`Calling "${property}" property on a "${obj.constructor.name}" is not allowed.`, null);
         }
     }
 }

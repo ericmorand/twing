@@ -1,4 +1,4 @@
-import {TwingSource} from "../../src/lib/source";
+import {Source} from "../../src/lib/source";
 import {TwingEnvironmentNode} from "../../src/lib/environment/node";
 import {TwingLoaderInterface} from "../../src/lib/loader-interface";
 import {TwingEnvironmentOptions} from "../../src/lib/environment-options";
@@ -9,7 +9,7 @@ export class MockEnvironment extends TwingEnvironmentNode {
         super(loader || new TwingLoaderNull(), options);
     }
 
-    getTemplateHash(name: string, index: number = 0, from: TwingSource = null) {
+    getTemplateHash(name: string, index: number = 0, from: Source = null) {
         return Promise.resolve(`__TwingTemplate_foo${(index === 0 ? '' : '_' + index)}`);
     }
 }

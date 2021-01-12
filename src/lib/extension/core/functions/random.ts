@@ -78,7 +78,7 @@ export function random(env: TwingEnvironment, values: any = null, max: number = 
         }
 
         if (values.length < 1) {
-            throw new RuntimeError('The random function cannot pick from an empty array.');
+            throw new RuntimeError('The random function cannot pick from an empty array.', null);
         }
 
         return values[array_rand(values, 1)];

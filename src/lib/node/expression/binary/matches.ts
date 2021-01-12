@@ -1,20 +1,13 @@
-import {TwingNodeExpressionBinary} from "../binary";
+import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_binary_matches');
-
-export class TwingNodeExpressionBinaryMatches extends TwingNodeExpressionBinary {
-    get type() {
-        return type;
-    }
-
+export class TwingNodeExpressionBinaryMatches extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('this.parseRegExp(')
-            .subcompile(this.getNode('right'))
+            .subCompile(this.edges.right)
             .raw(').test(')
-            .subcompile(this.getNode('left'))
+            .subCompile(this.edges.left)
             .raw(')')
         ;
     }

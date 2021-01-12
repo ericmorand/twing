@@ -11,15 +11,15 @@
  * {% endif %}
  * </pre>
  */
-import {TwingTokenParser} from "../token-parser";
-import {Node} from "../node";
-import {TwingNodeIf} from "../node/if";
+import {TokenParser} from "../token-parser";
+import {Node, toNodeEdges} from "../node";
+import {IfNode} from "../node/if";
 import {Token, TokenType} from "twig-lexer";
 
-export class TwingTokenParserIf extends TwingTokenParser {
+import type {IfNodeTestNode} from "../node/if";
+
+export class IfTokenParser extends TokenParser {
     parse(token: Token) {
-        let lineno = token.line;
-        let columnno = token.column;
         let expr = this.parser.parseExpression();
         let stream = this.parser.getStream();
 
@@ -27,9 +27,11 @@ export class TwingTokenParserIf extends TwingTokenParser {
 
         let index = 0;
         let body = this.parser.subparse([this, this.decideIfFork]);
-        let tests = new Map([
-            [index++, expr],
-            [index++, body]
+        let tests: Map<string, IfNodeTestNode> = new Map([
+            [`${index++}`, new Node(null, {
+                condition: expr,
+                body
+            }, token)]
         ]);
 
         let elseNode = null;
@@ -47,8 +49,10 @@ export class TwingTokenParserIf extends TwingTokenParser {
                     expr = this.parser.parseExpression();
                     stream.expect(TokenType.TAG_END);
                     body = this.parser.subparse([this, this.decideIfFork]);
-                    tests.set(index++, expr);
-                    tests.set(index++, body);
+                    tests.set(`${index++}`, new Node(null, {
+                        condition: expr,
+                        body
+                    }, token));
                     break;
 
                 case 'endif':
@@ -59,7 +63,10 @@ export class TwingTokenParserIf extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeIf(new Node(tests), elseNode, lineno, columnno, this.getTag());
+        return new IfNode(null, {
+            tests: new Node(null, toNodeEdges(tests), token),
+            else: elseNode
+        }, token, this.getTag());
     }
 
     decideIfFork(token: Token) {

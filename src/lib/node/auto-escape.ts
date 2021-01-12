@@ -12,12 +12,16 @@ import {Compiler} from "../compiler";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingNodeAutoEscape extends Node<{
-    value: any
-}, {
+export type AutoEscapeNodeAttributes = {
+    strategy: any
+};
+
+export type AutoEscapeNodeEdges = {
     body: Node
-}> {
+};
+
+export class AutoEscapeNode extends Node<AutoEscapeNodeAttributes, AutoEscapeNodeEdges> {
     compile(compiler: Compiler) {
-        compiler.subcompile(this.children.body);
+        compiler.subCompile(this.edges.body);
     }
 }

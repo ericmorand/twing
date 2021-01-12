@@ -4,47 +4,47 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 import {Node} from "../node";
-import {TwingNodeExpression, TwingNodeExpressionAttributes} from "./expression";
+import {ExpressionNode, ExpressionNodeAttributes} from "./expression";
 import {Compiler} from "../compiler";
-import {TwingNodeExpressionName} from "./expression/name";
+import {NameExpressionNode} from "./expression/name";
 
-export type TwingNodeImportAttributes = {
+export type ImportNodeAttributes = {
     global: boolean
 };
 
-export type TwingNodeImportNodes = {
-    templateName: TwingNodeExpression,
-    variable: TwingNodeExpression<TwingNodeExpressionAttributes & {
+export type ImportNodeEdges = {
+    templateName: ExpressionNode<any>,
+    variable: ExpressionNode<ExpressionNodeAttributes<{
         value: string
-    }>
+    }>>
 };
 
-export class TwingNodeImport<A extends TwingNodeImportAttributes = TwingNodeImportAttributes, N extends TwingNodeImportNodes = TwingNodeImportNodes> extends Node<TwingNodeImportAttributes, TwingNodeImportNodes> {
+export class ImportNode<A extends ImportNodeAttributes = ImportNodeAttributes, N extends ImportNodeEdges = ImportNodeEdges> extends Node<ImportNodeAttributes, ImportNodeEdges> {
     compile(compiler: Compiler) {
         compiler
             .write('aliases.proxy[')
-            .repr(this.getNode('variable').getAttribute('value'))
+            .repr(this.edges.variable.attributes.value)
             .raw('] = ')
         ;
 
-        if (this.getAttribute('global')) {
+        if (this.attributes.global) {
             compiler
                 .raw('this.aliases.proxy[')
-                .repr(this.getNode('variable').getAttribute('value'))
+                .repr(this.edges.variable.attributes.value)
                 .raw('] = ')
             ;
         }
 
-        const templateName = this.getNode('templateName');
+        const templateName = this.edges.templateName;
 
-        if ((templateName instanceof TwingNodeExpressionName) && (templateName.getAttribute('value') === '_self')) {
+        if ((templateName instanceof NameExpressionNode) && (templateName.attributes.value === '_self')) {
             compiler.raw('this');
         } else {
             compiler
                 .raw('await this.loadTemplate(')
-                .subcompile(this.getNode('templateName'))
+                .subCompile(this.edges.templateName)
                 .raw(', ')
-                .repr(this.line)
+                .repr(this.location)
                 .raw(')')
             ;
         }

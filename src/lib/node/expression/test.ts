@@ -1,17 +1,23 @@
-import {TwingNodeExpressionCall} from "./call";
+import {CallExpressionNode} from "./call";
 import {TwingEnvironment} from "../../environment";
 
-import type {TwingCallableWrapper} from "../../callable-wrapper";
-import type {TwingNodeExpressionCallAttributes, TwingNodeExpressionCallNodes} from "./call";
+import type {CallableWrapper} from "../../callable-wrapper";
+import type {CallExpressionNodeEdges} from "./call";
+import type {Location} from "../../node";
 
-export class TwingNodeExpressionTest extends TwingNodeExpressionCall {
-    constructor(attributes: TwingNodeExpressionCallAttributes, nodes: TwingNodeExpressionCallNodes, line: number, column: number) {
-        attributes.type = 'test';
+export type TestExpressionNodeAttributes = {
+    name: string
+};
 
-        super(attributes, nodes, line, column);
+export class TestExpressionNode extends CallExpressionNode {
+    constructor(attributes: TestExpressionNodeAttributes, edges: CallExpressionNodeEdges, location: Location) {
+        super({
+            name: attributes.name,
+            type: 'test'
+        }, edges, location);
     }
 
-    protected getCallableWrapper(environment: TwingEnvironment, name: string): TwingCallableWrapper<any> {
+    protected getCallableWrapper(environment: TwingEnvironment, name: string): CallableWrapper<any> {
         return environment.getTest(name);
     }
 }

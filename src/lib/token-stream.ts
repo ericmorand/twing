@@ -1,18 +1,18 @@
-import {TwingSource} from "./source";
+import {Source} from "./source";
 import {SyntaxError} from "./error/syntax";
-import {Token, TokenStream, TokenType, astVisitor} from "twig-lexer";
+import {Token, TokenStream as LexerTokenStream, TokenType, astVisitor} from "twig-lexer";
 import {typeToEnglish} from "./lexer";
 
-export class TwingTokenStream {
-    private readonly _stream: TokenStream;
-    private readonly _source: TwingSource;
+export class TokenStream {
+    private readonly _stream: LexerTokenStream;
+    private readonly _source: Source;
 
-    constructor(tokens: Token[], source: TwingSource = null) {
-        this._stream = new TokenStream(tokens);
-        this._source = source ? source : new TwingSource('', '');
+    constructor(tokens: Token[], source: Source = null) {
+        this._stream = new LexerTokenStream(tokens);
+        this._source = source ? source : new Source('', '');
     }
 
-    private get stream(): TokenStream {
+    private get stream(): LexerTokenStream {
         return this._stream;
     }
 
@@ -47,11 +47,10 @@ export class TwingTokenStream {
         let token = this.getCurrent();
 
         if (!token.test(type, value)) {
-            let line = token.line;
-
             throw new SyntaxError(
                 `${message ? message + '. ' : ''}Unexpected token "${typeToEnglish(token.type)}" of value "${token.value}" ("${typeToEnglish(type)}" expected${value ? ` with value "${value}"` : ''}).`,
-                line,
+                null,
+                token,
                 this._source
             );
         }
@@ -79,7 +78,7 @@ export class TwingTokenStream {
     }
 
     toAst(): Token[] {
-        return this.stream.traverse((token: Token, stream: TokenStream) => {
+        return this.stream.traverse((token: Token, stream: LexerTokenStream) => {
             token = astVisitor(token, stream);
 
             if (token && token.test(TokenType.TEST_OPERATOR)) {
@@ -97,9 +96,9 @@ export class TwingTokenStream {
     /**
      * Gets the source associated with this stream.
      *
-     * @return TwingSource
+     * @return Source
      */
-    getSourceContext() {
+    get source() {
         return this._source;
     }
 }

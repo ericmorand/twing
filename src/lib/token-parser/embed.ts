@@ -1,11 +1,11 @@
-import {TwingTokenParserInclude} from "./include";
-import {TwingNodeEmbed} from "../node/embed";
-import {TwingNodeModule} from "../node/module";
+import {IncludeTokenParser} from "./include";
+import {EmbedNode} from "../node/embed";
 import {Token, TokenType} from "twig-lexer";
-import {type as constantType} from "../node/expression/constant";
-import {type as nameType} from "../node/expression/name";
+import {ConstantExpressionNode} from "../node/expression/constant";
+import {NameExpressionNode} from "../node/expression/name";
+import {clone} from "../node";
 
-export class TwingTokenParserEmbed extends TwingTokenParserInclude {
+export class EmbedTokenParser extends IncludeTokenParser {
     parse(token: Token) {
         let stream = this.parser.getStream();
 
@@ -22,11 +22,8 @@ export class TwingTokenParserEmbed extends TwingTokenParserInclude {
 
         parentToken = fakeParentToken = new Token(TokenType.STRING, '__parent__', token.line, token.column);
 
-        if (parent.is(constantType)) {
-            parentToken = new Token(TokenType.STRING, parent.getAttribute('value'), token.line, token.column);
-        }
-        else if (parent.is(nameType)) {
-            parentToken = new Token(TokenType.NAME, parent.getAttribute('name'), token.line, token.column);
+        if (parent instanceof ConstantExpressionNode || parent instanceof NameExpressionNode) {
+            parentToken = new Token(TokenType.STRING, parent.attributes.value, token.line, token.column);
         }
 
         // inject a fake parent to make the parent() function work
@@ -37,21 +34,30 @@ export class TwingTokenParserEmbed extends TwingTokenParserInclude {
             new Token(TokenType.TAG_END, '', token.line, token.column),
         ]);
 
-        let module = this.parser.parse(stream, [this, this.decideBlockEnd], true);
+        let template = this.parser.parseTemplate(stream, [this, this.decideBlockEnd], true);
 
         // override the parent with the correct one
         if (fakeParentToken === parentToken) {
-            module.setNode('parent', parent);
+            template.edges.parent = parent;
         }
 
-        this.parser.embedTemplate(module as TwingNodeModule);
+        const embeddedModule = this.parser.embedTemplate(template);
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeEmbed(module.getTemplateName(), module.getAttribute('index'), variables, only, ignoreMissing, token.line, token.column, this.getTag());
+        // return new EmbedNode(module.getTemplateName(), module.getAttribute('index'), variables, only, ignoreMissing, token, this.getTag());
+        return new EmbedNode({
+            only,
+            ignoreMissing,
+            index: embeddedModule.attributes.index,
+            name: template.attributes.source.name
+        }, {
+            variables,
+            template: null
+        }, token, this.getTag());
     }
 
-    decideBlockEnd(token: Token) {
+    decideBlockEnd(token: Token): boolean {
         return token.test(TokenType.NAME, 'endembed');
     }
 

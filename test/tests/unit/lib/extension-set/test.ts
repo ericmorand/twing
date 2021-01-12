@@ -1,13 +1,13 @@
 import * as tape from 'tape';
-import {TwingOperator, TwingOperatorType} from "../../../../../src/lib/operator";
+import {Operator, TwingOperatorType} from "../../../../../src/lib/operator";
 import {TwingExtension} from "../../../../../src/lib/extension";
 import {TwingExtensionSet} from "../../../../../src/lib/extension-set";
-import {TwingTokenParserFilter} from "../../../../../src/lib/token-parser/filter";
-import {TwingTest} from "../../../../../src/lib/test";
-import {TwingFilter} from "../../../../../src/lib/filter";
-import {TwingFunction} from "../../../../../src/lib/function";
+import {FilterTokenParser} from "../../../../../src/lib/token-parser/filter";
+import {Test} from "../../../../../src/lib/test";
+import {Filter} from "../../../../../src/lib/filter";
+import {Function} from "../../../../../src/lib/function";
 import {TwingSourceMapNodeFactory} from "../../../../../src/lib/source-map/node-factory";
-import {TwingTokenParser} from "../../../../../src/lib/token-parser";
+import {TokenParser} from "../../../../../src/lib/token-parser";
 import {Token} from "twig-lexer";
 import {Node} from "../../../../../src/lib/node";
 import {TwingBaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
@@ -17,13 +17,13 @@ import {spy} from "sinon";
 class TwingTestExtensionSetExtension extends TwingExtension {
     getOperators() {
         return [
-            new TwingOperator('foo', TwingOperatorType.UNARY, 1, () => null),
-            new TwingOperator('bar', TwingOperatorType.BINARY, 1, () => null)
+            new Operator('foo', TwingOperatorType.UNARY, 1, () => null),
+            new Operator('bar', TwingOperatorType.BINARY, 1, () => null)
         ];
     }
 }
 
-class TwingTestExtensionSetTokenParser extends TwingTokenParser {
+class TwingTestExtensionSetTokenParser extends TokenParser {
     getTag() {
         return 'foo';
     }
@@ -99,12 +99,12 @@ tape('extension-set', (test) => {
     test.test('addNodeVisitor', (test) => {
         test.test('already registered', (test) => {
             let extensionSet = new TwingExtensionSet();
-            let parser = new TwingTokenParserFilter();
+            let parser = new FilterTokenParser();
 
             extensionSet.addTokenParser(parser);
 
             try {
-                extensionSet.addTokenParser(new TwingTokenParserFilter());
+                extensionSet.addTokenParser(new FilterTokenParser());
 
                 test.fail();
             } catch (e) {
@@ -137,7 +137,7 @@ tape('extension-set', (test) => {
         test.test('already registered', (test) => {
             let extensionSet = new TwingExtensionSet();
 
-            let test_ = new TwingTest('foo', () => Promise.resolve(true), []);
+            let test_ = new Test('foo', () => Promise.resolve(true), []);
 
             extensionSet.addTest(test_);
 
@@ -158,7 +158,7 @@ tape('extension-set', (test) => {
             extensionSet.getTests();
 
             try {
-                extensionSet.addTest(new TwingTest('foo', () => Promise.resolve(true), []));
+                extensionSet.addTest(new Test('foo', () => Promise.resolve(true), []));
 
                 test.fail();
             } catch (e) {
@@ -184,7 +184,7 @@ tape('extension-set', (test) => {
         test.test('already registered', (test) => {
             let extensionSet = new TwingExtensionSet();
 
-            let filter = new TwingFilter('foo', () => Promise.resolve(), []);
+            let filter = new Filter('foo', () => Promise.resolve(), []);
 
             extensionSet.addFilter(filter);
 
@@ -205,7 +205,7 @@ tape('extension-set', (test) => {
             extensionSet.getFilters();
 
             try {
-                extensionSet.addFilter(new TwingFilter('foo', () => Promise.resolve(), []));
+                extensionSet.addFilter(new Filter('foo', () => Promise.resolve(), []));
 
                 test.fail();
             } catch (e) {
@@ -234,7 +234,7 @@ tape('extension-set', (test) => {
             extensionSet.getFunctions();
 
             try {
-                extensionSet.addTest(new TwingTest('foo', () => Promise.resolve(true), []));
+                extensionSet.addTest(new Test('foo', () => Promise.resolve(true), []));
 
                 test.fail();
             } catch (e) {
@@ -251,7 +251,7 @@ tape('extension-set', (test) => {
         test.test('already registered', (test) => {
             let extensionSet = new TwingExtensionSet();
 
-            let function_ = new TwingFunction('foo', () => Promise.resolve(), []);
+            let function_ = new Function('foo', () => Promise.resolve(), []);
 
             extensionSet.addFunction(function_);
 
@@ -272,7 +272,7 @@ tape('extension-set', (test) => {
             extensionSet.getFunctions();
 
             try {
-                extensionSet.addFunction(new TwingFunction('foo', () => Promise.resolve(), []));
+                extensionSet.addFunction(new Function('foo', () => Promise.resolve(), []));
 
                 test.fail();
             } catch (e) {
@@ -321,7 +321,7 @@ tape('extension-set', (test) => {
         test.test('already registered', (test) => {
             let extensionSet = new TwingExtensionSet();
 
-            let operator = new TwingOperator('foo', TwingOperatorType.BINARY, 1, () => null);
+            let operator = new Operator('foo', TwingOperatorType.BINARY, 1, () => null);
 
             extensionSet.addOperator(operator);
 
@@ -345,7 +345,7 @@ tape('extension-set', (test) => {
             extensionSet.getUnaryOperators();
 
             try {
-                extensionSet.addOperator(new TwingOperator('foo', TwingOperatorType.BINARY, 1, () => null));
+                extensionSet.addOperator(new Operator('foo', TwingOperatorType.BINARY, 1, () => null));
 
                 test.fail();
             } catch (e) {

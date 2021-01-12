@@ -3,13 +3,13 @@ import * as sinon from 'sinon';
 
 import {Token, TokenType} from "twig-lexer";
 import {TwingEnvironment} from "../../../src/lib/environment";
-import {TwingTokenParser} from "../../../src/lib/token-parser";
-import {TwingNodePrint} from "../../../src/lib/node/print";
-import {TwingNodeExpressionConstant} from "../../../src/lib/node/expression/constant";
+import {TokenParser} from "../../../src/lib/token-parser";
+import {PrintNode} from "../../../src/lib/node/print";
+import {ConstantExpressionNode} from "../../../src/lib/node/expression/constant";
 import {TwingExtension} from "../../../src/lib/extension";
-import {TwingFilter} from "../../../src/lib/filter";
-import {TwingFunction} from "../../../src/lib/function";
-import {TwingTest} from "../../../src/lib/test";
+import {Filter} from "../../../src/lib/filter";
+import {Function} from "../../../src/lib/function";
+import {Test} from "../../../src/lib/test";
 import {TwingSandboxSecurityPolicy} from "../../../src/lib/sandbox/security-policy";
 import {TwingLoaderArray} from "../../../src/lib/loader/array";
 import {escape} from "../../../src/lib/extension/core/filters/escape";
@@ -18,11 +18,11 @@ import {TwingLoaderInterface} from "../../../src/lib/loader-interface";
 import {TwingTemplate} from "../../../src/lib/template";
 import {TwingOutputBuffer} from "../../../src/lib/output-buffer";
 
-class TwingTestTokenParserSection extends TwingTokenParser {
+class TwingTestTokenParserSection extends TokenParser {
     parse(token: Token) {
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new TwingNodePrint(new TwingNodeExpressionConstant('§', -1, -1), -1, -1);
+        return new PrintNode(new ConstantExpressionNode('§', -1, -1), -1, -1);
     }
 
     getTag() {
@@ -51,26 +51,26 @@ class TwingTestExtension extends TwingExtension {
 
     getFilters() {
         return [
-            new TwingFilter('escape_and_nl2br', escape_and_nl2br, [], {
+            new Filter('escape_and_nl2br', escape_and_nl2br, [], {
                 needsTemplate: true,
                 isSafe: ['html']
             }),
             // name this filter "nl2br_" to allow the core "nl2br" filter to be tested
-            new TwingFilter('nl2br_', nl2br, [], {'preEscape': 'html', 'isSafe': ['html']}),
-            new TwingFilter('§', this.sectionFilter, []),
-            new TwingFilter('escape_something', escape_something, [], {'isSafe': ['something']}),
-            new TwingFilter('preserves_safety', preserves_safety, [], {'preservesSafety': ['html']}),
-            new TwingFilter('static_call_string', TwingTestExtension.staticCall, []),
-            new TwingFilter('static_call_array', TwingTestExtension.staticCall, []),
-            new TwingFilter('magic_call_string', function () {
+            new Filter('nl2br_', nl2br, [], {'preEscape': 'html', 'isSafe': ['html']}),
+            new Filter('§', this.sectionFilter, []),
+            new Filter('escape_something', escape_something, [], {'isSafe': ['something']}),
+            new Filter('preserves_safety', preserves_safety, [], {'preservesSafety': ['html']}),
+            new Filter('static_call_string', TwingTestExtension.staticCall, []),
+            new Filter('static_call_array', TwingTestExtension.staticCall, []),
+            new Filter('magic_call_string', function () {
                 return TwingTestExtension.__callStatic('magicStaticCall', arguments);
             }, []),
-            new TwingFilter('magic_call_array', function () {
+            new Filter('magic_call_array', function () {
                 return TwingTestExtension.__callStatic('magicStaticCall', arguments);
             }, []),
-            new TwingFilter('*_path', dynamic_path, []),
-            new TwingFilter('*_foo_*_bar', dynamic_foo, []),
-            new TwingFilter('anon_foo', function (name: string) {
+            new Filter('*_path', dynamic_path, []),
+            new Filter('*_foo_*_bar', dynamic_foo, []),
+            new Filter('anon_foo', function (name: string) {
                 return Promise.resolve('*' + name + '*');
             }, []),
         ];
@@ -78,17 +78,17 @@ class TwingTestExtension extends TwingExtension {
 
     getFunctions() {
         return [
-            new TwingFunction('§', this.sectionFunction, []),
-            new TwingFunction('safe_br', this.br, [], {'isSafe': ['html']}),
-            new TwingFunction('unsafe_br', this.br, []),
-            new TwingFunction('static_call_string', TwingTestExtension.staticCall, []),
-            new TwingFunction('static_call_array', TwingTestExtension.staticCall, []),
-            new TwingFunction('*_path', dynamic_path, []),
-            new TwingFunction('*_foo_*_bar', dynamic_foo, []),
-            new TwingFunction('anon_foo', function (name: string) {
+            new Function('§', this.sectionFunction, []),
+            new Function('safe_br', this.br, [], {'isSafe': ['html']}),
+            new Function('unsafe_br', this.br, []),
+            new Function('static_call_string', TwingTestExtension.staticCall, []),
+            new Function('static_call_array', TwingTestExtension.staticCall, []),
+            new Function('*_path', dynamic_path, []),
+            new Function('*_foo_*_bar', dynamic_foo, []),
+            new Function('anon_foo', function (name: string) {
                 return Promise.resolve('*' + name + '*');
             }, []),
-            new TwingFunction('createObject', function (attributes: Map<string, any>) {
+            new Function('createObject', function (attributes: Map<string, any>) {
                 const object: {[p: string]: any} = {};
 
                 for (let [key, value] of attributes) {
@@ -97,7 +97,7 @@ class TwingTestExtension extends TwingExtension {
 
                 return Promise.resolve(object);
             }, []),
-            new TwingFunction('getMacro', function (template: TwingTemplate, outputBuffer: TwingOutputBuffer, name: string) {
+            new Function('getMacro', function (template: TwingTemplate, outputBuffer: TwingOutputBuffer, name: string) {
                 return template.getMacro(name).then((macroHandler) => {
                     return (...args: Array<any>) => macroHandler(outputBuffer, ...args);
                 });
@@ -110,8 +110,8 @@ class TwingTestExtension extends TwingExtension {
 
     getTests() {
         return [
-            new TwingTest('multi word', this.is_multi_word, []),
-            new TwingTest('test_*', this.dynamic_test, [])
+            new Test('multi word', this.is_multi_word, []),
+            new Test('test_*', this.dynamic_test, [])
         ];
     }
 

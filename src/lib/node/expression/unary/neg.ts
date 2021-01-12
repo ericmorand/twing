@@ -1,14 +1,7 @@
-import {TwingNodeExpressionUnary} from "../unary";
+import {UnaryExpressionNode} from "../unary";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_unary_neg');
-
-export class TwingNodeExpressionUnaryNeg extends TwingNodeExpressionUnary {
-    get type() {
-        return type;
-    }
-
+export class NegUnaryExpressionNode extends UnaryExpressionNode {
     operator(compiler: Compiler): Compiler {
         return compiler.raw('-');
     }

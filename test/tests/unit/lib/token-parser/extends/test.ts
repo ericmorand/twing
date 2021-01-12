@@ -1,6 +1,6 @@
 import * as tape from 'tape';
-import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
-import {TwingTokenParserExtends} from "../../../../../../src/lib/token-parser/extends";
+import {TokenStream} from "../../../../../../src/lib/token-stream";
+import {ExtendsTokenParser} from "../../../../../../src/lib/token-parser/extends";
 import {getParser} from "../../../../../mock-builder/parser";
 
 const sinon = require('sinon');
@@ -9,9 +9,9 @@ const {Token, TokenType} = require('twig-lexer');
 tape('token-parser/extends', (test) => {
     test.test('parse', (test) => {
         test.test('with parent already set', function (test) {
-            let stream = new TwingTokenStream([]);
+            let stream = new TokenStream([]);
 
-            let tokenParser = new TwingTokenParserExtends();
+            let tokenParser = new ExtendsTokenParser();
             let parser = getParser(stream);
 
             tokenParser.setParser(parser);

@@ -1,6 +1,6 @@
 import {TwingEnvironment} from "../../../environment";
-import {TwingSource} from "../../../source";
-import {TwingErrorLoader} from "../../../error/loader";
+import {Source} from "../../../source";
+import {LoaderError} from "../../../error/loader";
 import {TwingTemplate} from "../../../template";
 
 /**
@@ -17,9 +17,9 @@ export function source(template: TwingTemplate, name: string, ignoreMissing: boo
     let from = template.source;
 
     return env.getLoader().getSourceContext(name, from).then((source) => {
-        return source.getCode();
+        return source.content;
     }).catch((e) => {
-        if (e instanceof TwingErrorLoader) {
+        if (e instanceof LoaderError) {
             if (!ignoreMissing) {
                 throw e;
             } else {

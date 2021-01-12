@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingLoaderFilesystem} from "../../../../../../src/lib/loader/filesystem";
-import {TwingErrorLoader} from "../../../../../../src/lib/error/loader";
-import {TwingSource} from "../../../../../../src/lib/source";
+import {LoaderError} from "../../../../../../src/lib/error/loader";
+import {Source} from "../../../../../../src/lib/source";
 import * as fs from "fs";
 import {stub} from "sinon";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
@@ -254,7 +254,7 @@ tape('loader filesystem', (test) => {
         try {
             await loader.getSourceContext('@named/nowhere.html', null);
         } catch (e) {
-            test.same(e instanceof TwingErrorLoader, true);
+            test.same(e instanceof LoaderError, true);
             test.true(e.message.includes('Unable to find template "@named/nowhere.html"'));
         }
 
@@ -298,7 +298,7 @@ tape('loader filesystem', (test) => {
         ];
 
         for (let [name, expected] of names) {
-            test.same(await loader.getSourceContext(name, null), new TwingSource('named path\n', name, nodePath.resolve(fixturesPath, expected)));
+            test.same(await loader.getSourceContext(name, null), new Source('named path\n', name, nodePath.resolve(fixturesPath, expected)));
         }
 
         try {
@@ -394,7 +394,7 @@ tape('loader filesystem', (test) => {
 
         test.test('on cache hit', async (test) => {
             class CustomLoader extends TwingLoaderFilesystem {
-                findTemplate(name: string, throw_: boolean = true, from: TwingSource = null): Promise<string> {
+                findTemplate(name: string, throw_: boolean = true, from: Source = null): Promise<string> {
                     return super.findTemplate(name, throw_, from);
                 }
             }
@@ -428,7 +428,7 @@ tape('loader filesystem', (test) => {
         };
 
         let CustomLoader = class extends TwingLoaderFilesystem {
-            findTemplate(name: string, throw_: boolean = true, from: TwingSource = null): Promise<string> {
+            findTemplate(name: string, throw_: boolean = true, from: Source = null): Promise<string> {
                 return super.findTemplate(name, throw_, from);
             }
         };
@@ -441,7 +441,7 @@ tape('loader filesystem', (test) => {
         try {
             await loader.findTemplate(resolvePath('named'), undefined, undefined);
         } catch (err) {
-            test.true(err instanceof TwingErrorLoader);
+            test.true(err instanceof LoaderError);
             test.same(err.getMessage(), `Unable to find template "${resolvePath('named')}" (looked into: test/tests/unit/lib/loader/filesystem/fixtures).`);
         }
 

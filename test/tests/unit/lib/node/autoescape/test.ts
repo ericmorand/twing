@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
 import {Node} from "../../../../../../src/lib/node";
-import {TwingNodeAutoEscape, type} from "../../../../../../src/lib/node/auto-escape";
+import {AutoEscapeNode, type} from "../../../../../../src/lib/node/auto-escape";
 import {MockCompiler} from "../../../../../mock/compiler";
 
 tape('node/autoescape', (test) => {
@@ -11,7 +11,7 @@ tape('node/autoescape', (test) => {
         ]);
 
         let body = new Node(bodyNodes);
-        let node = new TwingNodeAutoEscape(true, body, 1, 1);
+        let node = new AutoEscapeNode(true, body, 1, 1);
 
         test.same(node.getNode('body'), body);
         test.true(node.getAttribute('value'));
@@ -26,7 +26,7 @@ tape('node/autoescape', (test) => {
         ]);
 
         let body = new Node(bodyNodes);
-        let node = new TwingNodeAutoEscape(true, body, 1, 1);
+        let node = new AutoEscapeNode(true, body, 1, 1);
         let compiler = new MockCompiler();
 
         test.same(compiler.compile(node).getSource(), `outputBuffer.echo(\`foo\`);

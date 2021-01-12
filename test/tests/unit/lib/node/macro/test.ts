@@ -1,9 +1,9 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
+import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
-import {TwingNodeExpressionName} from "../../../../../../src/lib/node/expression/name";
+import {NameExpressionNode} from "../../../../../../src/lib/node/expression/name";
 import {Node} from "../../../../../../src/lib/node";
-import {TwingNodeMacro, type} from "../../../../../../src/lib/node/macro";
+import {MacroNode, type} from "../../../../../../src/lib/node/macro";
 import {MockCompiler} from "../../../../../mock/compiler";
 
 tape('node/macro', (test) => {
@@ -11,11 +11,11 @@ tape('node/macro', (test) => {
         let body = new TwingNodeText('foo', 1, 1);
 
         let argumentsNode = new Map([
-            [0, new TwingNodeExpressionName('foo', 1, 1)]
+            [0, new NameExpressionNode('foo', 1, 1)]
         ]);
 
         let arguments_ = new Node(argumentsNode, new Map(), 1, 1);
-        let node = new TwingNodeMacro('foo', body, arguments_, 1, 1);
+        let node = new MacroNode('foo', body, arguments_, 1, 1);
 
         test.same(node.getNode('body'), body);
         test.same(node.getNode('arguments'), arguments_);
@@ -31,10 +31,10 @@ tape('node/macro', (test) => {
         let body = new TwingNodeText('foo', 1, 1);
 
         let arguments_ = new Node(new Map([
-            ['foo', new TwingNodeExpressionConstant(null, 1, 1)],
-            ['bar', new TwingNodeExpressionConstant('Foo', 1, 1)]
+            ['foo', new ConstantExpressionNode(null, 1, 1)],
+            ['bar', new ConstantExpressionNode('Foo', 1, 1)]
         ]), new Map(), 1, 1);
-        let node = new TwingNodeMacro('foo', body, arguments_, 1, 1);
+        let node = new MacroNode('foo', body, arguments_, 1, 1);
         let compiler = new MockCompiler();
 
         test.same(compiler.compile(node).getSource(), `async (outputBuffer, __foo__ = null, __bar__ = \`Foo\`, ...__varargs__) => {

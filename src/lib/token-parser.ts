@@ -1,4 +1,4 @@
-import {TwingTokenParserInterface} from "./token-parser-interface";
+import {TokenParserInterface} from "./token-parser-interface";
 import {TwingParser} from "./parser";
 import {Node} from "./node";
 import {Token} from "twig-lexer";
@@ -8,13 +8,7 @@ import {Token} from "twig-lexer";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export abstract class TwingTokenParser implements TwingTokenParserInterface {
-    TwingTokenParserInterfaceImpl: TwingTokenParserInterface;
-
-    constructor() {
-        this.TwingTokenParserInterfaceImpl = this;
-    }
-
+export abstract class TokenParser implements TokenParserInterface {
     /**
      * @var TwingParser
      */

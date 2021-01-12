@@ -1,5 +1,5 @@
-import {TwingSource} from "../source";
-import {TwingErrorLoader} from "../error/loader";
+import {Source} from "../source";
+import {LoaderError} from "../error/loader";
 import {Stats} from "fs";
 import {TwingLoaderInterface} from "../loader-interface";
 import {isAbsolute as isAbsolutePath, join as joinPath, dirname, resolve as resolvePath} from "path";
@@ -14,21 +14,21 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
     protected cache: Map<string, string> = new Map();
     protected errorCache: Map<string, string> = new Map();
 
-    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
+    getSourceContext(name: string, from: Source): Promise<Source> {
         return this.findTemplate(name, true, from).then((path) => {
             return new Promise((resolve) => {
                 readFile(path, 'UTF-8', (err, data) => {
-                    resolve(new TwingSource(data, name, path))
+                    resolve(new Source(data, name, path))
                 })
             });
         });
     }
 
-    getCacheKey(name: string, from: TwingSource): Promise<string> {
+    getCacheKey(name: string, from: Source): Promise<string> {
         return this.findTemplate(name, true, from);
     }
 
-    exists(name: string, from: TwingSource): Promise<boolean> {
+    exists(name: string, from: Source): Promise<boolean> {
         name = this.normalizeName(this.resolvePath(name, from));
 
         if (this.cache.has(name)) {
@@ -40,7 +40,7 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
         });
     }
 
-    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+    isFresh(name: string, time: number, from: Source): Promise<boolean> {
         return this.findTemplate(name, true, from).then((name) => {
             return new Promise((resolve) => {
                 fsStat(name, (err, stat) => {
@@ -55,11 +55,11 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
      *
      * @param {string} name  The template name
      * @param {boolean} throw_ Whether to throw an exception when an error occurs
-     * @param {TwingSource} from The source that initiated the template loading
+     * @param {Source} from The source that initiated the template loading
      *
      * @returns {Promise<string>} The template name or null
      */
-    protected findTemplate(name: string, throw_: boolean = true, from: TwingSource = null): Promise<string> {
+    protected findTemplate(name: string, throw_: boolean = true, from: Source = null): Promise<string> {
         let _do = (): string => {
             name = this.normalizeName(this.resolvePath(name, from));
 
@@ -72,7 +72,7 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
                     return null;
                 }
 
-                throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
+                throw new LoaderError(this.errorCache.get(name), null, from);
             }
 
             try {
@@ -103,7 +103,7 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
                 return null;
             }
 
-            throw new TwingErrorLoader(this.errorCache.get(name), -1, from);
+            throw new LoaderError(this.errorCache.get(name), null, from);
         };
 
         return new Promise((resolve, reject) => {
@@ -123,19 +123,19 @@ export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
         return name.replace(/\\/g, '/').replace(/\/{2,}/g, '/')
     }
 
-    protected validateName(name: string, from: TwingSource) {
+    protected validateName(name: string, from: Source) {
         if (name.indexOf(`\0`) > -1) {
-            throw new TwingErrorLoader('A template name cannot contain NUL bytes.', -1, from);
+            throw new LoaderError('A template name cannot contain NUL bytes.', null, from);
         }
     }
 
-    resolve(name: string, from: TwingSource, shouldThrow: boolean = false): Promise<string> {
+    resolve(name: string, from: Source, shouldThrow: boolean = false): Promise<string> {
         return this.findTemplate(name, shouldThrow, from);
     }
 
-    private resolvePath(name: string, from: TwingSource): string {
+    private resolvePath(name: string, from: Source): string {
         if (name && from && !isAbsolutePath(name)) {
-            name = joinPath(dirname(from.getResolvedName()), name);
+            name = joinPath(dirname(from.resolvedName), name);
         }
 
         return name;

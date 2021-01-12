@@ -1,6 +1,6 @@
 import {TwingLoaderInterface} from "../loader-interface";
-import {TwingSource} from "../source";
-import {TwingErrorLoader} from "../error/loader";
+import {Source} from "../source";
+import {LoaderError} from "../error/loader";
 
 /**
  * Noop implementation of TwingLoaderInterface.
@@ -8,23 +8,23 @@ import {TwingErrorLoader} from "../error/loader";
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export class TwingLoaderNull implements TwingLoaderInterface {
-    exists(name: string, from: TwingSource): Promise<boolean> {
+    exists(name: string, from: Source): Promise<boolean> {
         return Promise.resolve(false);
     }
 
-    getCacheKey(name: string, from: TwingSource): Promise<string> {
+    getCacheKey(name: string, from: Source): Promise<string> {
         return Promise.resolve(name);
     }
 
-    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
-        throw new TwingErrorLoader(`Template "${name}" is not defined.`, -1, from);
+    getSourceContext(name: string, from: Source): Promise<Source> {
+        throw new LoaderError(`Template "${name}" is not defined.`, null, from);
     }
 
-    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+    isFresh(name: string, time: number, from: Source): Promise<boolean> {
         return Promise.resolve(true);
     }
 
-    resolve(name: string, from: TwingSource): Promise<string> {
+    resolve(name: string, from: Source): Promise<string> {
         return Promise.resolve(name);
     }
 }

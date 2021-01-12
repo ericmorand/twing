@@ -1,20 +1,18 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode, ExpressionNodeAttributes} from "../expression";
 import {Node} from "../../node";
 import {Compiler} from "../../compiler";
 
-export abstract class TwingNodeExpressionUnary extends TwingNodeExpression<{
-    node: Node
-}> {
-    constructor(node: Node, lineno: number, columno: number) {
-        super({node}, null, lineno, columno);
-    }
+export type UnaryExpressionNodeEdges = {
+    operand: Node
+};
 
+export abstract class UnaryExpressionNode extends ExpressionNode<ExpressionNodeAttributes<{}>, UnaryExpressionNodeEdges> {
     compile(compiler: Compiler) {
         this.operator(compiler);
 
         compiler
             .raw('(')
-            .subcompile(this.getNode('node'))
+            .subCompile(this.edges.operand)
             .raw(')');
     }
 

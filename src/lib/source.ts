@@ -1,23 +1,23 @@
-export class TwingSource {
-    private readonly code: string;
-    private readonly name: string;
-    private readonly resolvedName: string;
+export class Source {
+    private readonly _content: string;
+    private readonly _name: string;
+    private readonly _resolvedName: string;
 
-    constructor(code: string, name: string, resolvedName?: string) {
-        this.code = code;
-        this.name = name;
-        this.resolvedName = resolvedName || name;
+    constructor(content: string, name: string, resolvedName?: string) {
+        this._content = content;
+        this._name = name;
+        this._resolvedName = resolvedName || name;
     }
 
-    getCode() {
-        return this.code;
+    get content() {
+        return this._content;
     }
 
-    getName() {
-        return this.name;
+    get name() {
+        return this._name;
     }
 
-    getResolvedName() {
-        return this.resolvedName;
+    get resolvedName() {
+        return this._resolvedName;
     }
 }

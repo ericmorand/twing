@@ -5,7 +5,7 @@ import {iconv} from "./helpers/iconv";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingMarkup {
+export class Markup {
     private content: Buffer;
     private charset: string;
 

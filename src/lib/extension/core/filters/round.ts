@@ -20,7 +20,7 @@ export function round(value: any, precision = 0, method = 'common'): Promise<num
         }
 
         if (method !== 'ceil' && method !== 'floor') {
-            throw new RuntimeError('The round filter only supports the "common", "ceil", and "floor" methods.');
+            throw new RuntimeError('The round filter only supports the "common", "ceil", and "floor" methods.', null);
         }
 
         let intermediateValue = value * Math.pow(10, precision);

@@ -12,7 +12,7 @@ import {asort} from "../../../helpers/asort";
  */
 export function sort(iterable: Map<any, any>): Promise<Map<any, any>> {
     if (!isTraversable(iterable)) {
-        throw new RuntimeError(`The sort filter only works with iterables, got "${typeof iterable}".`);
+        throw new RuntimeError(`The sort filter only works with iterables, got "${typeof iterable}".`, null);
     }
 
     let map = iteratorToMap(iterable);

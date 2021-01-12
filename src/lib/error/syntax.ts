@@ -1,7 +1,7 @@
 import {Error} from "../error";
 
 import type {Location} from "../node";
-import type {TwingSource} from "../source";
+import type {Source} from "../source";
 
 const Levenshtein = require('levenshtein');
 
@@ -15,7 +15,7 @@ export class SyntaxError extends Error {
     // todo: rename that property, this is not a suggestion but some candidates for an eroneous word
     private readonly _suggestion: SyntaxErrorSuggestion;
 
-    constructor(message: string, suggestion: SyntaxErrorSuggestion, location: Location, source?: TwingSource, previous?: Error) {
+    constructor(message: string, suggestion: SyntaxErrorSuggestion, location: Location, source?: Source, previous?: Error) {
         super(message, location, source, previous);
 
         this._suggestion = suggestion;

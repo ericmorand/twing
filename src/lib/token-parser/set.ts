@@ -1,9 +1,9 @@
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {SyntaxError} from "../error/syntax";
-import {TwingNodeSet} from "../node/set";
+import {SetNode} from "../node/set";
 import {Token, TokenType} from "twig-lexer";
 
-export class TwingTokenParserSet extends TwingTokenParser {
+export class SetTokenParser extends TokenParser {
     parse(token: Token) {
         const {line, column} = token;
         const stream = this.parser.getStream();
@@ -17,14 +17,14 @@ export class TwingTokenParserSet extends TwingTokenParser {
 
             stream.expect(TokenType.TAG_END);
 
-            if (names.nodesCount !== values.nodesCount) {
-                throw new SyntaxError('When using set, you must have the same number of variables and assignments.', stream.getCurrent().line, stream.getSourceContext());
+            if (names.edgesCount !== values.edgesCount) {
+                throw new SyntaxError('When using set, you must have the same number of variables and assignments.', null, stream.getCurrent(), stream.source);
             }
         } else {
             capture = true;
 
-            if (names.nodesCount > 1) {
-                throw new SyntaxError('When using set with a block, you cannot have a multi-target.', stream.getCurrent().line, stream.getSourceContext());
+            if (names.edgesCount > 1) {
+                throw new SyntaxError('When using set with a block, you cannot have a multi-target.', null, stream.getCurrent(), stream.source);
             }
 
             stream.expect(TokenType.TAG_END);
@@ -34,7 +34,7 @@ export class TwingTokenParserSet extends TwingTokenParser {
             stream.expect(TokenType.TAG_END);
         }
 
-        return new TwingNodeSet({capture}, {names, values}, line, column, this.getTag());
+        return new SetNode({capture}, {names, values}, {line, column}, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

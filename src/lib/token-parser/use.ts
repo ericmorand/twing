@@ -1,33 +1,31 @@
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {SyntaxError} from "../error/syntax";
-import {TwingNodeExpressionConstant, type as constantType} from "../node/expression/constant";
-import {toTwingNodeNodes, Node} from "../node";
+import {ConstantExpressionNode} from "../node/expression/constant";
+import {toNodeEdges, Node} from "../node";
 import {Token, TokenType} from "twig-lexer";
-import {TwingNodeTrait} from "../node/trait";
+import {TraitNode} from "../node/trait";
 
-export class TwingTokenParserUse extends TwingTokenParser {
+export class UseTokenParser extends TokenParser {
     parse(token: Token) {
-        const {line, column} = token;
-
         let template = this.parser.parseExpression();
         let stream = this.parser.getStream();
 
-        if (template.type !== constantType) {
-            throw new SyntaxError('The template references in a "use" statement must be a string.', stream.getCurrent().line, stream.getSourceContext());
+        if (template instanceof ConstantExpressionNode) {
+            throw new SyntaxError('The template references in a "use" statement must be a string.', null, stream.getCurrent(), stream.source);
         }
 
-        let targets: Map<string, TwingNodeExpressionConstant<string>> = new Map();
+        let targets: Map<string, ConstantExpressionNode<string>> = new Map();
 
         if (stream.nextIf(TokenType.NAME, 'with')) {
             do {
                 let name = stream.expect(TokenType.NAME).value;
-                let alias = name;
+                let alias: string = name;
 
                 if (stream.nextIf(TokenType.NAME, 'as')) {
                     alias = stream.expect(TokenType.NAME).value;
                 }
 
-                targets.set(name, new TwingNodeExpressionConstant(alias, line, column));
+                targets.set(name, new ConstantExpressionNode({value: alias}, null, token));
 
                 if (!stream.nextIf(TokenType.PUNCTUATION, ',')) {
                     break;
@@ -37,9 +35,12 @@ export class TwingTokenParserUse extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        this.parser.addTrait(new TwingNodeTrait(template, new Node(toTwingNodeNodes(targets), null, line, column), line, column))
+        this.parser.addTrait(new TraitNode(null, {
+            template,
+            targets: new Node<null>(null, toNodeEdges(targets), token)
+        }, token));
 
-        return new Node<null, null>(null, null);
+        return new Node<null, null>(null, null, token);
     }
 
     getTag() {

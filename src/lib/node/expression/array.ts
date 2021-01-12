@@ -1,10 +1,9 @@
-import {TwingNodeExpression, TwingNodeExpressionAttributes} from "../expression";
-import {Compiler} from "../../compiler";
-import {TwingNodeExpressionList, TwingNodeExpressionListAttributes} from "./list";
+import {ListExpressionNodeEdge, ListExpressionNode} from "./list";
+import {ConstantExpressionNode} from "./constant";
 
-export type TwingNodeExpressionArrayElement = [number, TwingNodeExpression<any>];
+export type ArrayExpressionNodeEdge = ListExpressionNodeEdge<ConstantExpressionNode<number>>;
 
-export class TwingNodeExpressionArray extends TwingNodeExpressionList<number> {
+export class ArrayExpressionNode extends ListExpressionNode<ConstantExpressionNode<number>> {
     // constructor(attributes: TwingNodeExpressionListAttributes<number>, nodes: null, line: number, column: number) {
     //     const listElements: Array<[number, TwingNodeExpressionArrayElement]> = [];
     //
@@ -27,8 +26,4 @@ export class TwingNodeExpressionArray extends TwingNodeExpressionList<number> {
     //     //     }
     //     // }
     // }
-
-    protected compileKey(compiler: Compiler, key: number): void {
-        compiler.repr(key);
-    }
 }

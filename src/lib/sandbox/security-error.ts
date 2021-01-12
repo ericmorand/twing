@@ -5,6 +5,6 @@ import {Error} from "../error";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingSandboxSecurityError extends Error {
+export class SandboxSecurityError extends Error {
 
 }

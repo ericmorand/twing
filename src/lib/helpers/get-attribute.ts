@@ -5,6 +5,7 @@ import {examineObject} from "./examine-object";
 import {TwingEnvironment} from "../environment";
 import {isPlainObject} from "./is-plain-object";
 import {get} from "./get";
+import {ANY_CALL, ARRAY_CALL, METHOD_CALL} from "../node/expression/get-attribute";
 
 const isBool = require('locutus/php/var/is_bool');
 const isFloat = require('locutus/php/var/is_float');
@@ -26,12 +27,12 @@ const isObject = require('isobject');
  *
  * @throw {TwingErrorRuntime} if the attribute does not exist and Twing is running in strict mode and isDefinedTest is false
  */
-export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arguments: Map<any, any> = new Map(), type: string = TwingTemplate.ANY_CALL, isDefinedTest: boolean = false, ignoreStrictCheck: boolean = false, sandboxed: boolean = false): Promise<any> => {
+export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arguments: Map<any, any> = new Map(), type: string = ANY_CALL, isDefinedTest: boolean = false, ignoreStrictCheck: boolean = false, sandboxed: boolean = false): Promise<any> => {
     let _do = (): any => {
         let message: string;
 
         // ANY_CALL or ARRAY_CALL
-        if (type !== TwingTemplate.METHOD_CALL) {
+        if (type !== METHOD_CALL) {
             let arrayItem;
 
             if (isBool(item)) {
@@ -52,7 +53,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                 }
             }
 
-            if ((type === TwingTemplate.ARRAY_CALL) || (isMap(object)) || (object === null) || (typeof object !== 'object')) {
+            if ((type === ARRAY_CALL) || (isMap(object)) || (object === null) || (typeof object !== 'object')) {
                 if (isDefinedTest) {
                     return false;
                 }
@@ -67,7 +68,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                     } else {
                         message = `Index "${arrayItem}" is out of bounds for array [${[...(object as Map<any, any>).values()]}].`;
                     }
-                } else if (type === TwingTemplate.ARRAY_CALL) {
+                } else if (type === ARRAY_CALL) {
                     // object is another kind of object
                     if (object === null) {
                         message = `Impossible to access a key ("${item}") on a null variable.`;
@@ -82,7 +83,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                     message = `Impossible to access an attribute ("${item}") on a ${typeof object} variable ("${object}").`;
                 }
 
-                throw new RuntimeError(message);
+                throw new RuntimeError(message, null);
             }
         }
 
@@ -104,15 +105,15 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                 message = `Impossible to invoke a method ("${item}") on a ${typeof object} variable ("${object}").`;
             }
 
-            throw new RuntimeError(message);
+            throw new RuntimeError(message, null);
         }
 
         if (object instanceof TwingTemplate) {
-            throw new RuntimeError('Accessing TwingTemplate attributes is forbidden.');
+            throw new RuntimeError('Accessing TwingTemplate attributes is forbidden.', null);
         }
 
         // object property
-        if (type !== TwingTemplate.METHOD_CALL) {
+        if (type !== METHOD_CALL) {
             if (Reflect.has(object, item) && (typeof object[item] !== 'function')) {
                 if (isDefinedTest) {
                     return true;
@@ -201,7 +202,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
                 return;
             }
 
-            throw new RuntimeError(`Neither the property "${item}" nor one of the methods ${item}()" or "get${item}()"/"is${item}()"/"has${item}()" exist and have public access in class "${object.constructor.name}".`);
+            throw new RuntimeError(`Neither the property "${item}" nor one of the methods ${item}()" or "get${item}()"/"is${item}()"/"has${item}()" exist and have public access in class "${object.constructor.name}".`, null);
         }
 
         if (isDefinedTest) {

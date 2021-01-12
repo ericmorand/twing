@@ -1,12 +1,12 @@
 import * as tape from 'tape';
-import {TwingNodeCheckSecurity, type} from "../../../../../../src/lib/node/check-security";
+import {CheckSecurityNode, type} from "../../../../../../src/lib/node/check-security";
 import {Compiler} from "../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 
 tape('node/check-security', (test) => {
     test.test('constructor', (test) => {
-        let node = new TwingNodeCheckSecurity(new Map([]), new Map([]), new Map([]));
+        let node = new CheckSecurityNode(new Map([]), new Map([]), new Map([]));
 
         test.same(node.type, type);
 
@@ -14,7 +14,7 @@ tape('node/check-security', (test) => {
     });
 
     test.test('compile', (test) => {
-        let node = new TwingNodeCheckSecurity(new Map([['foo', 'bar']]), new Map([['foo', 'bar']]), new Map([['foo', 'bar']]));
+        let node = new CheckSecurityNode(new Map([['foo', 'bar']]), new Map([['foo', 'bar']]), new Map([['foo', 'bar']]));
         let compiler = new Compiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
 
         test.same(compiler.compile(node).getSource(), `let tags = new Map([[\`bar\`, null]]);

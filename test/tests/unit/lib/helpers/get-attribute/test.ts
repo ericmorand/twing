@@ -2,7 +2,7 @@ import * as tape from 'tape';
 import {TwingTemplate} from "../../../../../../src/lib/template";
 import {MockEnvironment} from "../../../../../mock/environment";
 import {MockLoader} from "../../../../../mock/loader";
-import {TwingSource} from "../../../../../../src/lib/source";
+import {Source} from "../../../../../../src/lib/source";
 import {getAttribute} from "../../../../../../src/lib/helpers/get-attribute";
 import {TwingEnvironment} from "../../../../../../src/lib/environment";
 import {TwingLoaderNull} from "../../../../../../src/lib/loader/null";
@@ -68,7 +68,7 @@ tape('get-attribute', (test) => {
         strict_variables: true
     });
 
-    let source = new TwingSource('', '');
+    let source = new Source('', '');
 
     test.test('should support method calls', async (test) => {
         let foo = new Foo();

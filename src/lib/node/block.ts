@@ -1,21 +1,18 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('auto_escape');
-
-export class TwingNodeBlock extends Node<{
+export type BlockNodeAttributes = {
     name: string
-}, {
-    body: Node
-}> {
-    constructor(name: string, body: Node, line: number, column: number, tag: string) {
-        super({name}, {body}, line, column, tag);
-    }
+};
 
-    get type() {
-        return type;
-    }
+export type BlockNodeEdges = {
+    body: Node
+};
+
+export class BlockNode extends Node<BlockNodeAttributes, BlockNodeEdges> {
+    // constructor(name: string, body: Node, line: number, column: number, tag: string) {
+    //     super({name}, {body}, line, column, tag);
+    // }
 
     compile(compiler: Compiler) {
         compiler
@@ -25,7 +22,7 @@ export class TwingNodeBlock extends Node<{
         ;
 
         compiler
-            .subcompile(this.getNode('body'))
+            .subCompile(this.edges.body)
             .outdent()
             .write("}")
         ;

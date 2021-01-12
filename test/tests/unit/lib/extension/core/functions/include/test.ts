@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {TwingLoaderArray} from "../../../../../../../../src/lib/loader/array";
-import {TwingSource} from "../../../../../../../../src/lib/source";
+import {Source} from "../../../../../../../../src/lib/source";
 import {include} from "../../../../../../../../src/lib/extension/core/functions/include";
 import {TwingLoaderRelativeFilesystem} from "../../../../../../../../src/lib/loader/relative-filesystem";
 import {resolve} from "path";
@@ -12,7 +12,7 @@ import {TwingOutputBuffer} from "../../../../../../../../src/lib/output-buffer";
 tape('include', async (test) => {
     let template = new MockTemplate(
         new MockEnvironment(new TwingLoaderArray({})),
-        new TwingSource('', 'index.twig')
+        new Source('', 'index.twig')
     );
 
     try {
@@ -42,7 +42,7 @@ tape('include', async (test) => {
     test.test('supports relative filesystem loader', async (test) => {
         template = new MockTemplate(
             new MockEnvironment(new TwingLoaderRelativeFilesystem()),
-            new TwingSource('code', resolve('test/tests/unit/lib/extension/core/index.twig'))
+            new Source('code', resolve('test/tests/unit/lib/extension/core/index.twig'))
         );
 
         test.same(await include(template, new TwingContext(), new TwingOutputBuffer(), 'templates/foo.twig', {}), 'foo');

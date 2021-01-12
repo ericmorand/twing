@@ -1,4 +1,4 @@
-import {TwingSource} from "./source";
+import {Source} from "./source";
 import {Location} from "./node";
 import {NativeError} from "./native-error";
 
@@ -10,10 +10,10 @@ import {NativeError} from "./native-error";
 export class Error extends NativeError {
     private readonly _location: Location;
     private readonly _rawMessage: string;
-    private readonly _source: TwingSource;
+    private readonly _source: Source;
     private readonly _previous: Error;
 
-    constructor(message: string, location: Location, source?: TwingSource, previous?: Error) {
+    constructor(message: string, location: Location, source?: Source, previous?: Error) {
         super();
 
         this._previous = previous;
@@ -48,7 +48,7 @@ export class Error extends NativeError {
         }
 
         if (this.source) {
-            message = `${message} in "${this.source.getName()}"`;
+            message = `${message} in "${this.source.name}"`;
         }
 
         if (this.location) {

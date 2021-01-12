@@ -1,9 +1,9 @@
 import {TwingParser} from "../../src/lib/parser";
 import {TwingEnvironmentNode} from "../../src/lib/environment/node";
 import {TwingLoaderNull} from "../../src/lib/loader/null";
-import {TwingTokenStream} from "../../src/lib/token-stream";
+import {TokenStream} from "../../src/lib/token-stream";
 import {Node} from "../../src/lib/node";
-import {TwingNodeExpression} from "../../src/lib/node/expression";
+import {ExpressionNode} from "../../src/lib/node/expression";
 
 const sinon = require('sinon');
 
@@ -12,7 +12,7 @@ class Parser extends TwingParser {
         super(new TwingEnvironmentNode(new TwingLoaderNull()));
     }
 
-    parseExpression(precedence: number = 0, allowArrow: boolean = false): TwingNodeExpression {
+    parseExpression(precedence: number = 0, allowArrow: boolean = false): ExpressionNode {
         return null;
     }
 
@@ -25,7 +25,7 @@ class Parser extends TwingParser {
     }
 }
 
-export function getParser(stream: TwingTokenStream): Parser {
+export function getParser(stream: TokenStream): Parser {
     let parser = new Parser();
 
     Reflect.set(parser, 'stream', stream);

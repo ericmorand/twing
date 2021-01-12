@@ -4,7 +4,7 @@ import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {RuntimeError} from "../../../../../src/lib/error/runtime";
 import {TwingLoaderFilesystem} from "../../../../../src/lib/loader/filesystem";
-import {TwingSource} from "../../../../../src/lib/source";
+import {Source} from "../../../../../src/lib/source";
 
 const path = require('path');
 
@@ -17,7 +17,7 @@ class TwingTestsErrorTestFoo {
 tape('TwingError', (test) => {
     test.test('constructor', (test) => {
         let previous = new Error();
-        let error = new Error('foo', -1, new TwingSource('', 'bar'), previous);
+        let error = new Error('foo', -1, new Source('', 'bar'), previous);
 
         test.same(error.getRawMessage(), 'foo', 'raw message should be set');
         test.same(error.getLocation(), -1, 'template line should be set');
@@ -220,7 +220,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('setSourceContext', (test) => {
-        let error = new Error('foo', -1, new TwingSource('', 'bar'));
+        let error = new Error('foo', -1, new Source('', 'bar'));
 
         error.setSourceContext(null);
 
@@ -232,7 +232,7 @@ tape('TwingError', (test) => {
     test.test('updateRepr', function(test) {
         let error = new Error('foo', -1);
 
-        error.setSourceContext(new TwingSource('', 'bar'));
+        error.setSourceContext(new Source('', 'bar'));
 
         test.same(error.getMessage(), 'foo in "bar"');
 

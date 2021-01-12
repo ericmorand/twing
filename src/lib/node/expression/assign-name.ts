@@ -1,7 +1,7 @@
-import {TwingNodeExpressionName} from "./name";
+import {NameExpressionNode} from "./name";
 import {Compiler} from "../../compiler";
 
-export class TwingNodeExpressionAssignName extends TwingNodeExpressionName {
+export class AssignNameExpressionNode extends NameExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('context.proxy[')

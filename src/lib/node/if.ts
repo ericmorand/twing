@@ -1,30 +1,24 @@
-import {Node} from "../node";
+import {Node, NodeEdges} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
+import {ExpressionNode} from "./expression";
 
-export const type = new TwingNodeType('if');
+export type IfNodeEdges = {
+    tests: Node<null, NodeEdges<IfNodeTestNode>>,
+    else?: Node
+};
 
-export class TwingNodeIf extends Node {
-    constructor(tests: Node, elseNode: Node, lineno: number, columnno: number, tag: string = null) {
-        let nodes = new Map();
+export type IfNodeTestNodeEdges = {
+    condition: ExpressionNode<any>,
+    body: Node
+};
 
-        nodes.set('tests', tests);
+export type IfNodeTestNode = Node<null, IfNodeTestNodeEdges>;
 
-        if (elseNode) {
-            nodes.set('else', elseNode);
-        }
-
-        super(nodes, new Map(), lineno, columnno, tag);
-    }
-
-    get type() {
-        return type;
-    }
-
+export class IfNode extends Node<null, IfNodeEdges> {
     compile(compiler: Compiler) {
-        let count = this.getNode('tests').getNodes().size;
+        let i: number = 0;
 
-        for (let i = 0; i < count; i += 2) {
+        for (let [, test] of this.edges.tests) {
             if (i > 0) {
                 compiler
                     .outdent()
@@ -38,20 +32,22 @@ export class TwingNodeIf extends Node {
             }
 
             compiler
-                .subcompile(this.getNode('tests').getNode(i))
+                .subCompile(test.edges.condition)
                 .raw(") {\n")
                 .indent()
-                .subcompile(this.getNode('tests').getNode(i + 1))
+                .subCompile(test.edges.body)
             ;
+
+            i++;
         }
 
-        if (this.hasNode('else')) {
+        if (this.edges.else) {
             compiler
                 .outdent()
                 .write("}\n")
                 .write("else {\n")
                 .indent()
-                .subcompile(this.getNode('else'))
+                .subCompile(this.edges.else)
             ;
         }
 

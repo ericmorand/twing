@@ -1,7 +1,7 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionConstant} from "../../../../../../../../src/lib/node/expression/constant";
+import {ConstantExpressionNode} from "../../../../../../../../src/lib/node/expression/constant";
 import {TwingNodeExpressionFilterDefault} from "../../../../../../../../src/lib/node/expression/filter/default";
-import {TwingNodeExpressionName} from "../../../../../../../../src/lib/node/expression/name";
+import {NameExpressionNode} from "../../../../../../../../src/lib/node/expression/name";
 import {Node} from "../../../../../../../../src/lib/node";
 import {Compiler} from "../../../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../../../src/lib/environment/node";
@@ -11,8 +11,8 @@ tape('node/expression/filter/default', (test) => {
     test.test('compile', (test) => {
         test.test('when filter is \`default\` and \`EXPRESSION_NAME\` or \`EXPRESSION_GET_ATTR\` node', (test) => {
             let node = new TwingNodeExpressionFilterDefault(
-                new TwingNodeExpressionName('foo', 1, 1),
-                new TwingNodeExpressionConstant('default', 1, 1),
+                new NameExpressionNode('foo', 1, 1),
+                new ConstantExpressionNode('default', 1, 1),
                 new Node(),
                 1, 1
             );

@@ -9,23 +9,23 @@
  * </ul>
  * </pre>
  */
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {Node} from "../node";
 import {SyntaxError} from "../error/syntax";
 import {Token, TokenType} from "twig-lexer";
 
-export class TwingTokenParserExtends extends TwingTokenParser {
+export class ExtendsTokenParser extends TokenParser {
     parse(token: Token): Node {
         let stream = this.parser.getStream();
 
         if (this.parser.peekBlockStack()) {
-            throw new SyntaxError('Cannot use "extend" in a block.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Cannot use "extend" in a block.', null, token, stream.source);
         } else if (!this.parser.isMainScope()) {
-            throw new SyntaxError('Cannot use "extend" in a macro.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Cannot use "extend" in a macro.', null, token, stream.source);
         }
 
         if (this.parser.getParent() !== null) {
-            throw new SyntaxError('Multiple extends tags are forbidden.', token.line, stream.getSourceContext());
+            throw new SyntaxError('Multiple extends tags are forbidden.', null, token, stream.source);
         }
 
         this.parser.setParent(this.parser.parseExpression());

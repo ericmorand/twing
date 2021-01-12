@@ -2,22 +2,22 @@ import * as tape from 'tape';
 import * as sinon from 'sinon';
 import {join, resolve} from 'path';
 import {readFileSync} from 'fs';
-import {TwingTokenParser} from "../../../../../src/lib/token-parser";
+import {TokenParser} from "../../../../../src/lib/token-parser";
 import {Token, TokenType} from "twig-lexer";
 import {Node} from "../../../../../src/lib/node";
 import {TwingEnvironment, TwingTemplatesModule} from "../../../../../src/lib/environment";
 import {TwingExtension} from "../../../../../src/lib/extension";
-import {TwingFilter} from "../../../../../src/lib/filter";
-import {TwingOperator, TwingOperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
-import {TwingFunction} from "../../../../../src/lib/function";
-import {TwingTest} from "../../../../../src/lib/test";
+import {Filter} from "../../../../../src/lib/filter";
+import {Operator, TwingOperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
+import {Function} from "../../../../../src/lib/function";
+import {Test} from "../../../../../src/lib/test";
 import {TwingBaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
 import {TwingParser} from "../../../../../src/lib/parser";
-import {TwingTokenStream} from "../../../../../src/lib/token-stream";
+import {TokenStream} from "../../../../../src/lib/token-stream";
 import {TwingLexer} from "../../../../../src/lib/lexer";
 import {MockLoader} from "../../../../mock/loader";
-import {TwingNodeModule} from "../../../../../src/lib/node/module";
-import {TwingSource} from "../../../../../src/lib/source";
+import {ModuleNode} from "../../../../../src/lib/node/module";
+import {Source} from "../../../../../src/lib/source";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingCacheFilesystem} from "../../../../../src/lib/cache/filesystem";
@@ -40,7 +40,7 @@ function escapingStrategyCallback(name: string) {
     return name;
 }
 
-class TwingTestsEnvironmentTestTokenParser extends TwingTokenParser {
+class TwingTestsEnvironmentTestTokenParser extends TokenParser {
     parse(token: Token): Node {
         return null;
     }
@@ -83,7 +83,7 @@ class TwingTestsEnvironmentTestExtension extends TwingExtension {
 
     getFilters() {
         return [
-            new TwingFilter('foo_filter', () => {
+            new Filter('foo_filter', () => {
                 return Promise.resolve();
             }, [])
         ];
@@ -91,7 +91,7 @@ class TwingTestsEnvironmentTestExtension extends TwingExtension {
 
     getTests() {
         return [
-            new TwingTest('foo_test', () => {
+            new Test('foo_test', () => {
                 return Promise.resolve(true);
             }, []),
         ];
@@ -99,14 +99,14 @@ class TwingTestsEnvironmentTestExtension extends TwingExtension {
 
     getFunctions() {
         return [
-            new TwingFunction('foo_function', () => Promise.resolve(), []),
+            new Function('foo_function', () => Promise.resolve(), []),
         ];
     }
 
     getOperators() {
         return [
-            new TwingOperator('foo_unary', TwingOperatorType.UNARY, 10, () => null, TwingOperatorAssociativity.LEFT),
-            new TwingOperator('foo_binary', TwingOperatorType.BINARY, 10, () => null, TwingOperatorAssociativity.LEFT),
+            new Operator('foo_unary', TwingOperatorType.UNARY, 10, () => null, TwingOperatorAssociativity.LEFT),
+            new Operator('foo_binary', TwingOperatorType.BINARY, 10, () => null, TwingOperatorAssociativity.LEFT),
         ];
     }
 }
@@ -114,27 +114,27 @@ class TwingTestsEnvironmentTestExtension extends TwingExtension {
 class TwingTestsEnvironmentTestExtensionRegression extends TwingTestsEnvironmentTestExtension {
     getFilters() {
         return [
-            new TwingFilter('foo_filter', () => Promise.resolve(), [])
+            new Filter('foo_filter', () => Promise.resolve(), [])
         ];
     }
 
     getFunctions() {
         return [
-            new TwingFunction('foo_function', () => Promise.resolve(), [])
+            new Function('foo_function', () => Promise.resolve(), [])
         ];
     }
 }
 
 class TwingTestsEnvironmentParserBar extends TwingParser {
-    parse(stream: TwingTokenStream, test: any, dropNeedle: any): TwingNodeModule {
-        return new TwingNodeModule(
+    parse(stream: TokenStream, test: any, dropNeedle: any): ModuleNode {
+        return new ModuleNode(
             new TwingNodeText('bar', 1, 1),
             new Node(),
             new Node(),
             new Node(),
             new Node(),
             [],
-            new TwingSource('', 'index')
+            new Source('', 'index')
         );
     }
 }
@@ -146,7 +146,7 @@ class TwingTestsEnvironmentLexerBar extends TwingLexer {
 }
 
 class TwingTestsEnvironmentParserError extends TwingParser {
-    parse(stream: TwingTokenStream, test: any, dropNeedle: any): TwingNodeModule {
+    parse(stream: TokenStream, test: any, dropNeedle: any): ModuleNode {
         throw new Error('Parser error "foo".');
     }
 }
@@ -154,7 +154,7 @@ class TwingTestsEnvironmentParserError extends TwingParser {
 function getMockLoader(templateName: string, templateContent: string) {
     let loader = new MockLoader();
 
-    sinon.stub(loader, 'getSourceContext').withArgs(templateName).returns(Promise.resolve(new TwingSource(templateContent, templateName)));
+    sinon.stub(loader, 'getSourceContext').withArgs(templateName).returns(Promise.resolve(new Source(templateContent, templateName)));
     sinon.stub(loader, 'getCacheKey').withArgs(templateName).returns(Promise.resolve(templateName));
 
     return loader;
@@ -182,7 +182,7 @@ tape('environment', (test) => {
     test.test('globals', async (test) => {
         let loader = new MockLoader();
 
-        sinon.stub(loader, 'getSourceContext').returns(Promise.resolve(new TwingSource('', '')));
+        sinon.stub(loader, 'getSourceContext').returns(Promise.resolve(new Source('', '')));
 
         // globals can be added after calling getGlobals
         let twing = new TwingEnvironmentNode(loader);
@@ -291,7 +291,7 @@ tape('environment', (test) => {
         let twing = new MockEnvironment(loader, options);
 
         let key = await cache.generateKey('index', await twing.getTemplateHash('index'));
-        await cache.write(key, twing.compileSource(new TwingSource('{{ foo }}', 'index')));
+        await cache.write(key, twing.compileSource(new Source('{{ foo }}', 'index')));
 
         // render template
         let output = await twing.render('index', {foo: 'bar'});
@@ -556,7 +556,7 @@ tape('environment', (test) => {
 
     test.test('debug', async (test) => {
         class CustomEnvironment extends TwingEnvironmentNode {
-            getTemplateHash(name: string, index: number, from: TwingSource) {
+            getTemplateHash(name: string, index: number, from: Source) {
                 return super.getTemplateHash(name, index, from);
             }
         }
@@ -611,7 +611,7 @@ tape('environment', (test) => {
 
     test.test('strict_variables', async (test) => {
         class CustomEnvironment extends TwingEnvironmentNode {
-            getTemplateHash(name: string, index: number, from: TwingSource) {
+            getTemplateHash(name: string, index: number, from: Source) {
                 return super.getTemplateHash(name, index, from);
             }
         }
@@ -715,7 +715,7 @@ tape('environment', (test) => {
         }));
 
         try {
-            await env.resolveTemplate('index', new TwingSource('', 'index'));
+            await env.resolveTemplate('index', new Source('', 'index'));
 
             test.fail();
         } catch (e) {
@@ -723,7 +723,7 @@ tape('environment', (test) => {
         }
 
         try {
-            await env.resolveTemplate('missing', new TwingSource('', 'index'));
+            await env.resolveTemplate('missing', new Source('', 'index'));
 
             test.fail();
         } catch (e) {
@@ -741,7 +741,7 @@ tape('environment', (test) => {
 
         env.setParser(new TwingTestsEnvironmentParserBar(env));
 
-        test.true(env.parse(env.tokenize(new TwingSource('foo', 'index'))));
+        test.true(env.parse(env.tokenize(new Source('foo', 'index'))));
 
         test.end();
     });
@@ -753,7 +753,7 @@ tape('environment', (test) => {
 
         env.setLexer(new TwingTestsEnvironmentLexerBar(env));
 
-        test.true(env.tokenize(new TwingSource('foo', 'index')).getCurrent().test(TokenType.TEXT, 'bar'));
+        test.true(env.tokenize(new Source('foo', 'index')).getCurrent().test(TokenType.TEXT, 'bar'));
 
         test.end();
     });
@@ -763,7 +763,7 @@ tape('environment', (test) => {
             index: 'foo'
         }));
 
-        let source = new TwingSource('{{ foo', 'index');
+        let source = new Source('{{ foo', 'index');
 
         try {
             env.compileSource(source);
@@ -775,7 +775,7 @@ tape('environment', (test) => {
 
         env.setParser(new TwingTestsEnvironmentParserError(env));
 
-        source = new TwingSource('{{ foo.bar }}', 'index');
+        source = new Source('{{ foo.bar }}', 'index');
 
         try {
             env.compileSource(source);

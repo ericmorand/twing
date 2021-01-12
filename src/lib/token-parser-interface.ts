@@ -9,9 +9,7 @@ import {Token} from "twig-lexer";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export interface TwingTokenParserInterface {
-    TwingTokenParserInterfaceImpl: TwingTokenParserInterface;
-
+export interface TokenParserInterface {
     /**
      * Sets the parser associated with this token parser.
      */

@@ -80,7 +80,7 @@ export function date(template: TwingTemplate, date: Date | DateTime | Duration |
         }
 
         if (!result || !result.isValid) {
-            throw new RuntimeError(`Failed to parse date "${date}".`);
+            throw new RuntimeError(`Failed to parse date "${date}".`, null);
         }
 
         if (timezone !== false) {

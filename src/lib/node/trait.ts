@@ -1,11 +1,9 @@
 import {Node} from "../node";
-import {TwingNodeExpression} from "./expression";
+import {ExpressionNode} from "./expression";
 
-export class TwingNodeTrait extends Node<{
-    template: TwingNodeExpression,
+export class TraitNode extends Node<null, {
+    template: ExpressionNode<any>,
     targets: Node
 }> {
-    constructor(template: TwingNodeExpression, targets: Node, line: number, column: number) {
-        super({template, targets}, line, column);
-    }
+
 }

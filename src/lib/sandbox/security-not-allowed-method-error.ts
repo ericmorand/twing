@@ -1,9 +1,14 @@
-import {TwingSandboxSecurityError} from "./security-error";
-import {TwingSource} from "../source";
+import {SandboxSecurityError} from "./security-error";
+import {Source} from "../source";
 
-export class TwingSandboxSecurityNotAllowedMethodError extends TwingSandboxSecurityError {
-    constructor(message: string, lineno: number = -1, source: TwingSource = null) {
-        super(message, lineno, source);
-        this.name = 'TwingSandboxSecurityNotAllowedMethodError';
+import type {Location} from "../node";
+
+export class NotAllowedMethodSandboxSecurityError extends SandboxSecurityError {
+    constructor(message: string, location: Location, source: Source = null) {
+        super(message, location, source);
+    }
+
+    get name(): string {
+        return 'TwingSandboxSecurityNotAllowedMethodError';
     }
 }

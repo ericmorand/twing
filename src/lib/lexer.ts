@@ -3,10 +3,10 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {Lexer, SyntaxError, TokenType} from "twig-lexer";
+import {Lexer, SyntaxError as LexerSyntaxError, TokenType} from "twig-lexer";
 import {TwingEnvironment} from "./environment";
-import {TwingSource} from "./source";
-import {TwingTokenStream} from "./token-stream";
+import {Source} from "./source";
+import {TokenStream} from "./token-stream";
 import {SyntaxError} from "./error/syntax";
 
 export const typeToEnglish = (type: TokenType): string => {
@@ -89,13 +89,13 @@ export class TwingLexer extends Lexer {
         }
     }
 
-    tokenizeSource(source: TwingSource): TwingTokenStream {
+    tokenizeSource(source: Source): TokenStream {
         try {
-            let tokens = this.tokenize(source.getCode());
+            let tokens = this.tokenize(source.content);
 
-            return new TwingTokenStream(tokens, source);
+            return new TokenStream(tokens, source);
         } catch (e) {
-            throw new SyntaxError(e.message, e.line, source, e);
+            throw new SyntaxError(e.message, null, (e as LexerSyntaxError), source, e);
         }
     }
 }

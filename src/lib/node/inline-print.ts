@@ -1,11 +1,11 @@
 import {Compiler} from "../compiler";
-import {TwingNodePrint} from "./print";
+import {PrintNode} from "./print";
 
-export class TwingNodeInlinePrint extends TwingNodePrint {
+export class TwingNodeInlinePrint extends PrintNode {
     compile(compiler: Compiler) {
         compiler
             .raw('outputBuffer.echo(')
-            .subcompile(this.children.content)
+            .subCompile(this.edges.content)
             .raw(')')
         ;
     }

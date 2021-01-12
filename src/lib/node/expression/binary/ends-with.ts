@@ -1,22 +1,15 @@
-import {TwingNodeExpressionBinary} from "../binary";
+import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_binary_ends_with');
-
-export class TwingNodeExpressionBinaryEndsWith extends TwingNodeExpressionBinary {
-    get type() {
-        return type;
-    }
-
+export class EndsWithBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('await (async () => {')
             .raw(`let left = `)
-            .subcompile(this.getNode('left'))
+            .subCompile(this.edges.left)
             .raw('; ')
             .raw(`let right = `)
-            .subcompile(this.getNode('right'))
+            .subCompile(this.edges.right)
             .raw('; ')
             .raw(`return typeof left === 'string' && typeof right === 'string' && (right.length < 1 || left.endsWith(right));`)
             .raw('})()')

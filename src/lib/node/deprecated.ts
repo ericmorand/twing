@@ -4,28 +4,30 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 import {Node} from "../node";
-import {TwingNodeExpression} from "./expression";
+import {ExpressionNode} from "./expression";
 import {Compiler} from "../compiler";
-import {TwingNodeExpressionConstant} from "./expression/constant";
+import {ConstantExpressionNode} from "./expression/constant";
 
-export class TwingNodeDeprecated extends Node<null, {
-    expr: TwingNodeExpression<any>
-}> {
+export type DeprecatedNodeEdges = {
+    expression: ExpressionNode<any>
+};
+
+export class DeprecatedNode extends Node<null, DeprecatedNodeEdges> {
     compile(compiler: Compiler) {
-        let expr = this.children.expr;
+        let expression = this.edges.expression;
 
         compiler
             .write('{\n')
             .indent();
 
-        if (expr instanceof TwingNodeExpressionConstant) {
+        if (expression instanceof ConstantExpressionNode) {
             compiler
                 .write('console.warn(')
-                .subcompile(expr)
+                .subCompile(expression)
             ;
         } else {
             compiler.write(`let message = `)
-                .subcompile(expr)
+                .subCompile(expression)
                 .raw(';\n')
                 .write(`console.warn(message`)
             ;
@@ -33,7 +35,7 @@ export class TwingNodeDeprecated extends Node<null, {
 
         compiler
             .raw(' + ')
-            .string(` ("${this.getTemplateName()}" at line ${this.location.line})`)
+            .string(` ("${compiler.getSource()}" at line ${this.location.line})`)
             .raw(');\n')
             .outdent()
             .write('}\n')

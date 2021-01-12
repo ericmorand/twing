@@ -1,7 +1,8 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
 
-import type {TwingNodeExpressionAttributes} from "../expression";
+import type {ExpressionNodeAttributes} from "../expression";
+import {ArrayExpressionNode} from "./array";
 
 export const ANY_CALL = 'any';
 export const ARRAY_CALL = 'array';
@@ -9,17 +10,17 @@ export const METHOD_CALL = 'method';
 
 export type CallType = typeof ANY_CALL | typeof ARRAY_CALL | typeof METHOD_CALL;
 
-export type TwingNodeExpressionGetAttributeAttributes = TwingNodeExpressionAttributes<{
+export type TwingNodeExpressionGetAttributeAttributes = ExpressionNodeAttributes<{
     type: CallType
 }>;
 
 export type TwingNodeExpressionGetAttributeNodes = {
-    node: TwingNodeExpression<any>,
-    attribute: TwingNodeExpression<any>,
-    arguments?: TwingNodeExpression<any>
+    object: ExpressionNode<any>,
+    attribute: ExpressionNode<any>,
+    arguments?: ArrayExpressionNode
 };
 
-export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<TwingNodeExpressionGetAttributeAttributes, TwingNodeExpressionGetAttributeNodes> {
+export class GetAttributeExpressionNode extends ExpressionNode<TwingNodeExpressionGetAttributeAttributes, TwingNodeExpressionGetAttributeNodes> {
     // constructor(node: TwingNodeExpression, attribute: TwingNodeExpression, methodArguments: TwingNodeExpression, type: string, line: number, column: number) {
     //     super({
     //         node,
@@ -52,23 +53,26 @@ export class TwingNodeExpressionGetAttribute extends TwingNodeExpression<TwingNo
 
             compiler
                 .raw('await (async () => {let object = ')
-                .subcompile(this.children.node)
+                .subCompile(this.edges.object)
                 .raw('; return this.get(object, ')
-                .subcompile(this.children.attribute)
+                .subCompile(this.edges.attribute)
                 .raw(');})()')
             ;
 
             return;
         }
 
-        compiler.raw(`await this.traceableMethod(this.getAttribute, ${this.line}, this.source)(this.environment, `);
+        compiler
+            .raw(`await this.traceableMethod(this.getAttribute, `)
+            .repr(this.location)
+            .raw(`, this.source)(this.environment, `);
 
-        compiler.subcompile(this.children.node);
+        compiler.subCompile(this.edges.object);
 
-        compiler.raw(', ').subcompile(this.children.attribute);
+        compiler.raw(', ').subCompile(this.edges.attribute);
 
-        if (this.children.arguments) {
-            compiler.raw(', ').subcompile(this.children.arguments);
+        if (this.edges.arguments) {
+            compiler.raw(', ').subCompile(this.edges.arguments);
         } else {
             compiler.raw(', new Map()');
         }

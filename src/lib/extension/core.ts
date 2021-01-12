@@ -1,65 +1,65 @@
 import {TwingExtension} from "../extension";
-import {TwingTokenParserFor} from "../token-parser/for";
-import {TwingNodeExpressionBinaryAnd} from "../node/expression/binary/and";
-import {TwingTokenParserExtends} from "../token-parser/extends";
-import {TwingTokenParserFrom} from "../token-parser/from";
-import {TwingTokenParserMacro} from "../token-parser/macro";
-import {Node} from "../node";
+import {ForTokenParser} from "../token-parser/for";
+import {AndBinaryExpressionNode} from "../node/expression/binary/and";
+import {ExtendsTokenParser} from "../token-parser/extends";
+import {FromTokenParser} from "../token-parser/from";
+import {MacroTokenParser} from "../token-parser/macro";
+import {Location, Node} from "../node";
 import {TwingNodeExpressionBinaryIn} from "../node/expression/binary/in";
-import {TwingTokenParserIf} from "../token-parser/if";
-import {TwingTokenParserSet} from "../token-parser/set";
-import {TwingTokenParserBlock} from "../token-parser/block";
-import {TwingNodeExpressionBinaryGreater} from "../node/expression/binary/greater";
+import {IfTokenParser} from "../token-parser/if";
+import {SetTokenParser} from "../token-parser/set";
+import {BlockTokenParser} from "../token-parser/block";
+import {GreaterBinaryExpressionNode} from "../node/expression/binary/greater";
 import {TwingNodeExpressionBinaryLess} from "../node/expression/binary/less";
-import {TwingTokenParserInclude} from "../token-parser/include";
-import {TwingTokenParserWith} from "../token-parser/with";
-import {TwingNodeExpressionUnaryNot} from "../node/expression/unary/not";
-import {TwingNodeExpressionUnaryNeg} from "../node/expression/unary/neg";
-import {TwingNodeExpressionUnaryPos} from "../node/expression/unary/pos";
-import {TwingFunction} from "../function";
-import {TwingTokenParserSpaceless} from "../token-parser/spaceless";
-import {TwingNodeExpressionBinaryConcat} from "../node/expression/binary/concat";
+import {IncludeTokenParser} from "../token-parser/include";
+import {WithTokenParser} from "../token-parser/with";
+import {NotUnaryExpressionNode} from "../node/expression/unary/not";
+import {NegUnaryExpressionNode} from "../node/expression/unary/neg";
+import {PosUnaryExpressionNode} from "../node/expression/unary/pos";
+import {Function} from "../function";
+import {SpacelessTokenParser} from "../token-parser/spaceless";
+import {ConcatBinaryExpressionNode} from "../node/expression/binary/concat";
 import {TwingNodeExpressionBinaryMul} from "../node/expression/binary/mul";
-import {TwingNodeExpressionBinaryDiv} from "../node/expression/binary/div";
-import {TwingNodeExpressionBinaryFloorDiv} from "../node/expression/binary/floor-div";
+import {DivBinaryExpressionNode} from "../node/expression/binary/div";
+import {FloorDivBinaryExpressionNode} from "../node/expression/binary/floor-div";
 import {TwingNodeExpressionBinaryMod} from "../node/expression/binary/mod";
-import {TwingNodeExpressionBinarySub} from "../node/expression/binary/sub";
-import {TwingNodeExpressionBinaryAdd} from "../node/expression/binary/add";
-import {TwingTokenParserUse} from "../token-parser/use";
-import {TwingTokenParserEmbed} from "../token-parser/embed";
-import {TwingTokenParserFilter} from "../token-parser/filter";
+import {SubBinaryExpressionNode} from "../node/expression/binary/sub";
+import {AddBinaryExpressionNode} from "../node/expression/binary/add";
+import {UseTokenParser} from "../token-parser/use";
+import {EmbedTokenParser} from "../token-parser/embed";
+import {FilterTokenParser} from "../token-parser/filter";
 import {TwingNodeExpressionBinaryRange} from "../node/expression/binary/range";
-import {TwingTokenParserImport} from "../token-parser/import";
-import {TwingTokenParserDo} from "../token-parser/do";
-import {TwingTokenParserFlush} from "../token-parser/flush";
-import {TwingNodeExpressionBinaryEqual} from "../node/expression/binary/equal";
+import {ImportTokenParser} from "../token-parser/import";
+import {DoTokenParser} from "../token-parser/do";
+import {FlushTokenParser} from "../token-parser/flush";
+import {EqualBinaryExpressionNode} from "../node/expression/binary/equal";
 import {TwingNodeExpressionBinaryNotEqual} from "../node/expression/binary/not-equal";
 import {TwingNodeExpressionBinaryOr} from "../node/expression/binary/or";
-import {TwingNodeExpressionBinaryBitwiseOr} from "../node/expression/binary/bitwise-or";
-import {TwingNodeExpressionBinaryBitwiseXor} from "../node/expression/binary/bitwise-xor";
-import {TwingNodeExpressionBinaryBitwiseAnd} from "../node/expression/binary/bitwise-and";
+import {BitwiseOrBinaryExpressionNode} from "../node/expression/binary/bitwise-or";
+import {BitwiseXorBinaryExpressionNode} from "../node/expression/binary/bitwise-xor";
+import {BitwiseAndBinaryExpressionNode} from "../node/expression/binary/bitwise-and";
 import {TwingNodeExpressionBinaryGreaterEqual} from "../node/expression/binary/greater-equal";
 import {TwingNodeExpressionBinaryLessEqual} from "../node/expression/binary/less-equal";
 import {TwingNodeExpressionBinaryNotIn} from "../node/expression/binary/not-in";
-import {TwingNodeExpressionNullCoalesce} from "../node/expression/null-coalesce";
-import {TwingNodeExpression} from "../node/expression";
+import {NullCoalesceExpressionNode} from "../node/expression/null-coalesce";
+import {ExpressionNode} from "../node/expression";
 import {TwingNodeExpressionBinaryPower} from "../node/expression/binary/power";
-import {TwingNodeExpressionTestDefined} from "../node/expression/test/defined";
-import {TwingTest} from "../test";
+import {DefinedTestExpressionNode} from "../node/expression/test/defined";
+import {Test} from "../test";
 import {TwingNodeExpressionBinaryMatches} from "../node/expression/binary/matches";
 import {TwingNodeExpressionBinaryStartsWith} from "../node/expression/binary/starts-with";
-import {TwingNodeExpressionBinaryEndsWith} from "../node/expression/binary/ends-with";
-import {TwingFilter} from "../filter";
+import {EndsWithBinaryExpressionNode} from "../node/expression/binary/ends-with";
+import {Filter} from "../filter";
 import {Settings as DateTimeSettings} from 'luxon';
-import {TwingNodeExpressionConstant} from "../node/expression/constant";
+import {ConstantExpressionNode} from "../node/expression/constant";
 import {TwingNodeExpressionFilterDefault} from "../node/expression/filter/default";
 import {merge} from "../helpers/merge";
 import {slice} from "../helpers/slice";
 import {reverse} from "../helpers/reverse";
 import {first} from "../helpers/first";
-import {TwingTokenParserDeprecated} from "../token-parser/deprecated";
-import {TwingTokenParserApply} from "../token-parser/apply";
-import {TwingOperator, TwingOperatorAssociativity, TwingOperatorType} from "../operator";
+import {DeprecatedTokenParser} from "../token-parser/deprecated";
+import {ApplyTokenParser} from "../token-parser/apply";
+import {Operator, TwingOperatorAssociativity} from "../operator";
 import {even} from "./core/tests/even";
 import {odd} from "./core/tests/odd";
 import {sameAs} from "./core/tests/same-as";
@@ -67,7 +67,7 @@ import {nullTest} from "./core/tests/null";
 import {divisibleBy} from "./core/tests/divisible-by";
 import {min} from "./core/functions/min";
 import {max} from "./core/functions/max";
-import {TwingTokenParserVerbatim} from "../token-parser/verbatim";
+import {VerbatimTokenParser} from "../token-parser/verbatim";
 import {date} from "./core/filters/date";
 import {dateModify} from "./core/filters/date-modify";
 import {format} from "./core/filters/format";
@@ -105,11 +105,11 @@ import {column} from "./core/filters/column";
 import {filter} from "./core/filters/filter";
 import {map} from "./core/filters/map";
 import {reduce} from "./core/filters/reduce";
-import {TwingTokenParserAutoEscape} from "../token-parser/auto-escape";
-import {TwingTokenParserSandbox} from "../token-parser/sandbox";
+import {AutoEscapeTokenParser} from "../token-parser/auto-escape";
+import {SandboxTokenParser} from "../token-parser/sandbox";
 import {TwingBaseNodeVisitor} from "../base-node-visitor";
-import {TwingNodeVisitorEscaper} from "../node-visitor/escaper";
-import {TwingNodeVisitorSandbox} from "../node-visitor/sandbox";
+// import {TwingNodeVisitorEscaper} from "../node-visitor/escaper";
+// import {TwingNodeVisitorSandbox} from "../node-visitor/sandbox";
 import {range} from "./core/functions/range";
 import {constant} from "./core/functions/constant";
 import {cycle} from "./core/functions/cycle";
@@ -122,11 +122,11 @@ import {iterable} from "./core/tests/iterable";
 import {date as dateFunction} from "./core/functions/date";
 import {TwingSourceMapNodeFactorySpaceless} from "../source-map/node-factory/spaceless";
 import {TwingSourceMapNodeFactory} from "../source-map/node-factory";
-import {TwingNodeExpressionTestConstant} from "../node/expression/test/constant";
-import {TwingNodeVisitorMacroAutoImport} from "../node-visitor/macro-auto-import";
-import {TwingTokenParserLine} from "../token-parser/line";
+import {ConstantTestExpressionNode} from "../node/expression/test/constant";
+import {LineTokenParser} from "../token-parser/line";
 import {extname, basename} from "path";
 import {TwingEscapingStrategyResolver} from "../environment";
+import {TokenParserInterface} from "../token-parser-interface";
 
 export class TwingExtensionCore extends TwingExtension {
     private dateFormats: Array<string> = ['F j, Y H:i', '%d days'];
@@ -280,202 +280,179 @@ export class TwingExtensionCore extends TwingExtension {
         return this.numberFormat;
     }
 
-    getTokenParsers() {
-        return [
-            new TwingTokenParserApply(),
-            new TwingTokenParserAutoEscape(),
-            new TwingTokenParserBlock(),
-            new TwingTokenParserDeprecated(),
-            new TwingTokenParserDo(),
-            new TwingTokenParserEmbed(),
-            new TwingTokenParserExtends(),
-            new TwingTokenParserFilter(),
-            new TwingTokenParserFlush(),
-            new TwingTokenParserFor(),
-            new TwingTokenParserFrom(),
-            new TwingTokenParserIf(),
-            new TwingTokenParserImport(),
-            new TwingTokenParserInclude(),
-            new TwingTokenParserLine(),
-            new TwingTokenParserMacro(),
-            new TwingTokenParserSandbox(),
-            new TwingTokenParserSet(),
-            new TwingTokenParserSpaceless(),
-            new TwingTokenParserUse(),
-            new TwingTokenParserVerbatim(),
-            new TwingTokenParserWith(),
-        ];
+    getTokenParsers(): Array<TokenParserInterface> {
+        return [];
     }
 
-    getSourceMapNodeFactories(): TwingSourceMapNodeFactory[] {
-        return [
-            new TwingSourceMapNodeFactorySpaceless()
-        ];
+    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory> {
+        return new Map([
+            ['spaceless', new TwingSourceMapNodeFactorySpaceless()]
+        ]);
     }
 
     getNodeVisitors(): TwingBaseNodeVisitor[] {
         return [
-            new TwingNodeVisitorEscaper(),
-            new TwingNodeVisitorMacroAutoImport(),
-            new TwingNodeVisitorSandbox()
+            //new TwingNodeVisitorEscaper(),
+            //new TwingNodeVisitorMacroAutoImport(),
+            //new TwingNodeVisitorSandbox()
         ];
     }
 
     getFilters() {
         return [
-            new TwingFilter('abs', abs, []),
-            new TwingFilter('batch', batch, [
+            new Filter('abs', abs, []),
+            new Filter('batch', batch, [
                 {name: 'size'},
                 {name: 'fill', defaultValue: null},
                 {name: 'preserve_keys', defaultValue: true}
             ]),
-            new TwingFilter('capitalize', capitalize, [], {
+            new Filter('capitalize', capitalize, [], {
                 needsTemplate: true
             }),
-            new TwingFilter('column', column, [
+            new Filter('column', column, [
                 {name: 'name'}
             ]),
-            new TwingFilter('convert_encoding', convertEncoding, [
+            new Filter('convert_encoding', convertEncoding, [
                 {name: 'to'},
                 {name: 'from'}
             ], {
                 preEscape: 'html',
                 isSafe: ['html']
             }),
-            new TwingFilter('date', date, [
+            new Filter('date', date, [
                 {name: 'format', defaultValue: null},
                 {name: 'timezone', defaultValue: null}
             ], {
                 needsTemplate: true
             }),
-            new TwingFilter('date_modify', dateModify, [
+            new Filter('date_modify', dateModify, [
                 {name: 'modifier'}
             ], {
                 needsTemplate: true
             }),
-            new TwingFilter('default', defaultFilter, [
+            new Filter('default', defaultFilter, [
                 {name: 'default'}
             ], {
-                expressionFactory: (node: Node, filterName: string, filterArguments: Node, line: number, column: number) => {
-                    return new TwingNodeExpressionFilterDefault(node, filterName, filterArguments, line, column);
+                expressionFactory: (node: Node, filterName: string, filterArguments: Node, location: Location) => {
+                    return new TwingNodeExpressionFilterDefault(node, filterName, filterArguments, location.line, location.column);
                 }
             }),
-            new TwingFilter('e', escape, [
+            new Filter('e', escape, [
                 {name: 'strategy'},
                 {name: 'charset'}
             ], {
                 needsTemplate: true,
                 isSafeCallback: this.escapeFilterIsSafe
             }),
-            new TwingFilter('escape', escape, [
+            new Filter('escape', escape, [
                 {name: 'strategy'},
                 {name: 'charset'}
             ], {
                 needsTemplate: true,
                 isSafeCallback: this.escapeFilterIsSafe
             }),
-            new TwingFilter('filter', filter, [
+            new Filter('filter', filter, [
                 {name: 'array'},
                 {name: 'arrow'}
             ]),
-            new TwingFilter('first', firstFilter, []),
-            new TwingFilter('format', format, []),
-            new TwingFilter('join', join, [
+            new Filter('first', firstFilter, []),
+            new Filter('format', format, []),
+            new Filter('join', join, [
                 {name: 'glue', defaultValue: ''},
                 {name: 'and', defaultValue: null}
             ]),
-            new TwingFilter('json_encode', jsonEncode, [
+            new Filter('json_encode', jsonEncode, [
                 {name: 'options', defaultValue: null}
             ]),
-            new TwingFilter('keys', arrayKeys, []),
-            new TwingFilter('last', last, []),
-            new TwingFilter('length', length, [], {
+            new Filter('keys', arrayKeys, []),
+            new Filter('last', last, []),
+            new Filter('length', length, [], {
                 needsTemplate: true
             }),
-            new TwingFilter('lower', lower, [], {
+            new Filter('lower', lower, [], {
                 needsTemplate: true
             }),
-            new TwingFilter('map', map, [
+            new Filter('map', map, [
                 {name: 'arrow'}
             ]),
-            new TwingFilter('merge', mergeFilter, []),
-            new TwingFilter('nl2br', nl2br, [], {
+            new Filter('merge', mergeFilter, []),
+            new Filter('nl2br', nl2br, [], {
                 preEscape: 'html',
                 isSafe: ['html']
             }),
-            new TwingFilter('number_format', numberFormat, [
+            new Filter('number_format', numberFormat, [
                 {name: 'decimal'},
                 {name: 'decimal_point'},
                 {name: 'thousand_sep'}
             ], {
                 needsTemplate: true
             }),
-            new TwingFilter('raw', raw, [], {
+            new Filter('raw', raw, [], {
                 isSafe: ['all']
             }),
-            new TwingFilter('reduce', reduce, [
+            new Filter('reduce', reduce, [
                 {name: 'arrow'},
                 {name: 'initial', defaultValue: null}
             ]),
-            new TwingFilter('replace', replace, [
+            new Filter('replace', replace, [
                 {name: 'from'}
             ]),
-            new TwingFilter('reverse', reverseFilter, [
+            new Filter('reverse', reverseFilter, [
                 {name: 'preserve_keys', defaultValue: false}
             ]),
-            new TwingFilter('round', round, [
+            new Filter('round', round, [
                 {name: 'precision', defaultValue: 0},
                 {name: 'method', defaultValue: 'common'}
             ]),
-            new TwingFilter('slice', sliceFilter, [
+            new Filter('slice', sliceFilter, [
                 {name: 'start'},
                 {name: 'length', defaultValue: null},
                 {name: 'preserve_keys', defaultValue: false}
             ]),
-            new TwingFilter('sort', sort, []),
-            new TwingFilter('spaceless', spaceless, [], {
+            new Filter('sort', sort, []),
+            new Filter('spaceless', spaceless, [], {
                 isSafe: ['html']
             }),
-            new TwingFilter('split', split, [
+            new Filter('split', split, [
                 {name: 'delimiter'},
                 {name: 'limit'}
             ]),
-            new TwingFilter('striptags', striptags, [
+            new Filter('striptags', striptags, [
                 {name: 'allowable_tags'}
             ]),
-            new TwingFilter('title', title, []),
-            new TwingFilter('trim', trim, [
+            new Filter('title', title, []),
+            new Filter('trim', trim, [
                 {name: 'character_mask', defaultValue: null},
                 {name: 'side', defaultValue: 'both'}
             ]),
-            new TwingFilter('upper', upper, []),
-            new TwingFilter('url_encode', urlEncode, []),
+            new Filter('upper', upper, []),
+            new Filter('url_encode', urlEncode, []),
         ];
     }
 
     getFunctions() {
         return [
-            new TwingFunction('constant', constant, [
+            new Function('constant', constant, [
                 {name: 'name'},
                 {name: 'object', defaultValue: null}
             ], {
                 needsTemplate: true
             }),
-            new TwingFunction('cycle', cycle, [
+            new Function('cycle', cycle, [
                 {name: 'values'},
                 {name: 'position'}
             ]),
-            new TwingFunction('date', dateFunction, [
+            new Function('date', dateFunction, [
                 {name: 'date'},
                 {name: 'timezone'}
             ], {
                 needsTemplate: true
             }),
-            new TwingFunction('dump', dump, [], {
+            new Function('dump', dump, [], {
                 isSafe: ['html'],
                 needsContext: true
             }),
-            new TwingFunction('include', include, [
+            new Function('include', include, [
                 {name: 'template'},
                 {name: 'variables', defaultValue: {}},
                 {name: 'with_context', defaultValue: true},
@@ -487,27 +464,27 @@ export class TwingExtensionCore extends TwingExtension {
                 needsOutputBuffer: true,
                 isSafe: ['all']
             }),
-            new TwingFunction('max', max, []),
-            new TwingFunction('min', min, []),
-            new TwingFunction('random', random, [
+            new Function('max', max, []),
+            new Function('min', min, []),
+            new Function('random', random, [
                 {name: 'values', defaultValue: null},
                 {name: 'max', defaultValue: null}
             ], {
                 needsTemplate: true
             }),
-            new TwingFunction('range', range, [
+            new Function('range', range, [
                 {name: 'low'},
                 {name: 'high'},
                 {name: 'step'}
             ]),
-            new TwingFunction('source', source, [
+            new Function('source', source, [
                 {name: 'name'},
                 {name: 'ignore_missing', defaultValue: false}
             ], {
                 needsTemplate: true,
                 isSafe: ['all']
             }),
-            new TwingFunction('template_from_string', templateFromString, [
+            new Function('template_from_string', templateFromString, [
                 {name: 'template'},
                 {name: 'name', defaultValue: null}
             ], {
@@ -516,135 +493,45 @@ export class TwingExtensionCore extends TwingExtension {
         ];
     }
 
-    getTests(): Array<TwingTest> {
+    getTests(): Array<Test> {
         return [
-            new TwingTest('constant', null, [], {
-                expressionFactory: (node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) => {
-                    return new TwingNodeExpressionTestConstant(node, name, testArguments, line, column);
+            new Test('constant', null, [], {
+                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: Node, location: Location) => {
+                    return new ConstantTestExpressionNode({name}, {node, arguments: testArguments}, location);
                 }
             }),
-            new TwingTest('divisible by', divisibleBy, []),
-            new TwingTest('defined', null, [], {
-                expressionFactory: (node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) => {
-                    return new TwingNodeExpressionTestDefined(node, name, testArguments, line, column);
+            new Test('divisible by', divisibleBy, []),
+            new Test('defined', null, [], {
+                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: Node, location: Location) => {
+                    return new DefinedTestExpressionNode(node, name, testArguments, location.line, location.column);
                 }
             }),
-            new TwingTest('empty', empty, []),
-            new TwingTest('even', even, []),
-            new TwingTest('iterable', iterable, []),
-            new TwingTest('none', nullTest, []),
-            new TwingTest('null', nullTest, []),
-            new TwingTest('odd', odd, []),
-            new TwingTest('same as', sameAs, []),
+            new Test('empty', empty, []),
+            new Test('even', even, []),
+            new Test('iterable', iterable, []),
+            new Test('none', nullTest, []),
+            new Test('null', nullTest, []),
+            new Test('odd', odd, []),
+            new Test('same as', sameAs, []),
         ];
     }
 
-    getOperators(): TwingOperator[] {
-        return [
-            new TwingOperator('not', TwingOperatorType.UNARY, 50, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionUnaryNot(operands[0], lineno, columnno);
-            }),
-            new TwingOperator('-', TwingOperatorType.UNARY, 500, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionUnaryNeg(operands[0], lineno, columnno);
-            }),
-            new TwingOperator('+', TwingOperatorType.UNARY, 500, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionUnaryPos(operands[0], lineno, columnno);
-            }),
-            new TwingOperator('or', TwingOperatorType.BINARY, 10, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryOr(operands, lineno, columnno);
-            }),
-            new TwingOperator('and', TwingOperatorType.BINARY, 15, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryAnd(operands, lineno, columnno);
-            }),
-            new TwingOperator('b-or', TwingOperatorType.BINARY, 16, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryBitwiseOr(operands, lineno, columnno);
-            }),
-            new TwingOperator('b-xor', TwingOperatorType.BINARY, 17, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryBitwiseXor(operands, lineno, columnno);
-            }),
-            new TwingOperator('b-and', TwingOperatorType.BINARY, 18, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryBitwiseAnd(operands, lineno, columnno);
-            }),
-            new TwingOperator('==', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryEqual(operands, lineno, columnno);
-            }),
-            new TwingOperator('!=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryNotEqual(operands, lineno, columnno);
-            }),
-            new TwingOperator('<', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryLess(operands, lineno, columnno);
-            }),
-            new TwingOperator('<=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryLessEqual(operands, lineno, columnno);
-            }),
-            new TwingOperator('>', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryGreater(operands, lineno, columnno);
-            }),
-            new TwingOperator('>=', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryGreaterEqual(operands, lineno, columnno);
-            }),
-            new TwingOperator('not in', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryNotIn(operands, lineno, columnno);
-            }),
-            new TwingOperator('in', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryIn(operands, lineno, columnno);
-            }),
-            new TwingOperator('matches', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryMatches(operands, lineno, columnno);
-            }),
-            new TwingOperator('starts with', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryStartsWith(operands, lineno, columnno);
-            }),
-            new TwingOperator('ends with', TwingOperatorType.BINARY, 20, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryEndsWith(operands, lineno, columnno);
-            }),
-            new TwingOperator('..', TwingOperatorType.BINARY, 25, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryRange(operands, lineno, columnno);
-            }),
-            new TwingOperator('+', TwingOperatorType.BINARY, 30, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryAdd(operands, lineno, columnno);
-            }),
-            new TwingOperator('-', TwingOperatorType.BINARY, 30, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinarySub(operands, lineno, columnno);
-            }),
-            new TwingOperator('~', TwingOperatorType.BINARY, 40, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryConcat(operands, lineno, columnno);
-            }),
-            new TwingOperator('*', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryMul(operands, lineno, columnno);
-            }),
-            new TwingOperator('/', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryDiv(operands, lineno, columnno);
-            }),
-            new TwingOperator('//', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryFloorDiv(operands, lineno, columnno);
-            }),
-            new TwingOperator('%', TwingOperatorType.BINARY, 60, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryMod(operands, lineno, columnno);
-            }),
-            new TwingOperator('is', TwingOperatorType.BINARY, 100, null),
-            new TwingOperator('is not', TwingOperatorType.BINARY, 100, null),
-            new TwingOperator('**', TwingOperatorType.BINARY, 200, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionBinaryPower(operands, lineno, columnno);
-            }, TwingOperatorAssociativity.RIGHT),
-            new TwingOperator('??', TwingOperatorType.BINARY, 300, function (operands: [Node, Node], lineno: number, columnno: number) {
-                return new TwingNodeExpressionNullCoalesce(operands, lineno, columnno);
-            }, TwingOperatorAssociativity.RIGHT)
-        ];
+    getOperators(): Operator<any>[] {
+        return [];
     }
 
     /**
      * @internal
      */
     private escapeFilterIsSafe(filterArgs: Node) {
-        if (filterArgs.getNodes().size > 0) {
+        if (filterArgs.edgesCount > 0) {
             let result: Array<string> = [];
 
-            filterArgs.getNodes().forEach(function (arg) {
-                if (arg instanceof TwingNodeExpressionConstant) {
-                    result = [arg.getAttribute('value')];
+            for (let arg of filterArgs) {
+                if (arg instanceof ConstantExpressionNode) {
+                    result = [arg.attributes.value];
                 }
-            });
+            }
 
             return result;
         } else {

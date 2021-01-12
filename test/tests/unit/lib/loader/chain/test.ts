@@ -6,7 +6,7 @@ import {TwingLoaderChain} from "../../../../../../src/lib/loader/chain";
 import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 import {TwingLoaderFilesystem} from "../../../../../../src/lib/loader/filesystem";
 import {TwingLoaderRelativeFilesystem} from "../../../../../../src/lib/loader/relative-filesystem";
-import {TwingErrorLoader} from "../../../../../../src/lib/error/loader";
+import {LoaderError} from "../../../../../../src/lib/error/loader";
 import {Error} from "../../../../../../src/lib/error";
 
 let fixturesPath = resolve('test/tests/integration/fixtures');
@@ -59,7 +59,7 @@ tape('loader chain', (test) => {
             let loader2 = new TwingLoaderArray({});
 
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
-            sinon.stub(loader2, 'getSourceContext').returns(Promise.reject(new TwingErrorLoader('foo', 1, null)));
+            sinon.stub(loader2, 'getSourceContext').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
             loader = new TwingLoaderChain([
                 loader2
@@ -121,7 +121,7 @@ tape('loader chain', (test) => {
         test.equals(await loader.getCacheKey('foo', null), 'foo:bar');
         test.equals(await loader.getCacheKey('bar', null), 'bar:foo');
 
-        let stub = sinon.stub(loader, 'getCacheKey').returns(Promise.reject(new TwingErrorLoader('foo', 1, null)));
+        let stub = sinon.stub(loader, 'getCacheKey').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
         loader = new TwingLoaderChain([
             loader
@@ -279,7 +279,7 @@ tape('loader chain', (test) => {
         test.equals(await loader.isFresh('foo', 0, null), true);
         test.equals(await loader.isFresh('bar', 0, null), true);
 
-        let stub = sinon.stub(loader, 'isFresh').returns(Promise.reject(new TwingErrorLoader('foo', 1, null)));
+        let stub = sinon.stub(loader, 'isFresh').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
         loader = new TwingLoaderChain([
             loader
@@ -368,11 +368,11 @@ tape('loader chain', (test) => {
 
         test.test('when all loaders throw loader-related errors', async (test) => {
             let loader1 = new TwingLoaderArray({});
-            sinon.stub(loader1, 'resolve').returns(Promise.reject(new TwingErrorLoader('foo', 1, null)));
+            sinon.stub(loader1, 'resolve').returns(Promise.reject(new LoaderError('foo', 1, null)));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
             let loader2 = new TwingLoaderArray({});
-            sinon.stub(loader2, 'resolve').returns(Promise.reject(new TwingErrorLoader('bar', 1, null)));
+            sinon.stub(loader2, 'resolve').returns(Promise.reject(new LoaderError('bar', 1, null)));
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
 
             loader = new TwingLoaderChain([

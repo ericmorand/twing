@@ -1,18 +1,10 @@
-import {TwingNodeExpressionTest} from "../test";
+import {TestExpressionNode} from "../test";
 import {Node} from "../../../node";
-import {TwingNodeExpression} from "../../expression";
-import {TwingNodeExpressionConstant, type as constantType} from "../constant";
-import {type as nameType} from "../name";
-import {type as getAttrType} from "../get-attribute";
-import {type as blockreferenceType} from "../block-reference";
-import {TwingNodeExpressionFunction} from "../function";
-import {type as arrayType} from "../array";
-import {type as methodCallType} from "../method-call";
+import {ExpressionNode} from "../../expression";
+import {ConstantExpressionNode} from "../constant";
+import {FunctionExpressionNode} from "../function";
 import {SyntaxError} from "../../../error/syntax";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
-
-export const type = new TwingNodeType('expression_test_defined');
 
 /**
  * Checks if a variable is defined in the active context.
@@ -24,55 +16,53 @@ export const type = new TwingNodeType('expression_test_defined');
  * {% endif %}
  * </pre>
  */
-export class TwingNodeExpressionTestDefined extends TwingNodeExpressionTest {
-    constructor(node: TwingNodeExpression, name: string, testArguments: Node, line: number, column: number) {
-        let changeIgnoreStrictCheck = false;
-        let error = null;
+export class DefinedTestExpressionNode extends TestExpressionNode {
+    constructor(node: ExpressionNode<any>, name: string, testArguments: Node, line: number, column: number) {
+        // todo: restore
+        // let changeIgnoreStrictCheck = false;
+        // let error = null;
+        //
+        // if (node.is(nameType)) {
+        //     node.setAttribute('is_defined_test', true);
+        // } else if (node.is(getAttrType)) {
+        //     node.setAttribute('is_defined_test', true);
+        //     changeIgnoreStrictCheck = true;
+        // } else if (node.is(blockreferenceType)) {
+        //     node.setAttribute('is_defined_test', true);
+        // } else if ((node instanceof FunctionExpressionNode) && (node.getAttribute('name') === 'constant')) {
+        //     node.setAttribute('is_defined_test', true);
+        // } else if (node.is(constantType) || node.is(arrayType)) {
+        //     node = new ConstantExpressionNode(true, node.getLine(), node.getColumn());
+        // } else if (node.is(methodCallType)) {
+        //     node.setAttribute('is_defined_test', true);
+        // } else {
+        //     error = 'The "defined" test only works with simple variables.';
+        // }
 
-        if (node.is(nameType)) {
-            node.setAttribute('is_defined_test', true);
-        } else if (node.is(getAttrType)) {
-            node.setAttribute('is_defined_test', true);
-            changeIgnoreStrictCheck = true;
-        } else if (node.is(blockreferenceType)) {
-            node.setAttribute('is_defined_test', true);
-        } else if ((node instanceof TwingNodeExpressionFunction) && (node.getAttribute('name') === 'constant')) {
-            node.setAttribute('is_defined_test', true);
-        } else if (node.is(constantType) || node.is(arrayType)) {
-            node = new TwingNodeExpressionConstant(true, node.getLine(), node.getColumn());
-        } else if (node.is(methodCallType)) {
-            node.setAttribute('is_defined_test', true);
-        } else {
-            error = 'The "defined" test only works with simple variables.';
-        }
+        super({name}, {arguments: testArguments, node}, {line, column});
 
-        super(node, name, testArguments, line, column);
-
-        if (changeIgnoreStrictCheck) {
-            this.changeIgnoreStrictCheck(node);
-        }
-
-        if (error) {
-            throw new SyntaxError(error, this.getLine());
-        }
+        // if (changeIgnoreStrictCheck) {
+        //     this.changeIgnoreStrictCheck(node);
+        // }
+        //
+        // if (error) {
+        //     throw new SyntaxError(error, null, this.location);
+        // }
     }
 
-    get type() {
-        return type;
-    }
-
-    changeIgnoreStrictCheck(node: TwingNodeExpression) {
-        node.setAttribute('optimizable', false);
-        node.setAttribute('ignore_strict_check', true);
-
-        let exprNode = <TwingNodeExpression>node.getNode('node');
-
-        if (exprNode.is(getAttrType)) {
-            this.changeIgnoreStrictCheck(exprNode);
-        }
+    changeIgnoreStrictCheck(node: ExpressionNode<any>) {
+        // todo: restore
+        // node.setAttribute('optimizable', false);
+        // node.setAttribute('ignore_strict_check', true);
+        //
+        // let exprNode = <ExpressionNode>node.getNode('node');
+        //
+        // if (exprNode.is(getAttrType)) {
+        //     this.changeIgnoreStrictCheck(exprNode);
+        // }
     }
 
     compile(compiler: Compiler) {
-        compiler.subcompile(this.getNode('node'));
+        compiler.subCompile(this.edges.node);
     }
 }

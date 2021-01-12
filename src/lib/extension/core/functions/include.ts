@@ -1,6 +1,6 @@
 import {iteratorToMap} from "../../../helpers/iterator-to-map";
 import {merge} from "../../../helpers/merge";
-import {TwingErrorLoader} from "../../../error/loader";
+import {LoaderError} from "../../../error/loader";
 import {TwingTemplate} from "../../../template";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {RuntimeError} from "../../../error/runtime";
@@ -30,7 +30,7 @@ export function include(template: TwingTemplate, context: TwingContext<any, any>
     let alreadySandboxed = env.isSandboxed();
 
     if (!isPlainObject(variables) && !isTraversable(variables)) {
-        return Promise.reject(new RuntimeError(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, -1, from));
+        return Promise.reject(new RuntimeError(`Variables passed to the "include" function or tag must be iterable, got "${!isNullOrUndefined(variables) ? typeof variables : variables}".`, null, from));
     }
 
     variables = iteratorToMap(variables);
@@ -59,7 +59,7 @@ export function include(template: TwingTemplate, context: TwingContext<any, any>
         return env.resolveTemplate([...templates.values()], from).catch((e) => {
             restoreSandbox();
 
-            if (e instanceof TwingErrorLoader) {
+            if (e instanceof LoaderError) {
                 if (!ignoreMissing) {
                     throw e;
                 } else {

@@ -1,17 +1,17 @@
 import {compare as compareHelper} from "./compare";
 import {isTraversable} from "./is-traversable";
 import {iteratorToArray} from "./iterator-to-array";
-import {TwingMarkup} from "../markup";
+import {Markup} from "../markup";
 import {isMap} from "./is-map";
 
 export function isIn(value: any, compare: any): boolean {
     let result = false;
 
-    if (value instanceof TwingMarkup) {
+    if (value instanceof Markup) {
         value = value.toString();
     }
 
-    if (compare instanceof TwingMarkup) {
+    if (compare instanceof Markup) {
         compare = compare.toString();
     }
 

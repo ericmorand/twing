@@ -1,6 +1,6 @@
 import {TwingLoaderInterface} from "../loader-interface";
-import {TwingErrorLoader} from "../error/loader";
-import {TwingSource} from "../source";
+import {LoaderError} from "../error/loader";
+import {Source} from "../source";
 
 /**
  * Loads templates from other loaders.
@@ -32,10 +32,10 @@ export class TwingLoaderChain implements TwingLoaderInterface {
         return this.loaders;
     }
 
-    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
+    getSourceContext(name: string, from: Source): Promise<Source> {
         let exceptions: Array<string> = [];
 
-        let getSourceContextAtIndex = (index: number): Promise<TwingSource> => {
+        let getSourceContextAtIndex = (index: number): Promise<Source> => {
             if (index < this.loaders.length) {
                 let loader = this.loaders[index];
 
@@ -45,7 +45,7 @@ export class TwingLoaderChain implements TwingLoaderInterface {
                     } else {
                         return loader.getSourceContext(name, from)
                             .catch((e) => {
-                                if (e instanceof TwingErrorLoader) {
+                                if (e instanceof LoaderError) {
                                     exceptions.push(e.message);
                                 }
 
@@ -62,12 +62,12 @@ export class TwingLoaderChain implements TwingLoaderInterface {
             if (source) {
                 return source;
             } else {
-                throw new TwingErrorLoader(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, null, from);
             }
         });
     }
 
-    exists(name: string, from: TwingSource): Promise<boolean> {
+    exists(name: string, from: Source): Promise<boolean> {
         if (this.hasSourceCache.has(name)) {
             return Promise.resolve(this.hasSourceCache.get(name));
         }
@@ -97,7 +97,7 @@ export class TwingLoaderChain implements TwingLoaderInterface {
         })
     }
 
-    getCacheKey(name: string, from: TwingSource): Promise<string> {
+    getCacheKey(name: string, from: Source): Promise<string> {
         let exceptions: Array<string> = [];
 
         let getCacheKeyAtIndex = (index: number): Promise<string> => {
@@ -110,7 +110,7 @@ export class TwingLoaderChain implements TwingLoaderInterface {
                     } else {
                         return loader.getCacheKey(name, from)
                             .catch((e) => {
-                                if (e instanceof TwingErrorLoader) {
+                                if (e instanceof LoaderError) {
                                     exceptions.push(loader.constructor.name + ': ' + e.message);
                                 }
 
@@ -127,12 +127,12 @@ export class TwingLoaderChain implements TwingLoaderInterface {
             if (key) {
                 return key;
             } else {
-                throw new TwingErrorLoader(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, null, from);
             }
         });
     }
 
-    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+    isFresh(name: string, time: number, from: Source): Promise<boolean> {
         let exceptions: Array<string> = [];
 
         let isFreshAtIndex = (index: number): Promise<boolean> => {
@@ -145,7 +145,7 @@ export class TwingLoaderChain implements TwingLoaderInterface {
                     } else {
                         return loader.isFresh(name, time, from)
                             .catch((e) => {
-                                if (e instanceof TwingErrorLoader) {
+                                if (e instanceof LoaderError) {
                                     exceptions.push(loader.constructor.name + ': ' + e.message);
                                 }
 
@@ -162,12 +162,12 @@ export class TwingLoaderChain implements TwingLoaderInterface {
             if (fresh !== null) {
                 return fresh;
             } else {
-                throw new TwingErrorLoader(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, null, from);
             }
         });
     }
 
-    resolve(name: string, from: TwingSource, shouldThrow: boolean = true): Promise<string> {
+    resolve(name: string, from: Source, shouldThrow: boolean = true): Promise<string> {
         let exceptions: Array<string> = [];
 
         let resolveAtIndex = (index: number): Promise<string> => {
@@ -175,7 +175,7 @@ export class TwingLoaderChain implements TwingLoaderInterface {
                 let loader = this.loaders[index];
 
                 return loader.resolve(name, from, true).catch((e) => {
-                    if (e instanceof TwingErrorLoader) {
+                    if (e instanceof LoaderError) {
                         exceptions.push(loader.constructor.name + ': ' + e.message);
                     }
 
@@ -191,9 +191,8 @@ export class TwingLoaderChain implements TwingLoaderInterface {
                 return resolvedName;
             } else {
                 if (shouldThrow) {
-                    throw new TwingErrorLoader(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, -1, from);
-                }
-                else {
+                    throw new LoaderError(`Template "${name}" is not defined${exceptions.length ? ' (' + exceptions.join(', ') + ')' : ''}.`, null, from);
+                } else {
                     return null;
                 }
             }

@@ -1,15 +1,17 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Node} from "../../node";
 import {Compiler} from "../../compiler";
 
-export abstract class TwingNodeExpressionBinary extends TwingNodeExpression<{}, {
+export type BinaryExpressionNodeEdges = {
     left: Node,
     right: Node
-}> {
+};
+
+export abstract class BinaryExpressionNode extends ExpressionNode<{}, BinaryExpressionNodeEdges> {
     compile(compiler: Compiler) {
         compiler
             .raw('(')
-            .subcompile(this.children.left)
+            .subCompile(this.edges.left)
             .raw(' ')
         ;
 
@@ -17,7 +19,7 @@ export abstract class TwingNodeExpressionBinary extends TwingNodeExpression<{}, 
 
         compiler
             .raw(' ')
-            .subcompile(this.children.right)
+            .subCompile(this.edges.right)
             .raw(')')
         ;
     }

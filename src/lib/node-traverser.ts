@@ -1,7 +1,7 @@
 /**
- * TwingNodeTraverser is a node traverser.
+ * A node traverser.
  *
- * It visits all nodes and their children and calls the given visitor for each.
+ * Visits all nodes and their children and calls the given visitor for each.
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
@@ -12,7 +12,7 @@ import {Node} from "./node";
 import {ksort} from "./helpers/ksort";
 import {push} from "./helpers/push";
 
-export class TwingNodeTraverser {
+export class NodeTraverser {
     private env: TwingEnvironment;
     private visitors: Map<number, Map<string, TwingNodeVisitorInterface>> = new Map();
 
@@ -45,36 +45,31 @@ export class TwingNodeTraverser {
      * @return Node
      */
     traverse(node: Node): Node {
-        let self = this;
         let result: Node | false = node;
 
         ksort(this.visitors);
 
-        for (let [index, visitors] of this.visitors) {
-            for (let [index, visitor] of visitors) {
-                result = self.traverseForVisitor(visitor, node);
+        for (let [, visitors] of this.visitors) {
+            for (let [, visitor] of visitors) {
+                result = this.visit(node, visitor);
             }
         }
 
         return result;
     }
 
-    traverseForVisitor(visitor: TwingNodeVisitorInterface, node: Node): Node {
-        let self = this;
-
+    visit(node: Node, visitor: TwingNodeVisitorInterface): Node {
         node = visitor.TwingNodeVisitorInterfaceImpl.enterNode(node, this.env);
 
-        for (let [k, n] of node.getNodes()) {
-            let m = self.traverseForVisitor(visitor, n);
+        for (let [key, subNode] of node) {
+            let visitedNode = this.visit(subNode, visitor);
 
-            if (m) {
-                if (m !== n) {
-                    node.setNode(k, m);
+            if (visitedNode) {
+                if (visitedNode !== subNode) {
+                    node.edges[key] = visitedNode;
                 }
-            }
-            else {
-
-                node.removeNode(k);
+            } else {
+                delete node.edges[key];
             }
         }
 

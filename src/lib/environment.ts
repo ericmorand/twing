@@ -1,34 +1,37 @@
-import {TwingTokenParserInterface} from "./token-parser-interface";
+import {TokenParserInterface} from "./token-parser-interface";
 import {TwingNodeVisitorInterface} from "./node-visitor-interface";
 import {TwingExtensionSet} from "./extension-set";
 import {TwingExtensionCore} from "./extension/core";
 import {TwingExtensionInterface} from "./extension-interface";
-import {TwingFilter} from "./filter";
+import {Filter} from "./filter";
 import {TwingLexer} from "./lexer";
 import {TwingParser} from "./parser";
-import {TwingTokenStream} from "./token-stream";
-import {TwingSource} from "./source";
+import {TokenStream} from "./token-stream";
+import {Source} from "./source";
 import {TwingLoaderInterface} from "./loader-interface";
-import {TwingErrorLoader} from "./error/loader";
-import {TwingTest} from "./test";
-import {TwingFunction} from "./function";
+import {LoaderError} from "./error/loader";
+import {Test} from "./test";
+import {Function} from "./function";
 import {SyntaxError} from "./error/syntax";
 import {TwingTemplate} from "./template";
 import {Error} from "./error";
 import {TwingCacheInterface} from "./cache-interface";
 import {Compiler} from "./compiler";
-import {TwingNodeModule} from "./node/module";
+import {ModuleNode} from "./node/module";
 import {TwingCacheNull} from "./cache/null";
 import {RuntimeError} from "./error/runtime";
 import {EventEmitter} from 'events';
 import {TwingOutputBuffer} from "./output-buffer";
 import {TwingSourceMapNode} from "./source-map/node";
-import {TwingOperator} from "./operator";
+import {Operator} from "./operator";
 import {TwingSandboxSecurityPolicy} from "./sandbox/security-policy";
 import {TwingSandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
 import {TwingEnvironmentOptions} from "./environment-options";
 import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
-import {TwingNodeType} from "./node-type";
+import {NativeError} from "./native-error";
+import {UnaryOperator} from "./operator/unary";
+import {BinaryOperator} from "./operator/binary";
+import {Node} from "./node";
 
 const path = require('path');
 const sha256 = require('crypto-js/sha256');
@@ -106,7 +109,8 @@ export abstract class TwingEnvironment extends EventEmitter {
     }
 
     setCoreExtension(extension: TwingExtensionCore) {
-        this.addExtension(extension, 'TwingExtensionCore');
+        // todo: remove any
+        this.addExtension(extension as any, 'TwingExtensionCore');
 
         this.coreExtension = extension;
     }
@@ -230,11 +234,11 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {string} name The name for which to calculate the template class name
      * @param {number} index The index of the template
-     * @param {TwingSource} from The source that initiated the template loading
+     * @param {Source} from The source that initiated the template loading
      *
      * @return {Promise<string>} The template hash
      */
-    getTemplateHash(name: string, index: number = 0, from: TwingSource = null): Promise<string> {
+    getTemplateHash(name: string, index: number = 0, from: Source = null): Promise<string> {
         return this.getLoader().getCacheKey(name, from).then((key) => {
             key += this.optionsHash;
 
@@ -269,7 +273,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {{}} context An array of parameters to pass to the template
      * @return {Promise<void>}
      *
-     * @throws TwingErrorLoader  When the template cannot be found
+     * @throws LoaderError  When the template cannot be found
      * @throws SyntaxError  When an error occurred during compilation
      * @throws RuntimeError When an error occurred during rendering
      */
@@ -282,7 +286,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {string | TwingTemplate} name The template name
      *
-     * @throws {TwingErrorLoader}  When the template cannot be found
+     * @throws {LoaderError}  When the template cannot be found
      * @throws {RuntimeError} When a previously generated cache is corrupted
      * @throws {SyntaxError}  When an error occurred during compilation
      *
@@ -326,15 +330,15 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {string} name The template name
      * @param {number} index The index of the template
-     * @param {TwingSource} from The source that initiated the template loading
+     * @param {Source} from The source that initiated the template loading
      *
      * @return {Promise<TwingTemplate>} A template instance representing the given template name
      *
-     * @throws {TwingErrorLoader}  When the template cannot be found
+     * @throws {LoaderError}  When the template cannot be found
      * @throws {RuntimeError} When a previously generated cache is corrupted
      * @throws {SyntaxError}  When an error occurred during compilation
      */
-    loadTemplate(name: string, index: number = 0, from: TwingSource = null): Promise<TwingTemplate> {
+    loadTemplate(name: string, index: number = 0, from: Source = null): Promise<TwingTemplate> {
         this.emit('template', name, from);
 
         let cacheKey: string = name + (index !== 0 ? '_' + index : '');
@@ -433,7 +437,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @return {Promise<TwingTemplate>} A template instance representing the given template name
      *
-     * @throws TwingErrorLoader When the template cannot be found
+     * @throws LoaderError When the template cannot be found
      * @throws SyntaxError When an error occurred during compilation
      */
     createTemplate(template: string, name: string = null): Promise<TwingTemplate> {
@@ -445,7 +449,7 @@ export abstract class TwingEnvironment extends EventEmitter {
             name = `__string_template__${hash}`;
         }
 
-        let templatesModule = this.getTemplatesModule(this.compileSource(new TwingSource(template, name)));
+        let templatesModule = this.getTemplatesModule(this.compileSource(new Source(template, name)));
 
         this.registerTemplatesModule(templatesModule, name);
 
@@ -458,14 +462,14 @@ export abstract class TwingEnvironment extends EventEmitter {
      * Similar to loadTemplate() but it also accepts instances of TwingTemplate and an array of templates where each is tried to be loaded.
      *
      * @param {string|TwingTemplate|Array<string|TwingTemplate>} names A template or an array of templates to try consecutively
-     * @param {TwingSource} from The source of the template that initiated the resolving.
+     * @param {Source} from The source of the template that initiated the resolving.
      *
      * @return {Promise<TwingTemplate>}
      *
-     * @throws {TwingErrorLoader} When none of the templates can be found
+     * @throws {LoaderError} When none of the templates can be found
      * @throws {SyntaxError} When an error occurred during compilation
      */
-    resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: TwingSource): Promise<TwingTemplate> {
+    resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: Source): Promise<TwingTemplate> {
         let namesArray: Array<any>;
 
         if (!Array.isArray(names)) {
@@ -474,7 +478,7 @@ export abstract class TwingEnvironment extends EventEmitter {
             namesArray = names;
         }
 
-        let error: TwingErrorLoader = null;
+        let error: LoaderError = null;
 
         let loadTemplateAtIndex = (index: number): Promise<TwingTemplate> => {
             if (index < namesArray.length) {
@@ -484,7 +488,7 @@ export abstract class TwingEnvironment extends EventEmitter {
                     return Promise.resolve(name);
                 } else {
                     return this.loadTemplate(name, 0, from).catch((e) => {
-                        if (e instanceof TwingErrorLoader) {
+                        if (e instanceof LoaderError) {
                             error = e;
 
                             return loadTemplateAtIndex(index + 1);
@@ -497,7 +501,7 @@ export abstract class TwingEnvironment extends EventEmitter {
                 if (namesArray.length === 1) {
                     throw error;
                 } else {
-                    throw new TwingErrorLoader(`Unable to find one of the following templates: "${namesArray.join(', ')}".`, -1, from);
+                    throw new LoaderError(`Unable to find one of the following templates: "${namesArray.join(', ')}".`, null, from);
                 }
             }
         };
@@ -512,19 +516,19 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * Tokenizes a source code.
      *
-     * @param {TwingSource} source The source to tokenize
-     * @return {TwingTokenStream}
+     * @param {Source} source The source to tokenize
+     * @return {TokenStream}
      *
      * @throws {SyntaxError} When the code is syntactically wrong
      */
-    tokenize(source: TwingSource): TwingTokenStream {
+    tokenize(source: Source): TokenStream {
         if (!this.lexer) {
             this.lexer = new TwingLexer(this);
         }
 
         let stream = this.lexer.tokenizeSource(source);
 
-        return new TwingTokenStream(stream.toAst(), stream.getSourceContext());
+        return new TokenStream(stream.toAst(), stream.source);
     }
 
     setParser(parser: TwingParser) {
@@ -532,14 +536,14 @@ export abstract class TwingEnvironment extends EventEmitter {
     }
 
     /**
-     * Converts a token list to a template.
+     * Converts a token list to a module.
      *
-     * @param {TwingTokenStream} stream
-     * @return {TwingNodeModule}
+     * @param {TokenStream} stream
+     * @return {Node}
      *
      * @throws {SyntaxError} When the token stream is syntactically or semantically wrong
      */
-    parse(stream: TwingTokenStream): TwingNodeModule {
+    parse(stream: TokenStream): Node {
         if (!this.parser) {
             this.parser = new TwingParser(this);
         }
@@ -552,29 +556,30 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @return {string}
      */
-    compile(node: TwingNodeModule) {
+    compile(node: Node) {
         let compiler = new Compiler(this);
 
         return compiler.compile(node).getSource();
     }
 
     /**
-     * @param {TwingSource} source
+     * @param {Source} source
      *
      * @return {Map<number, TwingTemplate> }
      */
-    compileSource(source: TwingSource): string {
+    compileSource(source: Source): string {
         try {
             return this.compile(this.parse(this.tokenize(source)));
         } catch (e) {
             if (e instanceof Error) {
-                if (!e.getSourceContext()) {
-                    e.setSourceContext(source);
-                }
+                // todo
+                // if (!e.getSourceContext()) {
+                //     e.setSourceContext(source);
+                // }
 
                 throw e;
             } else {
-                throw new SyntaxError(`An exception has been thrown during the compilation of a template ("${e.message}").`, -1, source);
+                throw new SyntaxError(`An exception has been thrown during the compilation of a template ("${e.message}").`, null, null, source);
             }
         }
     }
@@ -676,14 +681,14 @@ return module.exports;
         return this.extensionSet.getExtensions();
     }
 
-    addTokenParser(parser: TwingTokenParserInterface) {
+    addTokenParser(parser: TokenParserInterface) {
         this.extensionSet.addTokenParser(parser);
     }
 
     /**
      * Gets the registered Token Parsers.
      *
-     * @return {Array<TwingTokenParserInterface>}
+     * @return {Array<TokenParserInterface>}
      *
      * @internal
      */
@@ -698,7 +703,7 @@ return module.exports;
      *
      * @internal
      */
-    getTags(): Map<string, TwingTokenParserInterface> {
+    getTags(): Map<string, TokenParserInterface> {
         let tags = new Map();
 
         this.getTokenParsers().forEach(function (parser) {
@@ -723,7 +728,7 @@ return module.exports;
         return this.extensionSet.getNodeVisitors();
     }
 
-    addFilter(filter: TwingFilter) {
+    addFilter(filter: Filter) {
         this.extensionSet.addFilter(filter);
     }
 
@@ -734,7 +739,7 @@ return module.exports;
      *
      * @return Twig_Filter|false A Twig_Filter instance or null if the filter does not exist
      */
-    getFilter(name: string): TwingFilter {
+    getFilter(name: string): Filter {
         return this.extensionSet.getFilter(name);
     }
 
@@ -749,23 +754,23 @@ return module.exports;
      *
      * @internal
      */
-    getFilters(): Map<string, TwingFilter> {
+    getFilters(): Map<string, Filter> {
         return this.extensionSet.getFilters();
     }
 
     /**
      * Registers a Test.
      *
-     * @param {TwingTest} test
+     * @param {Test} test
      */
-    addTest(test: TwingTest) {
+    addTest(test: Test) {
         this.extensionSet.addTest(test);
     }
 
     /**
      * Gets the registered Tests.
      *
-     * @return {Map<string, TwingTest>}
+     * @return {Map<string, Test>}
      */
     getTests() {
         return this.extensionSet.getTests();
@@ -775,13 +780,13 @@ return module.exports;
      * Gets a test by name.
      *
      * @param {string} name The test name
-     * @return {TwingTest} A TwingTest instance or null if the test does not exist
+     * @return {Test} A TwingTest instance or null if the test does not exist
      */
-    getTest(name: string): TwingTest {
+    getTest(name: string): Test {
         return this.extensionSet.getTest(name);
     }
 
-    addFunction(aFunction: TwingFunction) {
+    addFunction(aFunction: Function) {
         this.extensionSet.addFunction(aFunction);
     }
 
@@ -793,7 +798,7 @@ return module.exports;
      *
      * @param {string} name function name
      *
-     * @return {TwingFunction} A TwingFunction instance or null if the function does not exist
+     * @return {Function} A TwingFunction instance or null if the function does not exist
      *
      * @internal
      */
@@ -842,7 +847,7 @@ return module.exports;
      */
     addGlobal(name: string, value: any) {
         if (this.extensionSet.isInitialized() && !this.getGlobals().has(name)) {
-            throw new Error(`Unable to add global "${name}" as the extensions have already been initialized.`);
+            throw new NativeError(`Unable to add global "${name}" as the extensions have already been initialized.`);
         }
 
         this.globals.set(name, value);
@@ -880,7 +885,7 @@ return module.exports;
      *
      * @internal
      */
-    getUnaryOperators(): Map<string, TwingOperator> {
+    getUnaryOperators(): Map<string, UnaryOperator> {
         return this.extensionSet.getUnaryOperators();
     }
 
@@ -891,7 +896,7 @@ return module.exports;
      *
      * @internal
      */
-    getBinaryOperators(): Map<string, TwingOperator> {
+    getBinaryOperators(): Map<string, BinaryOperator> {
         return this.extensionSet.getBinaryOperators();
     }
 
@@ -909,28 +914,28 @@ return module.exports;
     /**
      * @param {number} line 0-based
      * @param {number} column 1-based
-     * @param {string} nodeType
-     * @param {TwingSource} source
+     * @param {string} nodeTag
+     * @param {Source} source
      * @param {TwingOutputBuffer} outputBuffer
      */
-    enterSourceMapBlock(line: number, column: number, nodeType: string, source: TwingSource, outputBuffer: TwingOutputBuffer) {
+    enterSourceMapBlock(line: number, column: number, nodeTag: string, source: Source, outputBuffer: TwingOutputBuffer) {
         outputBuffer.start();
 
-        let sourceName = source.getResolvedName();
+        let sourceName = source.resolvedName;
 
         if (path.isAbsolute(sourceName)) {
             sourceName = path.relative('.', sourceName);
         }
 
-        source = new TwingSource(source.getCode(), sourceName);
+        source = new Source(source.content, sourceName);
 
-        let factory = this.getSourceMapNodeFactory(nodeType);
+        let factory = this.getSourceMapNodeFactory(nodeTag);
 
         if (!factory) {
-            factory = new TwingSourceMapNodeFactory(nodeType);
+            factory = new TwingSourceMapNodeFactory();
         }
 
-        let node = factory.create(line, column - 1, source);
+        let node = factory.create(line, column - 1, source, nodeTag);
 
         if (this.sourceMapNode) {
             this.sourceMapNode.addChild(node);

@@ -1,11 +1,11 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionCall, type} from "../../../../../../../src/lib/node/expression/call";
+import {CallExpressionNode, type} from "../../../../../../../src/lib/node/expression/call";
 import {Node} from "../../../../../../../src/lib/node";
 import {Compiler} from "../../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../../../src/lib/loader/array";
 
-class TwingTestsNodeExpressionCall extends TwingNodeExpressionCall {
+class TwingTestsNodeExpressionCall extends CallExpressionNode {
     getArguments(callable: Function, argumentsNode: Node): Node[] {
         return super.getArguments(callable, argumentsNode);
     }
@@ -32,7 +32,7 @@ class TwingTestsNodeExpressionCallTest {
 function custom_Twig_Tests_Node_Expression_CallTest_function(required: boolean) {
 }
 
-class Callable extends TwingNodeExpressionCall {
+class Callable extends CallExpressionNode {
     compile(compiler: Compiler) {
         this.setAttribute('type', 'function');
 

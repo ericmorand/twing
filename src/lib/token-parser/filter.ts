@@ -1,9 +1,9 @@
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {Node} from "../node";
-import {TwingNodeExpressionBlockReference} from "../node/expression/block-reference";
-import {TwingNodeExpressionConstant} from "../node/expression/constant";
-import {TwingNodeBlock} from "../node/block";
-import {TwingNodePrint} from "../node/print";
+import {BlockReferenceExpressionNode} from "../node/expression/block-reference";
+import {ConstantExpressionNode} from "../node/expression/constant";
+import {BlockNode} from "../node/block";
+import {PrintNode} from "../node/print";
 import {Token, TokenType} from "twig-lexer";
 
 /**
@@ -15,16 +15,21 @@ import {Token, TokenType} from "twig-lexer";
  * {% endfilter %}
  * </pre>
  */
-export class TwingTokenParserFilter extends TwingTokenParser {
+export class FilterTokenParser extends TokenParser {
     parse(token: Token): Node {
         let stream = this.parser.getStream();
         let line = token.line;
         let column = token.column;
 
-        console.warn(`The "filter" tag in "${stream.getSourceContext().getName()}" at line ${line} is deprecated since Twig 2.9, use the "apply" tag instead.`);
+        console.warn(`The "filter" tag in "${stream.source.name}" at line ${line} is deprecated since Twig 2.9, use the "apply" tag instead.`);
 
         let name = this.parser.getVarName();
-        let ref = new TwingNodeExpressionBlockReference(new TwingNodeExpressionConstant(name, line, column), null, line, column, this.getTag());
+        let ref = new BlockReferenceExpressionNode(null, {
+            name: new ConstantExpressionNode({value: name}, null, {line, column})
+        }, {
+            line,
+            column
+        }, this.getTag());
         let filter = this.parser.parseFilterExpressionRaw(ref, this.getTag());
 
         stream.expect(TokenType.TAG_END);
@@ -33,11 +38,11 @@ export class TwingTokenParserFilter extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        let block = new TwingNodeBlock(name, body, line, column);
+        let block = new BlockNode({name}, {body}, {line, column});
 
         this.parser.setBlock(name, block);
 
-        return new TwingNodePrint(filter, line, column, this.getTag());
+        return new PrintNode(null, {content: filter}, {line, column}, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

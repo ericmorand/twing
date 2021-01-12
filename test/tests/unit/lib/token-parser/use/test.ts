@@ -1,9 +1,9 @@
 import * as tape from 'tape';
-import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
-import {TwingTokenParserUse} from "../../../../../../src/lib/token-parser/use";
+import {TokenStream} from "../../../../../../src/lib/token-stream";
+import {UseTokenParser} from "../../../../../../src/lib/token-parser/use";
 import {getParser} from "../../../../../mock-builder/parser";
 import {Node} from "../../../../../../src/lib/node";
-import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
+import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 
 const sinon = require('sinon');
 const {Token, TokenType} = require('twig-lexer');
@@ -11,8 +11,8 @@ const {Token, TokenType} = require('twig-lexer');
 tape('token-parser/use', (test) => {
     test.test('parse', (test) => {
         test.test('when template name is not a "EXPRESSION_CONSTANT"', (test) => {
-            let stream = new TwingTokenStream([]);
-            let tokenParser = new TwingTokenParserUse();
+            let stream = new TokenStream([]);
+            let tokenParser = new UseTokenParser();
             let parser = getParser(stream);
 
             tokenParser.setParser(parser);
@@ -35,7 +35,7 @@ tape('token-parser/use', (test) => {
         });
 
         test.test('when multiple aliases', (test) => {
-            let stream = new TwingTokenStream([
+            let stream = new TokenStream([
                 new Token(TokenType.NAME, 'with', 1, 1),
                 new Token(TokenType.NAME, 'bar', 1, 1),
                 new Token(TokenType.NAME, 'as', 1, 1),
@@ -48,14 +48,14 @@ tape('token-parser/use', (test) => {
                 new Token(TokenType.EOF, null, 1, 1)
             ]);
 
-            let tokenParser = new TwingTokenParserUse();
+            let tokenParser = new UseTokenParser();
             let parser = getParser(stream);
 
             tokenParser.setParser(parser);
 
             let trait: Node;
 
-            sinon.stub(parser, 'parseExpression').returns(new TwingNodeExpressionConstant('foo', 1, 1));
+            sinon.stub(parser, 'parseExpression').returns(new ConstantExpressionNode('foo', 1, 1));
             sinon.stub(parser, 'addTrait').callsFake((node: Node) => {
                 trait = node;
             });

@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingNodeTraverser} from "../../../../../src/lib/node-traverser";
+import {NodeTraverser} from "../../../../../src/lib/node-traverser";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {Node} from "../../../../../src/lib/node";
@@ -34,18 +34,18 @@ class TwingTestNodeVisitorRemoveVisitor extends TwingBaseNodeVisitor {
 tape('node-traverser', (test) => {
     test.test('constructor', (test) => {
         test.doesNotThrow(function() {
-            new TwingNodeTraverser(new TwingEnvironmentNode(new TwingLoaderArray({})));
+            new NodeTraverser(new TwingEnvironmentNode(new TwingLoaderArray({})));
         });
 
         test.end();
     });
 
     test.test('traverseForVisitor', (test) => {
-        let traverser = new TwingNodeTraverser(new TwingEnvironmentNode(new TwingLoaderArray({})));
+        let traverser = new NodeTraverser(new TwingEnvironmentNode(new TwingLoaderArray({})));
 
         let nodeToRemove = new Node();
         let visitor = new TwingTestNodeVisitorRemoveVisitor(nodeToRemove);
-        let node = traverser.traverseForVisitor(visitor, new Node(new Map([[0, nodeToRemove]])));
+        let node = traverser.visit(visitor, new Node(new Map([[0, nodeToRemove]])));
 
         test.same(node.getNodes(), new Map());
 

@@ -1,21 +1,27 @@
-import {TwingSandboxSecurityError} from "./security-error";
-import {TwingSource} from "../source";
+import {SandboxSecurityError} from "./security-error";
+import {Source} from "../source";
+
+import type {Location} from "../node";
 
 /**
  * Exception thrown when a not allowed filter is used in a template.
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingSandboxSecurityNotAllowedFilterError extends TwingSandboxSecurityError {
-    private readonly filterName: string;
+export class NotAllowedFilterSandboxSecurityError extends SandboxSecurityError {
+    private readonly _filterName: string;
 
-    constructor(message: string, filterName: string, lineno: number = -1, source: TwingSource = null) {
-        super(message, lineno, source);
-        this.filterName = filterName;
-        this.name = 'TwingSandboxSecurityNotAllowedFilterError';
+    constructor(message: string, filterName: string, location: Location, source: Source = null) {
+        super(message, location, source);
+
+        this._filterName = filterName;
     }
 
-    getFilterName() {
-        return this.filterName;
+    get name(): string {
+        return 'TwingSandboxSecurityNotAllowedFilterError';
+    }
+
+    get filterName() {
+        return this._filterName;
     }
 }

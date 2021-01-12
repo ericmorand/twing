@@ -1,10 +1,10 @@
 import * as tape from 'tape';
-import {TwingSource} from "../../../../../../src/lib/source";
+import {Source} from "../../../../../../src/lib/source";
 import {TwingSourceMapNode} from "../../../../../../src/lib/source-map/node";
 
 tape('source-map/node', (test) => {
     test.test('constructor', (test) => {
-        let source = new TwingSource('source', 'source.twig');
+        let source = new Source('source', 'source.twig');
         let node = new TwingSourceMapNode(1, 2, source, 'name');
 
         test.same(node.line, 1);

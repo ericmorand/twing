@@ -1,37 +1,29 @@
-import {TwingNodeExpressionFilter} from "../filter";
+import {FilterExpressionNode} from "../filter";
 import {Node} from "../../../node";
-import {TwingNodeExpressionConstant} from "../constant";
-import {TwingNodeExpressionTestDefined} from "../test/defined";
-import {TwingNodeExpressionConditional} from "../conditional";
-import {TwingNodeExpression} from "../../expression";
+import {ConstantExpressionNode} from "../constant";
+import {DefinedTestExpressionNode} from "../test/defined";
+import {ConditionalExpressionNode} from "../conditional";
+import {ExpressionNode} from "../../expression";
 import {Compiler} from "../../../compiler";
-import {type as nameType} from "../name";
-import {type as getAttrType} from "../get-attribute";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_filter');
-
-export class TwingNodeExpressionFilterDefault extends TwingNodeExpressionFilter {
+export class TwingNodeExpressionFilterDefault extends FilterExpressionNode {
     constructor(node: Node, filterName: string, filterArguments: Node, line: number, column: number) {
-        let defaultNode = new TwingNodeExpressionFilter(node, 'default', filterArguments, node.getLine(), node.getColumn());
+        // todo: restore
+        // let defaultNode = new FilterExpressionNode(node, 'default', filterArguments, node.getLine(), node.getColumn());
 
-        if (filterName === 'default' && (node.is(nameType) || node.is(getAttrType))) {
-            let test = new TwingNodeExpressionTestDefined(node.clone() as TwingNodeExpression, 'defined', new Node(null, null), node.getLine(), node.getColumn());
-            let falseNode = filterArguments.getNodes().size ? filterArguments.getNode(0) : new TwingNodeExpressionConstant('', node.getLine(), node.getColumn());
+        // if (filterName === 'default' && (node.is(nameType) || node.is(getAttrType))) {
+        //     let test = new TwingNodeExpressionTestDefined(node.clone() as ExpressionNode, 'defined', new Node(null, null), node.getLine(), node.getColumn());
+        //     let falseNode = filterArguments.getNodes().size ? filterArguments.getNode(0) : new ConstantExpressionNode('', node.getLine(), node.getColumn());
+        //
+        //     node = new ConditionalExpressionNode(test, defaultNode, falseNode as ExpressionNode, node.getLine(), node.getColumn());
+        // } else {
+        //     node = defaultNode;
+        // }
 
-            node = new TwingNodeExpressionConditional(test, defaultNode, falseNode as TwingNodeExpression, node.getLine(), node.getColumn());
-        } else {
-            node = defaultNode;
-        }
-
-        super(node, filterName, filterArguments, line, column);
-    }
-
-    get type() {
-        return type;
+        super({name: filterName}, {node, arguments: filterArguments}, {line, column});
     }
 
     compile(compiler: Compiler) {
-        compiler.subcompile(this.getNode('node'));
+        compiler.subCompile(this.edges.node);
     }
 }

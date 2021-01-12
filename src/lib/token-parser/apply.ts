@@ -1,8 +1,8 @@
-import {TwingTokenParser} from "../token-parser";
-import {toTwingNodeNodes, Node} from "../node";
-import {TwingNodePrint} from "../node/print";
-import {TwingNodeSet} from "../node/set";
-import {TwingNodeExpressionTempName} from "../node/expression/temp-name";
+import {TokenParser} from "../token-parser";
+import {toNodeEdges, Node} from "../node";
+import {PrintNode} from "../node/print";
+import {SetNode} from "../node/set";
+import {TempNameExpressionNode} from "../node/expression/temp-name";
 import {Token, TokenType} from "twig-lexer";
 
 /**
@@ -12,17 +12,17 @@ import {Token, TokenType} from "twig-lexer";
  *      This text becomes uppercase
  *   {% endapply %}
  */
-export class TwingTokenParserApply extends TwingTokenParser {
+export class ApplyTokenParser extends TokenParser {
     parse(token: Token): Node {
         const {line, column} = token;
         const name = this.parser.getVarName();
 
-        let ref: TwingNodeExpressionTempName;
+        let ref: TempNameExpressionNode;
 
-        ref = new TwingNodeExpressionTempName(null, {
+        ref = new TempNameExpressionNode({
             value: name,
             declaration: false
-        }, line, column);
+        }, null, token);
         // todo: is this used somewhere?
         //ref.setAttribute('always_defined', true);
 
@@ -36,15 +36,18 @@ export class TwingTokenParserApply extends TwingTokenParser {
 
         let nodes: Map<string, Node> = new Map();
 
-        ref = new TwingNodeExpressionTempName(null, {
+        ref = new TempNameExpressionNode({
             value: name,
             declaration: false
-        }, line, column);
+        }, null, token);
 
-        nodes.set('0', new TwingNodeSet(true, ref, body, line, column, this.getTag()));
-        nodes.set('1', new TwingNodePrint(null, {content: filter}, line, column, this.getTag()));
+        nodes.set('0', new SetNode({capture: true}, {
+            names: ref,
+            values: body
+        }, token, this.getTag()));
+        nodes.set('1', new PrintNode(null, {content: filter}, token, this.getTag()));
 
-        return new Node(toTwingNodeNodes(nodes), null, line, column);
+        return new Node(toNodeEdges(nodes), null, token);
     }
 
     decideBlockEnd(token: Token) {

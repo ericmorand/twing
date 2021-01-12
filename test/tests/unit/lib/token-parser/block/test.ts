@@ -1,6 +1,6 @@
 import * as tape from 'tape';
-import {TwingTokenStream} from "../../../../../../src/lib/token-stream";
-import {TwingTokenParserBlock} from "../../../../../../src/lib/token-parser/block";
+import {TokenStream} from "../../../../../../src/lib/token-stream";
+import {BlockTokenParser} from "../../../../../../src/lib/token-parser/block";
 import {getParser} from "../../../../../mock-builder/parser";
 
 const sinon = require('sinon');
@@ -9,7 +9,7 @@ const {Token, TokenType} = require('twig-lexer');
 tape('token-parser/block', (test) => {
     test.test('parse', (test) => {
         test.test('when endblock name doesn\'t match', function (test) {
-            let stream = new TwingTokenStream([
+            let stream = new TokenStream([
                 new Token(TokenType.NAME, 'foo', 1, 1),
                 new Token(TokenType.TAG_END, null, 1, 1),
                 new Token(TokenType.TEXT, 'FOO', 1, 1),
@@ -19,7 +19,7 @@ tape('token-parser/block', (test) => {
                 new Token(TokenType.TAG_END, null, 1, 1)
             ]);
 
-            let tokenParser = new TwingTokenParserBlock();
+            let tokenParser = new BlockTokenParser();
             let parser = getParser(stream);
 
             sinon.stub(parser, 'parseExpression').returns(new Token(TokenType.NAME, 'foo', 1, 1));

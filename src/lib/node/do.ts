@@ -1,5 +1,5 @@
 import {Node} from "../node";
-import {TwingNodeExpression} from "./expression";
+import {ExpressionNode} from "./expression";
 import {Compiler} from "../compiler";
 
 /**
@@ -10,16 +10,14 @@ import {Compiler} from "../compiler";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingNodeDo extends Node<null, {
-    expr: TwingNodeExpression
-}> {
-    constructor(expr: TwingNodeExpression, line: number, column: number, tag: string) {
-        super(null, {expr}, line, column, tag);
-    }
+export type DoNodeEdges = {
+    expr: ExpressionNode<any>
+};
 
+export class DoNode extends Node<null, DoNodeEdges> {
     compile(compiler: Compiler) {
         compiler
-            .subcompile(this.getNode('expr'), true)
+            .subCompile(this.edges.expr, true)
             .raw(";\n")
         ;
     }

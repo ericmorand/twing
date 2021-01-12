@@ -1,21 +1,26 @@
-import {TwingTokenParser} from "../token-parser";
-import {TwingNodeExpressionAssignName} from "../node/expression/assign-name";
-import {TwingNodeImport} from "../node/import";
+import {TokenParser} from "../token-parser";
+import {AssignNameExpressionNode} from "../node/expression/assign-name";
+import {ImportNode} from "../node/import";
 import {Token, TokenType} from "twig-lexer";
 
-export class TwingTokenParserImport extends TwingTokenParser {
+export class ImportTokenParser extends TokenParser {
     parse(token: Token) {
-        let macro = this.parser.parseExpression();
+        let templateName = this.parser.parseExpression();
 
         this.parser.getStream().expect(TokenType.NAME, 'as');
 
         // template alias
-        let var_ = new TwingNodeExpressionAssignName(this.parser.getStream().expect(TokenType.NAME).value, token.line, token.column);
+        let variable = new AssignNameExpressionNode({value: this.parser.getStream().expect(TokenType.NAME).value}, null, token);
 
         this.parser.getStream().expect(TokenType.TAG_END);
-        this.parser.addImportedSymbol('template', var_.getAttribute('value'));
+        this.parser.addImportedSymbol('template', variable.attributes.value);
 
-        return new TwingNodeImport(macro, var_, token.line, token.column, this.getTag(), this.parser.isMainScope());
+        return new ImportNode({
+            global: this.parser.isMainScope()
+        }, {
+            templateName,
+            variable
+        }, token, this.getTag());
     }
 
     getTag() {

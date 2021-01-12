@@ -17,7 +17,7 @@ export function replace(str: string, from: any): Promise<string> {
         if (isTraversable(from)) {
             from = iteratorToHash(from);
         } else if (typeof from !== 'object') {
-            throw new RuntimeError(`The "replace" filter expects an hash or "Iterable" as replace values, got "${typeof from}".`);
+            throw new RuntimeError(`The "replace" filter expects an hash or "Iterable" as replace values, got "${typeof from}".`, null);
         }
 
         return strtr(str, from);

@@ -1,12 +1,12 @@
-import {TwingMarkup} from "../../../markup";
+import {Markup} from "../../../markup";
 
 /**
  * Marks a variable as being safe.
  *
- * @param {string | TwingMarkup} string A variable
+ * @param {string | Markup} string A variable
  *
  * @return {Promise<string>}
  */
-export function raw(string: string | TwingMarkup): Promise<string> {
+export function raw(string: string | Markup): Promise<string> {
     return Promise.resolve(string.toString());
 }

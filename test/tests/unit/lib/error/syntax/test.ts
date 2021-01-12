@@ -1,10 +1,10 @@
 import * as tape from 'tape';
 import {SyntaxError} from "../../../../../../src/lib/error/syntax";
-import {TwingSource} from "../../../../../../src/lib/source";
+import {Source} from "../../../../../../src/lib/source";
 
 tape('TwingErrorSyntax', (test) => {
     test.test('constructor', (test) => {
-        let error = new SyntaxError('foo', 1, new TwingSource('', 'bar'));
+        let error = new SyntaxError('foo', 1, new Source('', 'bar'));
 
         test.same(error.getRawMessage(), 'foo', 'raw message should be set');
         test.same(error.getLocation(), 1, 'template line should be set');
@@ -14,7 +14,7 @@ tape('TwingErrorSyntax', (test) => {
     });
 
     test.test('addSuggestions', (test) => {
-        let error = new SyntaxError('foo.', 1, new TwingSource('', 'bar'));
+        let error = new SyntaxError('foo.', 1, new Source('', 'bar'));
 
         error.addSuggestions('foo', ['foos', 'fo']);
 

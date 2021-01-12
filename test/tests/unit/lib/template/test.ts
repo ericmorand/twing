@@ -4,9 +4,9 @@ import {TwingTemplate, TwingTemplateBlocksMap} from "../../../../../src/lib/temp
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
 import {TwingLoaderChain} from "../../../../../src/lib/loader/chain";
-import {TwingSource} from "../../../../../src/lib/source";
+import {Source} from "../../../../../src/lib/source";
 import {RuntimeError} from "../../../../../src/lib/error/runtime";
-import {TwingErrorLoader} from "../../../../../src/lib/error/loader";
+import {LoaderError} from "../../../../../src/lib/error/loader";
 import {TwingEnvironment} from "../../../../../src/lib/environment";
 import {MockEnvironment} from "../../../../mock/environment";
 import {MockTemplate} from "../../../../mock/template";
@@ -14,14 +14,14 @@ import {MockTemplate} from "../../../../mock/template";
 const sinon = require('sinon');
 
 class TwingTestTemplateTemplate extends TwingTemplate {
-    protected _mySource: TwingSource;
+    protected _mySource: Source;
 
     constructor(environment?: TwingEnvironment) {
         super(environment !== undefined ? environment : new TwingEnvironmentNode(new TwingLoaderArray({
             foo: '{% block foo %}foo{% endblock %}'
         })));
 
-        this._mySource = new TwingSource('', 'foo');
+        this._mySource = new Source('', 'foo');
     }
 
     get source() {
@@ -77,7 +77,7 @@ class TwingTestTemplateTemplateWithInvalidLoadTemplate extends TwingTemplate {
     }
 
     get source() {
-        return new TwingSource('code', 'path');
+        return new Source('code', 'path');
     }
 }
 
@@ -199,9 +199,9 @@ tape('template', function (test) {
 
                 test.fail('should throw an Error');
             } catch (e) {
-                test.true(e instanceof TwingErrorLoader);
+                test.true(e instanceof LoaderError);
                 test.same(e.message, 'Template "not_found" is not defined in "path".');
-                test.same(e.getSourceContext(), new TwingSource('code', 'path'));
+                test.same(e.getSourceContext(), new Source('code', 'path'));
             }
 
             test.end();
@@ -269,7 +269,7 @@ tape('template', function (test) {
         try {
             await template.traceableMethod(() => {
                 return Promise.reject(new Error('foo error'));
-            }, 1, new TwingSource('', 'foo'))();
+            }, 1, new Source('', 'foo'))();
         } catch (e) {
             test.same(e.message, 'An exception has been thrown during the rendering of a template ("foo error") in "foo" at line 1.');
             test.same(e.constructor.name, 'TwingErrorRuntime');

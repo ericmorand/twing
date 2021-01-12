@@ -1,16 +1,22 @@
-import {TwingSandboxSecurityError} from "./security-error";
-import {TwingSource} from "../source";
+import {SandboxSecurityError} from "./security-error";
+import {Source} from "../source";
 
-export class TwingSandboxSecurityNotAllowedFunctionError extends TwingSandboxSecurityError {
-    private readonly functionName: string;
+import type {Location} from "../node";
 
-    constructor(message: string, functionName: string, lineno: number = -1, source: TwingSource = null) {
-        super(message, lineno, source);
-        this.functionName = functionName;
-        this.name = 'TwingSandboxSecurityNotAllowedFunctionError';
+export class NotAllowedFunctionSandboxSecurityError extends SandboxSecurityError {
+    private readonly _functionName: string;
+
+    constructor(message: string, functionName: string, location: Location, source: Source = null) {
+        super(message, location, source);
+
+        this._functionName = functionName;
     }
 
-    getFunctionName() {
-        return this.functionName;
+    get name(): string {
+        return 'TwingSandboxSecurityNotAllowedFunctionError';
+    }
+
+    get functionName() {
+        return this._functionName;
     }
 }

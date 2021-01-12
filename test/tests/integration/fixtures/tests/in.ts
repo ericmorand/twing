@@ -1,5 +1,5 @@
 import TestBase from "../../TestBase";
-import {TwingMarkup} from "../../../../../src/lib/markup";
+import {Markup} from "../../../../../src/lib/markup";
 
 class SplFileInfo {
     constructor(dirname: string) {
@@ -146,7 +146,7 @@ OK
             dir_object: new SplFileInfo(__dirname),
             object: {},
             resource: opendir(__dirname),
-            safe: new TwingMarkup('foo', 'UTF-8')
+            safe: new Markup('foo', 'UTF-8')
         }
     }
 }

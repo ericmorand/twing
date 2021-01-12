@@ -1,10 +1,10 @@
 import * as tape from 'tape';
-import {TwingNodeExpressionConstant} from "../../../../../../../src/lib/node/expression/constant";
-import {TwingNodeExpressionFunction} from "../../../../../../../src/lib/node/expression/function";
+import {ConstantExpressionNode} from "../../../../../../../src/lib/node/expression/constant";
+import {FunctionExpressionNode} from "../../../../../../../src/lib/node/expression/function";
 import {Node} from "../../../../../../../src/lib/node";
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockEnvironment} from "../../../../../../mock/environment";
-import {TwingFunction} from "../../../../../../../src/lib/function";
+import {Function} from "../../../../../../../src/lib/function";
 import {MockCompiler} from "../../../../../../mock/compiler";
 
 function twig_tests_function_dummy() {
@@ -20,14 +20,14 @@ function twig_tests_function_needs_source() {
 }
 
 function createFunction(name: string, args = new Map()) {
-    return new TwingNodeExpressionFunction(name, new Node(args), 1, 1);
+    return new FunctionExpressionNode(name, new Node(args), 1, 1);
 }
 
 tape('node/expression/function', (test) => {
     test.test('constructor', (test) => {
         let name = 'function';
         let args = new Node();
-        let node = new TwingNodeExpressionFunction(name, args, 1, 1);
+        let node = new FunctionExpressionNode(name, args, 1, 1);
 
         test.same(node.getAttribute('name'), name);
         test.same(node.getNode('arguments'), args);
@@ -38,19 +38,19 @@ tape('node/expression/function', (test) => {
     test.test('compile', (test) => {
         let loader = new MockLoader();
         let environment = new MockEnvironment(loader);
-        environment.addFunction(new TwingFunction('foo', twig_tests_function_dummy, [], {}));
-        environment.addFunction(new TwingFunction('bar', twig_tests_function_dummy, [], {needsTemplate: true}));
-        environment.addFunction(new TwingFunction('foofoo', twig_tests_function_dummy, [], {needsContext: true}));
-        environment.addFunction(new TwingFunction('foobar', twig_tests_function_dummy, [], {
+        environment.addFunction(new Function('foo', twig_tests_function_dummy, [], {}));
+        environment.addFunction(new Function('bar', twig_tests_function_dummy, [], {needsTemplate: true}));
+        environment.addFunction(new Function('foofoo', twig_tests_function_dummy, [], {needsContext: true}));
+        environment.addFunction(new Function('foobar', twig_tests_function_dummy, [], {
             needsTemplate: true,
             needsContext: true
         }));
-        environment.addFunction(new TwingFunction('barbar', twig_tests_function_barbar, [
+        environment.addFunction(new Function('barbar', twig_tests_function_barbar, [
             {name: 'arg1', defaultValue: null},
             {name: 'arg2', defaultValue: null}
         ], {isVariadic: true}));
-        environment.addFunction(new TwingFunction('anonymous', () => Promise.resolve(), []));
-        environment.addFunction(new TwingFunction('needs_source', twig_tests_function_needs_source, [], {
+        environment.addFunction(new Function('anonymous', () => Promise.resolve(), []));
+        environment.addFunction(new Function('needs_source', twig_tests_function_needs_source, [], {
             needsTemplate: true,
         }));
 
@@ -62,8 +62,8 @@ tape('node/expression/function', (test) => {
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foo\').traceableCallable(1, this.source)(...[])');
 
             node = createFunction('foo', new Map([
-                [0, new TwingNodeExpressionConstant('bar', 1, 1)],
-                [1, new TwingNodeExpressionConstant('foobar', 1, 1)]
+                [0, new ConstantExpressionNode('bar', 1, 1)],
+                [1, new ConstantExpressionNode('foobar', 1, 1)]
             ]));
 
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foo\').traceableCallable(1, this.source)(...[\`bar\`, \`foobar\`])');
@@ -73,7 +73,7 @@ tape('node/expression/function', (test) => {
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'bar\').traceableCallable(1, this.source)(...[this])');
 
             node = createFunction('bar', new Map([
-                [0, new TwingNodeExpressionConstant('bar', 1, 1)]
+                [0, new ConstantExpressionNode('bar', 1, 1)]
             ]));
 
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'bar\').traceableCallable(1, this.source)(...[this, \`bar\`])');
@@ -83,7 +83,7 @@ tape('node/expression/function', (test) => {
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foofoo\').traceableCallable(1, this.source)(...[context])');
 
             node = createFunction('foofoo', new Map([
-                [0, new TwingNodeExpressionConstant('bar', 1, 1)]
+                [0, new ConstantExpressionNode('bar', 1, 1)]
             ]));
 
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foofoo\').traceableCallable(1, this.source)(...[context, \`bar\`])');
@@ -93,7 +93,7 @@ tape('node/expression/function', (test) => {
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foobar\').traceableCallable(1, this.source)(...[this, context])');
 
             node = createFunction('foobar', new Map([
-                [0, new TwingNodeExpressionConstant('bar', 1, 1)]
+                [0, new ConstantExpressionNode('bar', 1, 1)]
             ]));
 
             test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'foobar\').traceableCallable(1, this.source)(...[this, context, \`bar\`])');
@@ -104,8 +104,8 @@ tape('node/expression/function', (test) => {
 
             test.test('named arguments', (test) => {
                 let node = createFunction('date', new Map([
-                    ['timezone', new TwingNodeExpressionConstant('America/Chicago', 1, 1)],
-                    ['date', new TwingNodeExpressionConstant(0, 1, 1)]
+                    ['timezone', new ConstantExpressionNode('America/Chicago', 1, 1)],
+                    ['date', new ConstantExpressionNode(0, 1, 1)]
                 ]));
 
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'date\').traceableCallable(1, this.source)(...[this, 0, \`America/Chicago\`])');
@@ -119,22 +119,22 @@ tape('node/expression/function', (test) => {
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'barbar\').traceableCallable(1, this.source)(...[])');
 
                 node = createFunction('barbar', new Map([
-                    ['foo', new TwingNodeExpressionConstant('bar', 1, 1)]
+                    ['foo', new ConstantExpressionNode('bar', 1, 1)]
                 ]));
 
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'barbar\').traceableCallable(1, this.source)(...[null, null, new Map([[\`foo\`, \`bar\`]])])');
 
                 node = createFunction('barbar', new Map([
-                    ['arg2', new TwingNodeExpressionConstant('bar', 1, 1)]
+                    ['arg2', new ConstantExpressionNode('bar', 1, 1)]
                 ]));
 
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'barbar\').traceableCallable(1, this.source)(...[null, \`bar\`])');
 
                 node = createFunction('barbar', new Map<any, any>([
-                    [0, new TwingNodeExpressionConstant('1', 1, 1)],
-                    [1, new TwingNodeExpressionConstant('2', 1, 1)],
-                    [2, new TwingNodeExpressionConstant('3', 1, 1)],
-                    ['foo', new TwingNodeExpressionConstant('bar', 1, 1)]
+                    [0, new ConstantExpressionNode('1', 1, 1)],
+                    [1, new ConstantExpressionNode('2', 1, 1)],
+                    [2, new ConstantExpressionNode('3', 1, 1)],
+                    ['foo', new ConstantExpressionNode('bar', 1, 1)]
                 ]));
 
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'barbar\').traceableCallable(1, this.source)(...[\`1\`, \`2\`, new Map([[0, \`3\`], [\`foo\`, \`bar\`]])])');
@@ -144,7 +144,7 @@ tape('node/expression/function', (test) => {
 
             test.test('function as an anonymous function', (test) => {
                 let node = createFunction('anonymous', new Map([
-                    [0, new TwingNodeExpressionConstant('foo', 1, 1)]
+                    [0, new ConstantExpressionNode('foo', 1, 1)]
                 ]));
 
                 test.same(compiler.compile(node).getSource(), 'await this.environment.getFunction(\'anonymous\').traceableCallable(1, this.source)(...[\`foo\`])');

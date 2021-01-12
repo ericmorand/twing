@@ -1,33 +1,30 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('with');
-
-export type TwingNodeWithAttributes = {
+export type WithNodeAttributes = {
     only: boolean
 };
 
-export type TwingNodeWithNodes = {
+export type WithNodeEdges = {
     body: Node,
     variables?: Node
 };
 
-export class TwingNodeWith<A extends TwingNodeWithAttributes = TwingNodeWithAttributes, N extends TwingNodeWithNodes = TwingNodeWithNodes> extends Node<A, N> {
+export class WithNode extends Node<WithNodeAttributes, WithNodeEdges> {
     compile(compiler: Compiler) {
-        const variables = this.children.variables;
+        const variables = this.edges.variables;
 
         if (variables) {
             compiler
                 .write('{\n')
                 .indent()
                 .write(`let tmp = `)
-                .subcompile(variables)
+                .subCompile(variables)
                 .raw(";\n")
                 .write(`if (typeof (tmp) !== 'object') {\n`)
                 .indent()
                 .write('throw new this.RuntimeError(\'Variables passed to the "with" tag must be a hash.\', ')
-                .repr(this.line)
+                .repr(this.location)
                 .raw(", this.source);\n")
                 .outdent()
                 .write("}\n")
@@ -48,7 +45,7 @@ export class TwingNodeWith<A extends TwingNodeWithAttributes = TwingNodeWithAttr
         }
 
         compiler
-            .subcompile(this.children.body)
+            .subCompile(this.edges.body)
             .write("context = context.get('_parent');\n")
         ;
     }

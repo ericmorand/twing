@@ -5,23 +5,21 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingTokenParserInterface} from "./token-parser-interface";
+import {TokenParserInterface} from "./token-parser-interface";
 import {TwingNodeVisitorInterface} from "./node-visitor-interface";
-import {TwingFilter} from "./filter";
-import {TwingFunction} from "./function";
-import {TwingTest} from "./test";
-import {TwingOperator} from "./operator";
+import {Filter} from "./filter";
+import {Function} from "./function";
+import {Test} from "./test";
+import {Operator} from "./operator";
 import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
 
 export interface TwingExtensionInterface {
-    TwingExtensionInterfaceImpl: TwingExtensionInterface;
-
     /**
      * Returns the token parser instances to add to the existing list.
      *
-     * @return Array<TwingTokenParserInterface>
+     * @return Array<TokenParserInterface>
      */
-    getTokenParsers(): Array<TwingTokenParserInterface>;
+    getTokenParsers(): Array<TokenParserInterface>;
 
     /**
      * Returns the node visitor instances to add to the existing list.
@@ -33,35 +31,33 @@ export interface TwingExtensionInterface {
     /**
      * Returns a list of filters to add to the existing list.
      *
-     * @return Array<TwingFilter>
+     * @return Array<Filter>
      */
-    getFilters(): TwingFilter[];
+    getFilters(): Filter[];
 
     /**
      * Returns a list of tests to add to the existing list.
      *
-     * @returns Array<TwingTest>
+     * @returns Array<Test>
      */
-    getTests(): TwingTest[];
+    getTests(): Test[];
 
     /**
      * Returns a list of functions to add to the existing list.
      *
-     * @return Array<TwingFunction>
+     * @return Array<Function>
      */
-    getFunctions(): TwingFunction[];
+    getFunctions(): Function[];
 
     /**
      * Returns a list of operators to add to the existing list.
      *
-     * @return TwingOperator[]
+     * @return Operator[]
      */
-    getOperators(): TwingOperator[];
+    getOperators(): Operator<any>[];
 
     /**
      * Returns a list of factories that will be used to construct the source-map nodes.
-     *
-     * @return TwingSourceMapNodeFactory[]
      */
-    getSourceMapNodeFactories(): TwingSourceMapNodeFactory[];
+    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory>;
 }

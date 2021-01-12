@@ -1,17 +1,17 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
 
-import type {TwingNodeExpressionAttributes} from "../expression";
+import type {ExpressionNodeAttributes} from "../expression";
 import type {Location} from "../../node";
 
 export type TwingNodeExpressionNameAttributes = {
     value: string
 };
 
-export class TwingNodeExpressionName extends TwingNodeExpression<TwingNodeExpressionNameAttributes> {
+export class NameExpressionNode extends ExpressionNode<TwingNodeExpressionNameAttributes> {
     private specialVars: Map<string, string>;
 
-    constructor(attributes: TwingNodeExpressionAttributes<TwingNodeExpressionNameAttributes>, nodes: null, location: Location) {
+    constructor(attributes: ExpressionNodeAttributes<TwingNodeExpressionNameAttributes>, nodes: null, location: Location) {
         super(attributes, nodes, location);
 
         this.specialVars = new Map([

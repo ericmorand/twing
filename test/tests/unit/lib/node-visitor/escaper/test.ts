@@ -3,12 +3,12 @@ import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
 import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
 import {TwingNodeVisitorEscaper} from "../../../../../../src/lib/node-visitor/escaper";
 import {TwingNodeText} from "../../../../../../src/lib/node/text";
-import {TwingNodeExpressionConstant} from "../../../../../../src/lib/node/expression/constant";
+import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 import {Node} from "../../../../../../src/lib/node";
-import {TwingSource} from "../../../../../../src/lib/source";
-import {TwingNodeModule} from "../../../../../../src/lib/node/module";
+import {Source} from "../../../../../../src/lib/source";
+import {ModuleNode} from "../../../../../../src/lib/node/module";
 import {TwingNodeVisitorSafeAnalysis} from "../../../../../../src/lib/node-visitor/safe-analysis";
-import {TwingNodePrint} from "../../../../../../src/lib/node/print";
+import {PrintNode} from "../../../../../../src/lib/node/print";
 
 const sinon = require('sinon');
 
@@ -18,12 +18,12 @@ tape('node-visitor/escaper', (test) => {
             let env = new TwingEnvironmentNode(new TwingLoaderArray({}));
             let visitor = new TwingNodeVisitorEscaper();
             let body = new TwingNodeText('foo', 1, 1);
-            let parent = new TwingNodeExpressionConstant('layout.twig', 1, 1);
+            let parent = new ConstantExpressionNode('layout.twig', 1, 1);
             let blocks = new Node();
             let macros = new Node();
             let traits = new Node();
-            let source = new TwingSource('{{ foo }}', 'foo.twig');
-            let module = new TwingNodeModule(body, parent, blocks, macros, traits, [], source);
+            let source = new Source('{{ foo }}', 'foo.twig');
+            let module = new ModuleNode(body, parent, blocks, macros, traits, [], source);
 
             sinon.stub(env, 'hasExtension').returns(false);
 
@@ -40,7 +40,7 @@ tape('node-visitor/escaper', (test) => {
             let env = new TwingEnvironmentNode(new TwingLoaderArray({}));
             let visitor = new TwingNodeVisitorEscaper();
             let safeAnalysis = new TwingNodeVisitorSafeAnalysis();
-            let print = new TwingNodePrint(new TwingNodeExpressionConstant('foo', 1, 1), 1, 1);
+            let print = new PrintNode(new ConstantExpressionNode('foo', 1, 1), 1, 1);
 
             sinon.stub(env, 'hasExtension').returns(false);
             sinon.stub(visitor, 'needEscaping').returns('html');

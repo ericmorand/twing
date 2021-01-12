@@ -2,9 +2,9 @@ import * as tape from 'tape';
 import {TwingExtensionCore} from "../../../../../../src/lib/extension/core";
 import {TwingLoaderNull} from "../../../../../../src/lib/loader/null";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingFunction} from "../../../../../../src/lib/function";
-import {TwingCallableArgument} from "../../../../../../src/lib/callable-wrapper";
-import {TwingFilter} from "../../../../../../src/lib/filter";
+import {Function} from "../../../../../../src/lib/function";
+import {CallableArgument} from "../../../../../../src/lib/callable-wrapper";
+import {Filter} from "../../../../../../src/lib/filter";
 
 export class CoreTestIterator {
     map: Map<any, any>;
@@ -71,10 +71,10 @@ tape('TwingExtensionCore', (test) => {
         /**
          * @param test
          * @param name
-         * @param {TwingFunction} f
+         * @param {Function} f
          * @param fixture
          */
-        const testAcceptedArguments = (test: tape.Test, name: string, f: TwingFunction, fixture: { name: string, arguments: TwingCallableArgument[] }) => {
+        const testAcceptedArguments = (test: tape.Test, name: string, f: Function, fixture: { name: string, arguments: CallableArgument[] }) => {
             if (!fixture) {
                 test.fail(`${name} function has no registered fixture`);
             } else {
@@ -164,10 +164,10 @@ tape('TwingExtensionCore', (test) => {
         /**
          * @param test
          * @param name
-         * @param {TwingFilter} f
+         * @param {Filter} f
          * @param fixture
          */
-        const testAcceptedArguments = (test: tape.Test, name: string, f: TwingFilter, fixture: { name: string, arguments: TwingCallableArgument[] }) => {
+        const testAcceptedArguments = (test: tape.Test, name: string, f: Filter, fixture: { name: string, arguments: CallableArgument[] }) => {
             if (!fixture) {
                 test.fail(`${name} filter has no registered fixture`);
             } else {

@@ -1,20 +1,20 @@
 import {Error} from "./error";
-import {TwingSource} from "./source";
+import {Source} from "./source";
 import {Node} from "./node";
-import {TwingNodeExpression} from "./node/expression";
+import {ExpressionNode} from "./node/expression";
 
 import type {Location} from "./node";
 
-export type TwingCallable<T> = (...args: any[]) => Promise<T>;
+export type Callable<T> = (...args: any[]) => Promise<T>;
 
-export type TwingCallableArgument = {
+export type CallableArgument = {
     name: string,
     defaultValue?: any
 };
 
-export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: Node, location: Location) => TwingNodeExpression<any>;
+export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: Node, location: Location) => ExpressionNode<any>;
 
-export type TwingCallableWrapperOptions = {
+export type CallableWrapperOptions = {
     needsTemplate?: boolean;
     needsContext?: boolean;
     needsOutputBuffer?: boolean;
@@ -26,15 +26,15 @@ export type TwingCallableWrapperOptions = {
     expressionFactory?: CallableWrapperExpressionFactory;
 }
 
-export abstract class TwingCallableWrapper<T> {
+export abstract class CallableWrapper<T> {
     readonly name: string;
-    readonly callable: TwingCallable<T>;
-    readonly acceptedArguments: TwingCallableArgument[];
-    readonly options: TwingCallableWrapperOptions;
+    readonly callable: Callable<T>;
+    readonly acceptedArguments: CallableArgument[];
+    readonly options: CallableWrapperOptions;
 
     protected _arguments: Array<any> = [];
 
-    protected constructor(name: string, callable: TwingCallable<any>, acceptedArguments: TwingCallableArgument[], options: TwingCallableWrapperOptions = {}) {
+    protected constructor(name: string, callable: Callable<any>, acceptedArguments: CallableArgument[], options: CallableWrapperOptions = {}) {
         this.name = name;
         this.callable = callable;
         this.acceptedArguments = acceptedArguments;
@@ -63,13 +63,13 @@ export abstract class TwingCallableWrapper<T> {
     }
 
     /**
-     * @return TwingCallableArgument[]
+     * @return CallableArgument[]
      */
-    getAcceptedArguments(): TwingCallableArgument[] {
+    getAcceptedArguments(): CallableArgument[] {
         return this.acceptedArguments;
     }
 
-    traceableCallable(location: Location, source: TwingSource): TwingCallable<T> {
+    traceableCallable(location: Location, source: Source): Callable<T> {
         let callable = this.callable;
 
         return function () {

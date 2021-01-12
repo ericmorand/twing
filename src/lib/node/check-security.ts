@@ -1,57 +1,58 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
-import {TwingNodeType} from "../node-type";
 
-export const type = new TwingNodeType('check_security');
+import type {Location} from "../node";
 
-export class TwingNodeCheckSecurity extends Node {
-    private usedFilters: Map<string, Node | string>;
-    private usedTags: Map<string, Node | string>;
-    private usedFunctions: Map<string, Node | string>;
+export type CheckSecurityNodeAttributes = {
+    usedFilters: Map<string, Node | string>,
+    usedTags: Map<string, Node | string>,
+    usedFunctions: Map<string, Node | string>
+};
 
-    constructor(usedFilters: Map<string, Node | string>, usedTags: Map<string, Node | string>, usedFunctions: Map<string, Node | string>) {
-        super();
+export class CheckSecurityNode extends Node<CheckSecurityNodeAttributes> {
+    // private usedFilters: Map<string, Node | string>;
+    // private usedTags: Map<string, Node | string>;
+    // private usedFunctions: Map<string, Node | string>;
 
-        this.usedFilters = usedFilters;
-        this.usedTags = usedTags;
-        this.usedFunctions = usedFunctions;
-    }
-
-    get type() {
-        return type;
-    }
+    // constructor(usedFilters: Map<string, Node | string>, usedTags: Map<string, Node | string>, usedFunctions: Map<string, Node | string>) {
+    //     super();
+    //
+    //     this.usedFilters = usedFilters;
+    //     this.usedTags = usedTags;
+    //     this.usedFunctions = usedFunctions;
+    // }
 
     compile(compiler: Compiler) {
-        let tags = new Map();
+        let tags: Map<string, Location> = new Map();
 
-        for (let [name, node] of this.usedTags) {
+        for (let [name, node] of this.attributes.usedTags) {
             if (typeof node === 'string') {
                 tags.set(node, null);
             }
             else {
-                tags.set(name, node.getLine());
+                tags.set(name, node.location);
             }
         }
 
-        let filters = new Map();
+        let filters: Map<string, Location> = new Map();
 
-        for (let [name, node] of this.usedFilters) {
+        for (let [name, node] of this.attributes.usedFilters) {
             if (typeof node === 'string') {
                 filters.set(node, null);
             }
             else {
-                filters.set(name, node.getLine());
+                filters.set(name, node.location);
             }
         }
 
-        let functions = new Map();
+        let functions: Map<string, Location> = new Map();
 
-        for (let [name, node] of this.usedFunctions) {
+        for (let [name, node] of this.attributes.usedFunctions) {
             if (typeof node === 'string') {
                 functions.set(node, null);
             }
             else {
-                functions.set(name, node.getLine());
+                functions.set(name, node.location);
             }
         }
 
@@ -74,20 +75,19 @@ export class TwingNodeCheckSecurity extends Node {
             .indent()
             .write("if (e instanceof this.SandboxSecurityError) {\n")
             .indent()
-            .write("e.setSourceContext(this.source);\n\n")
-            .write("if (e instanceof this.SandboxSecurityNotAllowedTagError && tags.has(e.getTagName())) {\n")
+            .write("if (e instanceof this.NotAllowedTagSandboxSecurityError && tags.has(e.getTagName())) {\n")
             .indent()
-            .write("e.setTemplateLine(tags.get(e.getTagName()));\n")
+            .write("e = new this.NotAllowedTagSandboxSecurityError(e.message, e.tagName, tags.get(e.tagName), this.source);\n")
             .outdent()
             .write("}\n")
-            .write("else if (e instanceof this.SandboxSecurityNotAllowedFilterError && filters.has(e.getFilterName())) {\n")
+            .write("else if (e instanceof this.NotAllowedFilterSandboxSecurityError && filters.has(e.getFilterName())) {\n")
             .indent()
-            .write("e.setTemplateLine(filters.get(e.getFilterName()));\n")
+            .write("e = new this.NotAllowedFilterSandboxSecurityError(e.message, e.filterName, filters.get(e.filterName), this.source);\n")
             .outdent()
             .write("}\n")
-            .write("else if (e instanceof this.SandboxSecurityNotAllowedFunctionError && functions.has(e.getFunctionName())) {\n")
+            .write("else if (e instanceof this.NotAllowedFunctionSandboxSecurityError && functions.has(e.getFunctionName())) {\n")
             .indent()
-            .write("e.setTemplateLine(functions.get(e.getFunctionName()));\n")
+            .write("e = new this.NotAllowedFunctionSandboxSecurityError(e.message, e.functionName, functions.get(e.functionName), this.source);\n")
             .outdent()
             .write("}\n")
             .outdent()

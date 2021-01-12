@@ -1,18 +1,18 @@
 import {Node} from "../node";
-import {TwingNodeExpression} from "./expression";
+import {ExpressionNode} from "./expression";
 import {Compiler} from "../compiler";
 
 export type TwingNodeIncludeAttributes = {
     ignoreMissing: boolean,
-    only?: boolean
+    only: boolean
 };
 
 export type TwingNodeIncludeNodes = {
-    template: TwingNodeExpression,
-    variables?: TwingNodeExpression,
+    template: ExpressionNode<any>,
+    variables: ExpressionNode<any>,
 };
 
-export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIncludeAttributes,
+export class IncludeNode<A extends TwingNodeIncludeAttributes = TwingNodeIncludeAttributes,
     N extends TwingNodeIncludeNodes = TwingNodeIncludeNodes> extends Node<A, N> {
     compile(compiler: Compiler) {
         compiler.write('outputBuffer.echo(await this.include(context, outputBuffer, ');
@@ -21,10 +21,10 @@ export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIn
 
         compiler.raw(', ');
 
-        const variables = this.children.variables;
+        const variables = this.edges.variables;
 
         if (variables) {
-            compiler.subcompile(variables);
+            compiler.subCompile(variables);
         } else {
             compiler.repr(undefined)
         }
@@ -35,12 +35,12 @@ export class TwingNodeInclude<A extends TwingNodeIncludeAttributes = TwingNodeIn
             .raw(', ')
             .repr(this.attributes.ignoreMissing)
             .raw(', ')
-            .repr(this.line)
+            .repr(this.location)
             .raw(')')
             .raw(');\n');
     }
 
     protected addGetTemplate(compiler: Compiler) {
-        compiler.subcompile(this.children.template);
+        compiler.subCompile(this.edges.template);
     }
 }

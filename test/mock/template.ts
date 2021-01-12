@@ -3,12 +3,12 @@ import {MockEnvironment} from "./environment";
 import {TwingTemplate} from "../../src/lib/template";
 import {MockLoader} from "./loader";
 import {TwingOutputBuffer} from "../../src/lib/output-buffer";
-import {TwingSource} from "../../src/lib/source";
+import {Source} from "../../src/lib/source";
 
 export class MockTemplate extends TwingTemplate {
-    protected _mySource: TwingSource;
+    protected _mySource: Source;
 
-    constructor(env?: TwingEnvironment, source?: TwingSource) {
+    constructor(env?: TwingEnvironment, source?: Source) {
         if (!env) {
             env = new MockEnvironment(new MockLoader());
         }
@@ -16,7 +16,7 @@ export class MockTemplate extends TwingTemplate {
         super(env);
 
         if (!source) {
-            source = new TwingSource('', 'foo.html.twig');
+            source = new Source('', 'foo.html.twig');
         }
 
         this._mySource = source;

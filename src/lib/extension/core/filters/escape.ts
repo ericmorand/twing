@@ -1,4 +1,4 @@
-import {TwingMarkup} from "../../../markup";
+import {Markup} from "../../../markup";
 import {RuntimeError} from "../../../error/runtime";
 import {TwingTemplate} from "../../../template";
 
@@ -26,7 +26,7 @@ export function escape(template: TwingTemplate, string: any, strategy: string = 
     let _do:() => string = () => {
         let env = template.environment;
 
-        if (autoescape && string && string instanceof TwingMarkup) {
+        if (autoescape && string && string instanceof Markup) {
             return string;
         }
 
@@ -173,7 +173,7 @@ export function escape(template: TwingTemplate, string: any, strategy: string = 
 
                 let validStrategies: Array<string> = array_merge(['html', 'js', 'url', 'css', 'html_attr'], [...escapers.keys()]);
 
-                throw new RuntimeError(`Invalid escaping strategy "${strategy}" (valid ones: ${validStrategies.join(', ')}).`);
+                throw new RuntimeError(`Invalid escaping strategy "${strategy}" (valid ones: ${validStrategies.join(', ')}).`, null);
         }
     };
 

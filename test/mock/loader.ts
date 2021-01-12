@@ -1,9 +1,9 @@
-import {TwingSource} from "../../src/lib/source";
+import {Source} from "../../src/lib/source";
 import {TwingLoaderNull} from "../../src/lib/loader/null";
 
 export class MockLoader extends TwingLoaderNull {
     getSourceContext(name: string) {
-        return Promise.resolve(new TwingSource('', ''));
+        return Promise.resolve(new Source('', ''));
     }
 
     getCacheKey(name: string) {

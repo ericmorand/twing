@@ -33,12 +33,12 @@ export class Compiler {
         this.indentation = indentation;
         this.varNameSalt = 0;
 
-        this.subcompile(node);
+        this.subCompile(node);
 
         return this;
     }
 
-    subcompile(node: Node, raw: boolean = true): Compiler {
+    subCompile(node: Node, raw: boolean = true): Compiler {
         if (raw === false) {
             this.source += ' '.repeat(this.indentation * 4);
         }
@@ -61,8 +61,6 @@ export class Compiler {
 
     /**
      * Writes a string to the compiled code by adding indentation.
-     *
-     * @returns {TwingCompiler}
      */
     write(...strings: Array<string>): Compiler {
         for (let string of strings) {
@@ -76,8 +74,6 @@ export class Compiler {
      * Adds a quoted string to the compiled code.
      *
      * @param {string} value The string
-     *
-     * @returns {TwingCompiler}
      */
     string(value: string): Compiler {
         if (!isNullOrUndefined(value)) {
@@ -127,7 +123,7 @@ export class Compiler {
 
             let first = true;
 
-            for (let k in value) {
+            for (let key in value) {
                 if (!first) {
                     this.raw(', ');
                 }
@@ -135,9 +131,9 @@ export class Compiler {
                 first = false;
 
                 this
-                    .raw(`"${k}"`)
+                    .raw(`${key}`)
                     .raw(': ')
-                    .repr(value[k])
+                    .repr(value[key])
                 ;
             }
 
@@ -156,13 +152,15 @@ export class Compiler {
      */
     addSourceMapEnter(node: Node) {
         if (this.getEnvironment().isSourceMap()) {
+            const {line, column} = node.location;
+
             this
                 .write('this.environment.enterSourceMapBlock(')
-                .raw(node.getLine())
+                .raw(line)
                 .raw(', ')
-                .raw(node.getColumn())
+                .raw(column)
                 .raw(', ')
-                .string(node.type.toString())
+                .string(node.tag)
                 .raw(', ')
                 .raw('this.source, outputBuffer);\n')
         }

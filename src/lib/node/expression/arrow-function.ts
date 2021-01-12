@@ -1,12 +1,12 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
 import {Node} from "../../node";
 
-import type {NodeChildren} from "../../node";
+import type {NodeEdges} from "../../node";
 
 export type TwingNodeExpressionArrowFunctionNodes = {
-    expr: TwingNodeExpression<any>,
-    names: Node<null, NodeChildren<TwingNodeExpression<{
+    expr: ExpressionNode<any>,
+    names: Node<null, NodeEdges<ExpressionNode<{
         value: string
     }>>>
 };
@@ -14,13 +14,13 @@ export type TwingNodeExpressionArrowFunctionNodes = {
 /**
  * Represents an arrow function.
  */
-export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{}, TwingNodeExpressionArrowFunctionNodes> {
+export class TwingNodeExpressionArrowFunction extends ExpressionNode<{}, TwingNodeExpressionArrowFunctionNodes> {
     compile(compiler: Compiler) {
         compiler.raw('async (');
 
         let i: number = 0;
 
-        const names = this.children.names;
+        const names = this.edges.names;
 
         for (let [, name] of names) {
             if (i > 0) {
@@ -50,7 +50,7 @@ export class TwingNodeExpressionArrowFunction extends TwingNodeExpression<{}, Tw
 
         compiler
             .raw('return ')
-            .subcompile(this.children.expr)
+            .subCompile(this.edges.expr)
             .raw(';}');
     }
 }

@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {Node} from "../../../../../src/lib/node";
-import {TwingNodeExpressionConstant} from "../../../../../src/lib/node/expression/constant";
+import {ConstantExpressionNode} from "../../../../../src/lib/node/expression/constant";
 import {Compiler} from "../../../../../src/lib/compiler";
 import {MockEnvironment} from "../../../../mock/environment";
 import {MockLoader} from "../../../../mock/loader";
@@ -9,13 +9,13 @@ import {TwingNodeBody} from "../../../../../src/lib/node/body";
 tape('compiler', (test) => {
     test.test('subcompile method', (test) => {
         let node = new Node(new Map([
-            [0, new TwingNodeExpressionConstant(1, 1, 1)]
+            [0, new ConstantExpressionNode(1, 1, 1)]
         ]), new Map(), 1, 1, 'foo');
         let compiler = new Compiler(new MockEnvironment(new MockLoader()));
 
-        test.same(compiler.compile(node).indent().subcompile(node).getSource(), '11', 'doesn\'t add indentation when raw is not set');
-        test.same(compiler.compile(node).indent().subcompile(node, true).getSource(), '11', 'doesn\'t add indentation when raw is set to true');
-        test.same(compiler.compile(node).indent().subcompile(node, false).getSource(), '1    1', 'add indentation when raw is set to false');
+        test.same(compiler.compile(node).indent().subCompile(node).getSource(), '11', 'doesn\'t add indentation when raw is not set');
+        test.same(compiler.compile(node).indent().subCompile(node, true).getSource(), '11', 'doesn\'t add indentation when raw is set to true');
+        test.same(compiler.compile(node).indent().subCompile(node, false).getSource(), '1    1', 'add indentation when raw is set to false');
 
         test.end();
     });

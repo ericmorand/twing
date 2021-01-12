@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {TwingLoaderRelativeFilesystem} from "../../../../../../src/lib/loader/relative-filesystem";
-import {TwingErrorLoader} from "../../../../../../src/lib/error/loader";
-import {TwingSource} from "../../../../../../src/lib/source";
+import {LoaderError} from "../../../../../../src/lib/error/loader";
+import {Source} from "../../../../../../src/lib/source";
 
 const nodePath = require('path');
 const sinon = require('sinon');
@@ -41,24 +41,24 @@ tape('loader filesystem', (test) => {
         try {
             await loader.getSourceContext('errors/index.html', null);
         } catch (err) {
-            test.true(err instanceof TwingErrorLoader);
+            test.true(err instanceof LoaderError);
             test.same(err.getMessage(), `Unable to find template "errors/index.html".`);
         }
 
-        let source = await loader.getSourceContext('errors/index.html', new TwingSource('', resolvePath('foo.html')));
+        let source = await loader.getSourceContext('errors/index.html', new Source('', resolvePath('foo.html')));
 
         test.same(source.getName(), 'errors/index.html');
         test.same(source.getResolvedName(), resolvePath('errors/index.html'));
 
-        source = await loader.getSourceContext('../errors/index.html', new TwingSource('', resolvePath('foo/bar.html')));
+        source = await loader.getSourceContext('../errors/index.html', new Source('', resolvePath('foo/bar.html')));
 
         test.same(source.getName(), '../errors/index.html');
         test.same(source.getResolvedName(), resolvePath('errors/index.html'));
 
         try {
-            await loader.getSourceContext('foo', new TwingSource('', 'foo/bar/index.html'));
+            await loader.getSourceContext('foo', new Source('', 'foo/bar/index.html'));
         } catch (err) {
-            test.true(err instanceof TwingErrorLoader);
+            test.true(err instanceof LoaderError);
             test.same(err.getMessage(), `Unable to find template "foo/bar/foo" in "foo/bar/index.html".`);
         }
 
@@ -66,13 +66,13 @@ tape('loader filesystem', (test) => {
             let validateNameSpy = sinon.spy(loader, 'validateName');
 
             try {
-                await loader.getSourceContext('foo', new TwingSource('', ''));
+                await loader.getSourceContext('foo', new Source('', ''));
             } catch (e) {
 
             }
 
             try {
-                await loader.getSourceContext('foo', new TwingSource('', ''));
+                await loader.getSourceContext('foo', new Source('', ''));
             } catch (e) {
 
             }
@@ -108,7 +108,7 @@ tape('loader filesystem', (test) => {
         };
 
         let CustomLoader = class extends TwingLoaderRelativeFilesystem {
-            findTemplate(name: string, throw_: boolean, from: TwingSource) {
+            findTemplate(name: string, throw_: boolean, from: Source) {
                 return super.findTemplate(name, throw_, from);
             }
         };
@@ -121,7 +121,7 @@ tape('loader filesystem', (test) => {
         try {
             await loader.findTemplate(resolvePath('named'), undefined, undefined);
         } catch (err) {
-            test.true(err instanceof TwingErrorLoader);
+            test.true(err instanceof LoaderError);
             test.same(err.getMessage(), `Unable to find template "${resolvePath('named')}".`);
         }
 
@@ -139,7 +139,7 @@ tape('loader filesystem', (test) => {
         });
 
         test.test('with from defined', async (test) => {
-            test.same(await loader.resolve('partial.html.twig', new TwingSource('', 'index.html.twig', 'test/tests/unit/lib/loader/relative-filesystem/fixtures/index.html.twig')), nodePath.resolve('test/tests/unit/lib/loader/relative-filesystem/fixtures/partial.html.twig'));
+            test.same(await loader.resolve('partial.html.twig', new Source('', 'index.html.twig', 'test/tests/unit/lib/loader/relative-filesystem/fixtures/index.html.twig')), nodePath.resolve('test/tests/unit/lib/loader/relative-filesystem/fixtures/partial.html.twig'));
 
             test.end();
         });
@@ -153,7 +153,7 @@ tape('loader filesystem', (test) => {
         };
 
         let loader = new TwingLoaderRelativeFilesystem();
-        let namedSource = (await loader.getSourceContext('named/index.html', new TwingSource('', resolvePath('index.html')))).getCode();
+        let namedSource = (await loader.getSourceContext('named/index.html', new Source('', resolvePath('index.html')))).getCode();
 
         test.same(namedSource, "named path\n");
 
@@ -183,7 +183,7 @@ tape('loader filesystem', (test) => {
         ];
 
         for (let [name, expected] of names) {
-            test.same(await loader.getSourceContext(name, new TwingSource('', resolvePath('foo.html'))), new TwingSource('named path\n', name, resolvePath(expected)));
+            test.same(await loader.getSourceContext(name, new Source('', resolvePath('foo.html'))), new Source('named path\n', name, resolvePath(expected)));
         }
 
         try {
@@ -203,7 +203,7 @@ tape('loader filesystem', (test) => {
         };
 
         let loader = new TwingLoaderRelativeFilesystem();
-        let source = new TwingSource('', resolvePath('index.html'));
+        let source = new Source('', resolvePath('index.html'));
 
         test.equals(await loader.exists('normal/index.html', source), true);
         test.equals(await loader.exists('foo', source), false);
@@ -231,7 +231,7 @@ tape('loader filesystem', (test) => {
         };
 
         let loader = new TwingLoaderRelativeFilesystem();
-        let source = new TwingSource('', resolvePath('index.html'));
+        let source = new Source('', resolvePath('index.html'));
 
         test.true(await loader.isFresh('normal/index.html', new Date().getTime(), source));
 
@@ -244,7 +244,7 @@ tape('loader filesystem', (test) => {
         };
 
         let loader = new TwingLoaderRelativeFilesystem();
-        let source = new TwingSource('', resolvePath('index.html'));
+        let source = new Source('', resolvePath('index.html'));
 
         test.same(await loader.resolve('normal/index.html', source), resolvePath('normal/index.html'));
         test.same(await loader.resolve(resolvePath('normal/index.html'), null), resolvePath('normal/index.html'));
@@ -258,7 +258,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve('test/tests/unit/lib/loader/relative-filesystem/fixtures', path);
         };
 
-        let source = new TwingSource('', resolvePath('index.html'));
+        let source = new Source('', resolvePath('index.html'));
 
         let key1 = loader.getCacheKey('partial.html.twig', source);
         let key2 = loader.getCacheKey('../fixtures/partial.html.twig', source);

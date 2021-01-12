@@ -1,6 +1,6 @@
 import {TwingLoaderInterface} from "../loader-interface";
-import {TwingSource} from "../source";
-import {TwingErrorLoader} from "../error/loader";
+import {Source} from "../source";
+import {LoaderError} from "../error/loader";
 import {iteratorToMap} from "../helpers/iterator-to-map";
 
 /**
@@ -20,41 +20,41 @@ export class TwingLoaderArray implements TwingLoaderInterface {
         this.templates.set(name, template);
     }
 
-    getSourceContext(name: string, from: TwingSource): Promise<TwingSource> {
+    getSourceContext(name: string, from: Source): Promise<Source> {
         return this.exists(name, from).then((exists) => {
             if (!exists) {
-                throw new TwingErrorLoader(`Template "${name}" is not defined.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined.`, null, from);
             }
 
-            return new TwingSource(this.templates.get(name), name);
+            return new Source(this.templates.get(name), name);
         });
     }
 
-    exists(name: string, from: TwingSource): Promise<boolean> {
+    exists(name: string, from: Source): Promise<boolean> {
         return Promise.resolve(this.templates.has(name));
     }
 
-    getCacheKey(name: string, from: TwingSource): Promise<string> {
+    getCacheKey(name: string, from: Source): Promise<string> {
         return this.exists(name, from).then((exists) => {
             if (!exists) {
-                throw new TwingErrorLoader(`Template "${name}" is not defined.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined.`, null, from);
             }
 
             return name + ':' + this.templates.get(name);
         });
     }
 
-    isFresh(name: string, time: number, from: TwingSource): Promise<boolean> {
+    isFresh(name: string, time: number, from: Source): Promise<boolean> {
         return this.exists(name, from).then((exists) => {
             if (!exists) {
-                throw new TwingErrorLoader(`Template "${name}" is not defined.`, -1, from);
+                throw new LoaderError(`Template "${name}" is not defined.`, null, from);
             }
 
             return true;
         });
     }
 
-    resolve(name: string, from: TwingSource): Promise<string> {
+    resolve(name: string, from: Source): Promise<string> {
         return Promise.resolve(name);
     }
 }

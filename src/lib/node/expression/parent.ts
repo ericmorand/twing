@@ -1,14 +1,11 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
 
-export const type = new TwingNodeType('expression_parent');
-
-export type TwingNodeExpressionParentAttributes = {
+export type ParentExpressionNodeAttributes = {
     name: string
 };
 
-export class TwingNodeExpressionParent extends TwingNodeExpression<TwingNodeExpressionParentAttributes> {
+export class ParentExpressionNode extends ExpressionNode<ParentExpressionNodeAttributes> {
     // constructor(name: string, lineno: number) {
     //     let attributes = new Map();
     //
@@ -18,15 +15,11 @@ export class TwingNodeExpressionParent extends TwingNodeExpression<TwingNodeExpr
     //     super(new Map(), attributes, lineno);
     // }
 
-    get type() {
-        return type;
-    }
-
     compile(compiler: Compiler) {
         let name = this.attributes.name;
 
         compiler
-            .raw(`await this.traceableRenderParentBlock(${this.line}, this.source)(`)
+            .raw(`await this.traceableRenderParentBlock(${this.location}, this.source)(`)
             .string(name)
             .raw(', context, outputBuffer, blocks)')
         ;

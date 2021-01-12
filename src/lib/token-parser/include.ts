@@ -1,21 +1,21 @@
-import {TwingTokenParser} from "../token-parser";
-import {TwingNodeInclude} from "../node/include";
-import {TwingNodeExpression} from "../node/expression";
+import {TokenParser} from "../token-parser";
+import {IncludeNode} from "../node/include";
+import {ExpressionNode} from "../node/expression";
 import {Token, TokenType} from "twig-lexer";
 
-export class TwingTokenParserInclude extends TwingTokenParser {
+export class IncludeTokenParser extends TokenParser {
     parse(token: Token) {
         let expr = this.parser.parseExpression();
 
         let parsedArguments = this.parseArguments();
 
-        return new TwingNodeInclude({
+        return new IncludeNode({
             ignoreMissing: parsedArguments.ignoreMissing,
             only: parsedArguments.only
         }, {
             template: expr,
             variables: parsedArguments.variables
-        }, token.line, token.column, this.getTag());
+        }, token, this.getTag());
     }
 
     getTag() {
@@ -24,9 +24,9 @@ export class TwingTokenParserInclude extends TwingTokenParser {
 
     /**
      *
-     * @returns {{variables: TwingNodeExpression, only: boolean, ignoreMissing: boolean}}
+     * @returns {{variables: ExpressionNode, only: boolean, ignoreMissing: boolean}}
      */
-    protected parseArguments(): { variables: TwingNodeExpression; only: boolean; ignoreMissing: boolean } {
+    protected parseArguments(): { variables: ExpressionNode<any>; only: boolean; ignoreMissing: boolean } {
         let stream = this.parser.getStream();
 
         let ignoreMissing = false;

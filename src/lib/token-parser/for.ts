@@ -9,72 +9,86 @@
  * </ul>
  * </pre>
  */
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {Node} from "../node";
 import {SyntaxError} from "../error/syntax";
-import {TwingTokenStream} from "../token-stream";
-import {TwingNodeExpressionAssignName} from "../node/expression/assign-name";
-import {TwingNodeFor, type as forType} from "../node/for";
+import {TokenStream} from "../token-stream";
+import {AssignNameExpressionNode} from "../node/expression/assign-name";
+import {ForNode} from "../node/for";
 import {Token, TokenType} from "twig-lexer";
-import {type as nameType} from "../node/expression/name";
-import {type as getAttrType} from "../node/expression/get-attribute";
-import {type as constantType} from "../node/expression/constant";
+import {GetAttributeExpressionNode} from "../node/expression/get-attribute";
+import {NameExpressionNode} from "../node/expression/name";
+import {ConstantExpressionNode} from "../node/expression/constant";
 
-export class TwingTokenParserFor extends TwingTokenParser {
+export class ForTokenParser extends TokenParser {
     parse(token: Token) {
         let line = token.line;
         let column = token.column;
         let stream = this.parser.getStream();
-        let targets = this.parser.parseAssignmentExpression();
+        let targets = [...this.parser.parseAssignmentExpression()].map(([, target]) => target);
 
         stream.expect(TokenType.OPERATOR, 'in');
 
-        let seq = this.parser.parseExpression();
+        let sequence = this.parser.parseExpression();
 
-        let ifExpr = null;
+        let condition = null;
 
         if (stream.nextIf(TokenType.NAME, 'if')) {
-            console.warn(`Using an "if" condition on "for" tag in "${stream.getSourceContext().getName()}" at line ${line} is deprecated since Twig 2.10.0, use a "filter" filter or an "if" condition inside the "for" body instead (if your condition depends on a variable updated inside the loop).`);
+            console.warn(`Using an "if" condition on "for" tag in "${stream.source.name}" at line ${line} is deprecated since Twig 2.10.0, use a "filter" filter or an "if" condition inside the "for" body instead (if your condition depends on a variable updated inside the loop).`);
 
-            ifExpr = this.parser.parseExpression();
+            condition = this.parser.parseExpression();
         }
 
         stream.expect(TokenType.TAG_END);
 
         let body = this.parser.subparse([this, this.decideForFork]);
-        let elseToken;
+        let elseNode: Node;
 
         if (stream.next().value == 'else') {
             stream.expect(TokenType.TAG_END);
-            elseToken = this.parser.subparse([this, this.decideForEnd], true);
+            elseNode = this.parser.subparse([this, this.decideForEnd], true);
         } else {
-            elseToken = null;
+            elseNode = null;
         }
 
         stream.expect(TokenType.TAG_END);
 
-        let keyTarget;
-        let valueTarget;
+        let targetKey: AssignNameExpressionNode;
+        let targetValue: AssignNameExpressionNode;
 
-        if ((targets.getNodes().size) > 1) {
-            keyTarget = targets.getNode(0);
-            keyTarget = new TwingNodeExpressionAssignName(keyTarget.getAttribute('name'), keyTarget.getTemplateLine(), keyTarget.getTemplateColumn());
+        if ((targets.length) > 1) {
+            targetKey = new AssignNameExpressionNode({
+                value: targets[0].attributes.value
+            }, null, targets[0].location);
 
-            valueTarget = targets.getNode(1);
-            valueTarget = new TwingNodeExpressionAssignName(valueTarget.getAttribute('name'), valueTarget.getTemplateLine(), valueTarget.getTemplateColumn());
+            targetValue = new AssignNameExpressionNode({
+                value: targets[1].attributes.value
+            }, null, targets[1].location);
         } else {
-            keyTarget = new TwingNodeExpressionAssignName('_key', line, column);
+            targetKey = new AssignNameExpressionNode({
+                value: '_key'
+            }, null, targets[0].location);
 
-            valueTarget = targets.getNode(0);
-            valueTarget = new TwingNodeExpressionAssignName(valueTarget.getAttribute('name'), valueTarget.getTemplateLine(), valueTarget.getTemplateColumn());
+            targetValue = new AssignNameExpressionNode({
+                value: targets[0].attributes.value
+            }, null, targets[0].location);
         }
 
-        if (ifExpr) {
-            this.checkLoopUsageCondition(stream, ifExpr);
+        if (condition) {
+            this.checkLoopUsageCondition(stream, condition);
             this.checkLoopUsageBody(stream, body);
         }
 
-        return new TwingNodeFor(keyTarget, valueTarget, seq, ifExpr, body, elseToken, line, column, this.getTag());
+        return new ForNode({
+            withLoop: true
+        }, {
+            targetKey,
+            targetValue,
+            body,
+            else: elseNode,
+            sequence,
+            condition
+        }, {line, column}, this.getTag());
     }
 
     decideForFork(token: Token) {
@@ -86,16 +100,14 @@ export class TwingTokenParserFor extends TwingTokenParser {
     }
 
     // the loop variable cannot be used in the condition
-    checkLoopUsageCondition(stream: TwingTokenStream, node: Node) {
-        let self = this;
-
-        if ((node.is(getAttrType)) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === 'loop')) {
-            throw new SyntaxError('The "loop" variable cannot be used in a looping condition.', node.getLine(), stream.getSourceContext());
+    checkLoopUsageCondition(stream: TokenStream, node: Node) {
+        if ((node instanceof GetAttributeExpressionNode) && (node.edges.object instanceof NameExpressionNode) && (node.edges.object.attributes.value === 'loop')) {
+            throw new SyntaxError('The "loop" variable cannot be used in a looping condition.', null, node.location, stream.source);
         }
 
-        node.getNodes().forEach(function (n) {
-            self.checkLoopUsageCondition(stream, n);
-        });
+        for (let [, subNode] of node) {
+            this.checkLoopUsageCondition(stream, subNode);
+        }
     }
 
     // check usage of non-defined loop-items
@@ -105,22 +117,22 @@ export class TwingTokenParserFor extends TwingTokenParser {
     }
 
     // it does not catch all problems (for instance when a for is included into another or when the variable is used in an include)
-    private checkLoopUsageBody(stream: TwingTokenStream, node: Node) {
-        if ((node.is(getAttrType)) && (node.getNode('node').is(nameType)) && (node.getNode('node').getAttribute('name') === 'loop')) {
-            let attribute = node.getNode('attribute');
+    private checkLoopUsageBody(stream: TokenStream, node: Node) {
+        if ((node instanceof GetAttributeExpressionNode) && (node.edges.object instanceof NameExpressionNode) && (node.edges.object.attributes.value === 'loop')) {
+            let attribute = node.edges.attribute;
 
-            if ((attribute.is(constantType)) && (['length', 'revindex0', 'revindex', 'last'].indexOf(attribute.getAttribute('value')) > -1)) {
-                throw new SyntaxError(`The "loop.${attribute.getAttribute('value')}" variable is not defined when looping with a condition.`, node.getLine(), stream.getSourceContext());
+            if ((attribute instanceof ConstantExpressionNode) && (['length', 'revindex0', 'revindex', 'last'].includes(attribute.attributes.value))) {
+                throw new SyntaxError(`The "loop.${attribute.attributes.value}" variable is not defined when looping with a condition.`, null, node.location, stream.source);
             }
         }
 
         // should check for parent.loop.XXX usage
-        if (node.is(forType)) {
+        if (node instanceof ForNode) {
             return;
         }
 
-        for (let [k, n] of node.getNodes()) {
-            this.checkLoopUsageBody(stream, n);
+        for (let [, subNode] of node) {
+            this.checkLoopUsageBody(stream, subNode);
         }
     }
 }

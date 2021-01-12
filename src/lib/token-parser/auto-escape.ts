@@ -1,31 +1,34 @@
 /**
  * Marks a section of a template to be escaped or not.
  */
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {Node} from "../node";
 import {SyntaxError} from "../error/syntax";
-import {TwingNodeAutoEscape} from "../node/auto-escape";
+import {AutoEscapeNode} from "../node/auto-escape";
 import {Token, TokenType} from "twig-lexer";
-import {TwingNodeExpressionConstant, type as constantType} from "../node/expression/constant";
+import {ConstantExpressionNode} from "../node/expression/constant";
 
-export class TwingTokenParserAutoEscape extends TwingTokenParser {
+export class AutoEscapeTokenParser extends TokenParser {
     parse(token: Token): Node {
         const {line, column} = token;
         const stream = this.parser.getStream();
 
-        let value: string;
+        let strategy: string;
 
         if (stream.test(TokenType.TAG_END)) {
-            value = 'html';
-        }
-        else {
+            strategy = 'html';
+        } else {
             let expr = this.parser.parseExpression();
 
-            if (!(expr instanceof TwingNodeExpressionConstant)) {
-                throw new SyntaxError('An escaping strategy must be a string or false.', line, stream.getSourceContext());
+            if (!(expr instanceof ConstantExpressionNode)) {
+                throw new SyntaxError('An escaping strategy must be a string or false.', null, {
+                    line,
+                    column
+                }, stream.source);
             }
 
-            value = expr.getAttribute('value');
+            // todo: are we sure value is an attribute of expr?
+            strategy = expr.attributes.value;
         }
 
         stream.expect(TokenType.TAG_END);
@@ -34,7 +37,7 @@ export class TwingTokenParserAutoEscape extends TwingTokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new TwingNodeAutoEscape(value, body, line, column, this.getTag());
+        return new AutoEscapeNode({strategy}, {body}, {line, column}, this.getTag());
     }
 
     decideBlockEnd(token: Token) {

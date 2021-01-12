@@ -1,9 +1,9 @@
 import * as tape from 'tape';
-import {TwingMarkup} from "../../../../../src/lib/markup";
+import {Markup} from "../../../../../src/lib/markup";
 
 tape('TwingMarkup', (test) => {
     test.test('constructor', (test) => {
-        let markup = new TwingMarkup('foo', 'bar');
+        let markup = new Markup('foo', 'bar');
 
         test.same(markup.toString(), 'foo');
 
@@ -11,11 +11,11 @@ tape('TwingMarkup', (test) => {
     });
 
     test.test('count', (test) => {
-        let markup = new TwingMarkup('饿', 'utf-8');
+        let markup = new Markup('饿', 'utf-8');
 
         test.same(markup.count(), 1);
 
-        markup = new TwingMarkup('饿', 'EUC-CN');
+        markup = new Markup('饿', 'EUC-CN');
 
         test.same(markup.count(), 2);
 

@@ -1,12 +1,9 @@
-import {Compiler} from "../../compiler";
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 
-import {TwingNodeExpressionList} from "./list";
+import {ListExpressionNodeEdge, ListExpressionNode} from "./list";
 
-export type TwingNodeExpressionHashElement = [TwingNodeExpression<any>, TwingNodeExpression<any>];
+export type HashExpressionNodeEdge = ListExpressionNodeEdge<ExpressionNode<any>>;
 
-export class TwingNodeExpressionHash extends TwingNodeExpressionList<TwingNodeExpression<any>> {
-    protected compileKey(compiler: Compiler, key: TwingNodeExpression<any>): void {
-        compiler.subcompile(key);
-    }
+export class HashExpressionNode extends ListExpressionNode<ExpressionNode<any>> {
+
 }

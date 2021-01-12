@@ -1,5 +1,5 @@
 import TestBase from "../../../TestBase";
-import {TwingMarkup} from "../../../../../../src/lib/markup";
+import {Markup} from "../../../../../../src/lib/markup";
 import {TwingEnvironmentOptions} from "../../../../../../src/lib/environment-options";
 
 export default class extends TestBase {
@@ -31,7 +31,7 @@ export default class extends TestBase {
 
     getContext() {
         return {
-            markup: new TwingMarkup('Foo', 'utf-8')
+            markup: new Markup('Foo', 'utf-8')
         }
     }
 }

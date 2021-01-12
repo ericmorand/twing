@@ -1,14 +1,17 @@
-import {TwingTokenParser} from "../token-parser";
+import {TokenParser} from "../token-parser";
 import {Token, TokenType} from "twig-lexer";
-import {TwingNodeLine} from "../node/line";
+import {LineNode} from "../node/line";
 
-export class TwingTokenParserLine extends TwingTokenParser {
+export class LineTokenParser extends TokenParser {
     parse(token: Token) {
-        let numberToken = this.parser.getStream().expect(TokenType.NUMBER);
+        const {line, column} = token;
+        const numberToken = this.parser.getStream().expect(TokenType.NUMBER);
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new TwingNodeLine(Number(numberToken.value), token.line, token.column, this.getTag());
+        return new LineNode({
+            quantity: Number(numberToken.value)
+        }, null, {line, column}, this.getTag());
     }
 
     getTag() {

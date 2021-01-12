@@ -1,25 +1,18 @@
-import {TwingNodeExpressionTest} from "../test";
+import {TestExpressionNode} from "../test";
 import {Compiler} from "../../../compiler";
-import {TwingNodeType} from "../../../node-type";
 
-export const type = new TwingNodeType('expression_test_constant');
-
-export class TwingNodeExpressionTestConstant extends TwingNodeExpressionTest {
-    get type() {
-        return type;
-    }
-
+export class ConstantTestExpressionNode extends TestExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('(')
-            .subcompile(this.getNode('node'))
+            .subCompile(this.edges.node)
             .raw(' === this.constant(')
-            .subcompile(this.getNode('arguments').getNode(0));
+            .subCompile(this.edges.arguments.edges[0]);
 
-        if (this.getNode('arguments').hasNode(1)) {
+        if (this.edges.arguments.edges[1]) {
             compiler
                 .raw(', ')
-                .subcompile(this.getNode('arguments').getNode(1));
+                .subCompile(this.edges.arguments.edges[1]);
         }
 
         compiler.raw('))');

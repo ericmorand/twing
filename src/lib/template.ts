@@ -1,18 +1,17 @@
 import {RuntimeError} from "./error/runtime";
-import {TwingSource} from "./source";
+import {Source} from "./source";
 import {Error} from "./error";
 import {TwingEnvironment} from "./environment";
 import {TwingOutputBuffer} from './output-buffer';
 import {iteratorToMap} from "./helpers/iterator-to-map";
 import {merge} from "./helpers/merge";
-import {TwingExtensionInterface} from "./extension-interface";
 import {TwingContext} from "./context";
 import {isMap} from "./helpers/is-map";
-import {TwingMarkup} from "./markup";
-import {TwingSandboxSecurityError} from "./sandbox/security-error";
-import {TwingSandboxSecurityNotAllowedFilterError} from "./sandbox/security-not-allowed-filter-error";
-import {TwingSandboxSecurityNotAllowedFunctionError} from "./sandbox/security-not-allowed-function-error";
-import {TwingSandboxSecurityNotAllowedTagError} from "./sandbox/security-not-allowed-tag-error";
+import {Markup} from "./markup";
+import {SandboxSecurityError} from "./sandbox/security-error";
+import {NotAllowedFilterSandboxSecurityError} from "./sandbox/security-not-allowed-filter-error";
+import {NotAllowedFunctionSandboxSecurityError} from "./sandbox/security-not-allowed-function-error";
+import {NotAllowedTagSandboxSecurityError} from "./sandbox/security-not-allowed-tag-error";
 import {compare} from "./helpers/compare";
 import {count} from "./helpers/count";
 import {isCountable} from "./helpers/is-countable";
@@ -28,6 +27,7 @@ import {constant} from "./helpers/constant";
 import {get} from "./helpers/get";
 import {include} from "./extension/core/functions/include";
 import {isNullOrUndefined} from "util";
+import {Location} from "./node";
 
 type TwingTemplateMacrosMap = Map<string, TwingTemplateMacroHandler>;
 type TwingTemplateAliasesMap = TwingContext<string, TwingTemplate>;
@@ -44,7 +44,7 @@ export type TwingTemplateMacroHandler = (outputBuffer: TwingOutputBuffer, ...arg
  */
 export abstract class TwingTemplate {
     private readonly _environment: TwingEnvironment;
-    private _source: TwingSource;
+    private _source: Source;
 
     protected parent: TwingTemplate | false;
     protected parents: Map<TwingTemplate | string, TwingTemplate>;
@@ -69,9 +69,9 @@ export abstract class TwingTemplate {
     }
 
     /**
-     * @returns {TwingSource}
+     * @returns {Source}
      */
-    get source(): TwingSource {
+    get source(): Source {
         return this._source;
     }
 
@@ -81,7 +81,7 @@ export abstract class TwingTemplate {
      * @returns {string} The template name
      */
     get templateName(): string {
-        return this.source.getName();
+        return this.source.name;
     }
 
     get isTraitable(): boolean {
@@ -104,7 +104,7 @@ export abstract class TwingTemplate {
             .then((parent) => {
                 if (parent === false || parent instanceof TwingTemplate) {
                     if (parent instanceof TwingTemplate) {
-                        this.parents.set(parent.source.getName(), parent);
+                        this.parents.set(parent.source.name, parent);
                     }
 
                     return parent;
@@ -169,9 +169,9 @@ export abstract class TwingTemplate {
                     if (parent) {
                         return parent.displayBlock(name, context, outputBuffer, merge(ownBlocks, blocks), false);
                     } else if (blocks.has(name)) {
-                        throw new RuntimeError(`Block "${name}" should not call parent() in "${blocks.get(name)[0].templateName}" as the block does not exist in the parent template "${this.templateName}".`, -1, blocks.get(name)[0].source);
+                        throw new RuntimeError(`Block "${name}" should not call parent() in "${blocks.get(name)[0].templateName}" as the block does not exist in the parent template "${this.templateName}".`, null, blocks.get(name)[0].source);
                     } else {
-                        throw new RuntimeError(`Block "${name}" on template "${this.templateName}" does not exist.`, -1, this.source);
+                        throw new RuntimeError(`Block "${name}" on template "${this.templateName}" does not exist.`, null, this.source);
                     }
                 });
 
@@ -198,7 +198,7 @@ export abstract class TwingTemplate {
                     if (template !== false) {
                         return template.displayBlock(name, context, outputBuffer, blocks, false);
                     } else {
-                        throw new RuntimeError(`The template has no parent and no traits defining the "${name}" block.`, -1, this.source);
+                        throw new RuntimeError(`The template has no parent and no traits defining the "${name}" block.`, null, this.source);
                     }
                 });
             }
@@ -289,17 +289,16 @@ export abstract class TwingTemplate {
      * @param name The name of the macro
      */
     public getMacro(name: string): Promise<TwingTemplateMacroHandler> {
-       return this.hasMacro(name).then((hasMacro) => {
-           if (hasMacro) {
-               return this.macroHandlers.get(name);
-           }
-           else {
-               return null;
-           }
-       })
+        return this.hasMacro(name).then((hasMacro) => {
+            if (hasMacro) {
+                return this.macroHandlers.get(name);
+            } else {
+                return null;
+            }
+        })
     }
 
-    public loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, line: number = null, index: number = 0): Promise<TwingTemplate> {
+    public loadTemplate(templates: TwingTemplate | Map<number, TwingTemplate> | string, location: Location = null, index: number = 0): Promise<TwingTemplate> {
         let promise: Promise<TwingTemplate>;
 
         if (typeof templates === 'string') {
@@ -311,12 +310,13 @@ export abstract class TwingTemplate {
         }
 
         return promise.catch((e: Error) => {
-            if (e.getLocation() !== -1) {
+            if (e.location !== null) {
                 throw e;
             }
 
-            if (line) {
-                e.setTemplateLine(line);
+            if (location) {
+                // todo: create a new Error with location
+                //e.setTemplateLine(location);
             }
 
             throw e;
@@ -365,11 +365,12 @@ export abstract class TwingTemplate {
     protected displayWithErrorHandling(context: any, outputBuffer: TwingOutputBuffer, blocks: TwingTemplateBlocksMap = new Map()): Promise<void> {
         return this.doDisplay(context, outputBuffer, blocks).catch((e) => {
             if (e instanceof Error) {
-                if (!e.getSourceContext()) {
-                    e.setSourceContext(this.source);
+                if (!e.source) {
+                    // todo: create new error
+                    //e.setSourceContext(this.source);
                 }
             } else {
-                e = new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, -1, this.source, e);
+                e = new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, null, this.source, e);
             }
 
             throw e;
@@ -411,7 +412,7 @@ export abstract class TwingTemplate {
         return Promise.resolve(false);
     }
 
-    protected callMacro(template: TwingTemplate, name: string, outputBuffer: TwingOutputBuffer, args: any[], lineno: number, context: TwingContext<any, any>, source: TwingSource): Promise<string> {
+    protected callMacro(template: TwingTemplate, name: string, outputBuffer: TwingOutputBuffer, args: any[], location: Location, context: TwingContext<any, any>, source: Source): Promise<string> {
         let getHandler = (template: TwingTemplate): Promise<TwingTemplateMacroHandler> => {
             if (template.macroHandlers.has(name)) {
                 return Promise.resolve(template.macroHandlers.get(name));
@@ -430,21 +431,22 @@ export abstract class TwingTemplate {
             if (handler) {
                 return handler(outputBuffer, ...args);
             } else {
-                throw new RuntimeError(`Macro "${name}" is not defined in template "${template.templateName}".`, lineno, source);
+                throw new RuntimeError(`Macro "${name}" is not defined in template "${template.templateName}".`, location, source);
             }
         });
     }
 
-    public traceableMethod<T>(method: Function, lineno: number, source: TwingSource): TwingTemplateTraceableMethod<T> {
+    public traceableMethod<T>(method: Function, location: Location, source: Source): TwingTemplateTraceableMethod<T> {
         return function () {
             return (method.apply(null, arguments) as Promise<T>).catch((e) => {
                 if (e instanceof Error) {
-                    if (e.getLocation() === -1) {
-                        e.setTemplateLine(lineno);
-                        e.setSourceContext(source);
+                    if (!e.location) {
+                        // todo: create new error
+                        // e.setTemplateLine(lineno);
+                        // e.setSourceContext(source);
                     }
                 } else {
-                    throw new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, lineno, source, e);
+                    throw new RuntimeError(`An exception has been thrown during the rendering of a template ("${e.message}").`, location, source, e);
                 }
 
                 throw e;
@@ -452,16 +454,16 @@ export abstract class TwingTemplate {
         }
     }
 
-    public traceableRenderBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<string> {
-        return this.traceableMethod(this.renderBlock.bind(this), lineno, source);
+    public traceableRenderBlock(location: Location, source: Source): TwingTemplateTraceableMethod<string> {
+        return this.traceableMethod(this.renderBlock.bind(this), location, source);
     }
 
-    public traceableRenderParentBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<string> {
-        return this.traceableMethod(this.renderParentBlock.bind(this), lineno, source);
+    public traceableRenderParentBlock(location: Location, source: Source): TwingTemplateTraceableMethod<string> {
+        return this.traceableMethod(this.renderParentBlock.bind(this), location, source);
     }
 
-    public traceableHasBlock(lineno: number, source: TwingSource): TwingTemplateTraceableMethod<boolean> {
-        return this.traceableMethod(this.hasBlock.bind(this), lineno, source);
+    public traceableHasBlock(location: Location, source: Source): TwingTemplateTraceableMethod<boolean> {
+        return this.traceableMethod(this.hasBlock.bind(this), location, source);
     }
 
     protected concatenate(object1: any, object2: any): string {
@@ -521,8 +523,9 @@ export abstract class TwingTemplate {
     protected get include(): (context: any, outputBuffer: TwingOutputBuffer, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any, withContext: boolean, ignoreMissing: boolean, line: number) => Promise<string> {
         return (context, outputBuffer, templates, variables, withContext, ignoreMissing, line) => {
             return include(this, context, outputBuffer, templates, variables, withContext, ignoreMissing).catch((e: Error) => {
-                if (e.getLocation() === -1) {
-                    e.setTemplateLine(line);
+                if (!e.location) {
+                    // todo: create new error
+                    // e.setTemplateLine(line);
                 }
 
                 throw e;
@@ -554,31 +557,31 @@ export abstract class TwingTemplate {
         return TwingContext;
     }
 
-    protected get Markup(): typeof TwingMarkup {
-        return TwingMarkup;
+    protected get Markup(): typeof Markup {
+        return Markup;
     }
 
     protected get RuntimeError(): typeof RuntimeError {
         return RuntimeError;
     }
 
-    protected get SandboxSecurityError(): typeof TwingSandboxSecurityError {
-        return TwingSandboxSecurityError;
+    protected get SandboxSecurityError(): typeof SandboxSecurityError {
+        return SandboxSecurityError;
     }
 
-    protected get SandboxSecurityNotAllowedFilterError(): typeof TwingSandboxSecurityNotAllowedFilterError {
-        return TwingSandboxSecurityNotAllowedFilterError;
+    protected get SandboxSecurityNotAllowedFilterError(): typeof NotAllowedFilterSandboxSecurityError {
+        return NotAllowedFilterSandboxSecurityError;
     }
 
-    protected get SandboxSecurityNotAllowedFunctionError(): typeof TwingSandboxSecurityNotAllowedFunctionError {
-        return TwingSandboxSecurityNotAllowedFunctionError;
+    protected get SandboxSecurityNotAllowedFunctionError(): typeof NotAllowedFunctionSandboxSecurityError {
+        return NotAllowedFunctionSandboxSecurityError;
     }
 
-    protected get SandboxSecurityNotAllowedTagError(): typeof TwingSandboxSecurityNotAllowedTagError {
-        return TwingSandboxSecurityNotAllowedTagError;
+    protected get SandboxSecurityNotAllowedTagError(): typeof NotAllowedTagSandboxSecurityError {
+        return NotAllowedTagSandboxSecurityError;
     }
 
-    protected get Source(): typeof TwingSource {
-        return TwingSource;
+    protected get Source(): typeof Source {
+        return Source;
     }
 }

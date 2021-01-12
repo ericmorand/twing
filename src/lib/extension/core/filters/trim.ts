@@ -25,7 +25,7 @@ export function trim(string: string, characterMask: string = null, side: string 
             case 'right':
                 return rtrim(string, characterMask);
             default:
-                throw new RuntimeError('Trimming side must be "left", "right" or "both".');
+                throw new RuntimeError('Trimming side must be "left", "right" or "both".', null);
         }
     };
 

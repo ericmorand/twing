@@ -1,30 +1,32 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
+import {Node, NodeEdges} from "../../node";
 
-export type TwingNodeExpressionListAttributes<K> = {
-    elements: Array<[K, TwingNodeExpression<any>]>
-};
+export type ListExpressionNodeEdge<K extends Node> = Node<null, {
+    key: K,
+    value: ExpressionNode<any>
+}>;
+
+export type ListExpressionNodeEdges<K extends Node> = NodeEdges<ListExpressionNodeEdge<K>>;
 
 /**
  * An abstract node representing a list of expressions.
  *
  * @typeParam K The type of the keys used as index.
  */
-export abstract class TwingNodeExpressionList<K> extends TwingNodeExpression<TwingNodeExpressionListAttributes<K>, null> {
-    get keyValuePairs(): Array<{ key: K, value: TwingNodeExpression<any> }> {
-        let pairs: Array<{ key: K, value: TwingNodeExpression<any> }> = [];
+export abstract class ListExpressionNode<K extends Node> extends ExpressionNode<{}, ListExpressionNodeEdges<K>> {
+    get keyValuePairs(): Array<{ key: K, value: ExpressionNode<any> }> {
+        let pairs: Array<{ key: K, value: ExpressionNode<any> }> = [];
 
-        for (let element of this.attributes.elements) {
+        for (let [, element] of this) {
             pairs.push({
-                key: element[0],
-                value: element[1]
+                key: element.edges.key,
+                value: element.edges.value
             });
         }
 
         return pairs;
     }
-
-    protected abstract compileKey(compiler: Compiler, key: K): void;
 
     compile(compiler: Compiler) {
         compiler.raw('new Map([');
@@ -38,13 +40,11 @@ export abstract class TwingNodeExpressionList<K> extends TwingNodeExpression<Twi
 
             first = false;
 
-            compiler.raw('[');
-
-            this.compileKey(compiler, pair.key);
-
             compiler
+                .raw('[')
+                .subCompile(pair.key)
                 .raw(', ')
-                .subcompile(pair.value)
+                .subCompile(pair.value)
                 .raw(']')
             ;
         }

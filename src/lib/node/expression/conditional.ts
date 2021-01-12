@@ -1,21 +1,21 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
 
-export type TwingNodeExpressionConditionalNodes = {
-    expr1: TwingNodeExpression<any>,
-    expr2: TwingNodeExpression<any>,
-    expr3: TwingNodeExpression<any>
+export type ConditionalExpressionNodeEdges = {
+    expr1: ExpressionNode<any>,
+    expr2: ExpressionNode<any>,
+    expr3: ExpressionNode<any>
 };
 
-export class TwingNodeExpressionConditional extends TwingNodeExpression<{}, TwingNodeExpressionConditionalNodes> {
+export class ConditionalExpressionNode extends ExpressionNode<{}, ConditionalExpressionNodeEdges> {
     compile(compiler: Compiler) {
         compiler
             .raw('((')
-            .subcompile(this.children.expr1)
+            .subCompile(this.edges.expr1)
             .raw(') ? (')
-            .subcompile(this.children.expr2)
+            .subCompile(this.edges.expr2)
             .raw(') : (')
-            .subcompile(this.children.expr3)
+            .subCompile(this.edges.expr3)
             .raw('))')
         ;
     }

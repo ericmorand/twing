@@ -1,23 +1,15 @@
-import {TwingNodeExpression} from "../expression";
+import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
-import {TwingNodeType} from "../../node-type";
+import type {ExpressionNodeAttributes} from "../expression";
 
-import type {TwingNodeExpressionAttributes} from "../expression";
-
-export const type = new TwingNodeType('expression_temp_name');
-
-export class TwingNodeExpressionTempName extends TwingNodeExpression<null, TwingNodeExpressionAttributes & {
+export class TempNameExpressionNode extends ExpressionNode<ExpressionNodeAttributes<{
     declaration: boolean,
     value: string
-}> {
-    get type() {
-        return type;
-    }
-
+}>, null> {
     compile(compiler: Compiler) {
         compiler
-            .raw(`${this.getAttribute('declaration') ? 'let ' : ''}$_`)
-            .raw(this.getAttribute('value'))
+            .raw(`${this.attributes.declaration ? 'let ' : ''}$_`)
+            .raw(this.attributes.value)
             .raw('_')
         ;
     }
