@@ -1,4 +1,4 @@
-import {TwingLoaderInterface} from "../loader-interface";
+import {LoaderInterface} from "../loader-interface";
 import {LoaderError} from "../error/loader";
 import {Source} from "../source";
 
@@ -7,28 +7,28 @@ import {Source} from "../source";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingLoaderChain implements TwingLoaderInterface {
+export class ChainLoader implements LoaderInterface {
     private hasSourceCache: Map<string, boolean> = new Map();
-    private loaders: Array<TwingLoaderInterface> = [];
+    private loaders: Array<LoaderInterface> = [];
 
     /**
-     * @param {Array<TwingLoaderInterface>} loaders
+     * @param {Array<LoaderInterface>} loaders
      */
-    constructor(loaders: Array<TwingLoaderInterface> = []) {
+    constructor(loaders: Array<LoaderInterface> = []) {
         for (let loader of loaders) {
             this.addLoader(loader);
         }
     }
 
-    addLoader(loader: TwingLoaderInterface) {
+    addLoader(loader: LoaderInterface) {
         this.loaders.push(loader);
         this.hasSourceCache = new Map();
     }
 
     /**
-     * @return TwingLoaderInterface[]
+     * @return LoaderInterface[]
      */
-    getLoaders(): TwingLoaderInterface[] {
+    getLoaders(): LoaderInterface[] {
         return this.loaders;
     }
 

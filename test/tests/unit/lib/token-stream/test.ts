@@ -1,11 +1,11 @@
 import * as tape from 'tape';
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
-import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../src/lib/loader/array";
 import {Source} from "../../../../../src/lib/source";
 
 tape('token-stream', (test) => {
     test.test('should provide textual representation', (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             index: ''
         });
         let twing = new TwingEnvironmentNode(loader);

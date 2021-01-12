@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../../src/lib/node/text";
 import {NameExpressionNode} from "../../../../../../src/lib/node/expression/name";
 import {Node} from "../../../../../../src/lib/node";
 import {MacroNode, type} from "../../../../../../src/lib/node/macro";
@@ -8,7 +8,7 @@ import {MockCompiler} from "../../../../../mock/compiler";
 
 tape('node/macro', (test) => {
     test.test('constructor', (test) => {
-        let body = new TwingNodeText('foo', 1, 1);
+        let body = new TextNode('foo', 1, 1);
 
         let argumentsNode = new Map([
             [0, new NameExpressionNode('foo', 1, 1)]
@@ -28,7 +28,7 @@ tape('node/macro', (test) => {
     });
 
     test.test('compile', (test) => {
-        let body = new TwingNodeText('foo', 1, 1);
+        let body = new TextNode('foo', 1, 1);
 
         let arguments_ = new Node(new Map([
             ['foo', new ConstantExpressionNode(null, 1, 1)],

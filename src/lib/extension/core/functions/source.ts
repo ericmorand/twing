@@ -1,18 +1,18 @@
 import {TwingEnvironment} from "../../../environment";
 import {Source} from "../../../source";
 import {LoaderError} from "../../../error/loader";
-import {TwingTemplate} from "../../../template";
+import {Template} from "../../../template";
 
 /**
  * Returns a template content without rendering it.
  *
- * @param {TwingTemplate} template
+ * @param {Template} template
  * @param {string} name The template name
  * @param {boolean} ignoreMissing Whether to ignore missing templates or not
  *
  * @return {Promise<string>} The template source
  */
-export function source(template: TwingTemplate, name: string, ignoreMissing: boolean = false): Promise<string> {
+export function source(template: Template, name: string, ignoreMissing: boolean = false): Promise<string> {
     let env = template.environment;
     let from = template.source;
 

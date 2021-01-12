@@ -2,10 +2,10 @@ import * as tape from 'tape';
 import * as sinon from "sinon";
 import {resolve, join} from "path";
 
-import {TwingLoaderChain} from "../../../../../../src/lib/loader/chain";
-import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
-import {TwingLoaderFilesystem} from "../../../../../../src/lib/loader/filesystem";
-import {TwingLoaderRelativeFilesystem} from "../../../../../../src/lib/loader/relative-filesystem";
+import {ChainLoader} from "../../../../../../src/lib/loader/chain";
+import {ArrayLoader} from "../../../../../../src/lib/loader/array";
+import {FilesystemLoader} from "../../../../../../src/lib/loader/filesystem";
+import {RelativeFilesystemLoader} from "../../../../../../src/lib/loader/relative-filesystem";
 import {LoaderError} from "../../../../../../src/lib/error/loader";
 import {Error} from "../../../../../../src/lib/error";
 
@@ -14,7 +14,7 @@ let fixturesPath = resolve('test/tests/integration/fixtures');
 tape('loader chain', (test) => {
     test.test('constructor', (test) => {
         test.test('should accept zero parameters', (test) => {
-            let loader = new TwingLoaderChain();
+            let loader = new ChainLoader();
 
             test.ok(loader);
 
@@ -25,10 +25,10 @@ tape('loader chain', (test) => {
     });
 
     test.test('getSourceContext', (test) => {
-        let loader = new TwingLoaderChain([
-            new TwingLoaderArray({'foo': 'bar'}),
-            new TwingLoaderArray({'errors/index.html': 'baz'}),
-            new TwingLoaderFilesystem([fixturesPath]),
+        let loader = new ChainLoader([
+            new ArrayLoader({'foo': 'bar'}),
+            new ArrayLoader({'errors/index.html': 'baz'}),
+            new FilesystemLoader([fixturesPath]),
         ]);
 
         test.test('foo', (test) => {
@@ -56,12 +56,12 @@ tape('loader chain', (test) => {
         });
 
         test.test('constructs error message based on loaders that throw loader errors', (test) => {
-            let loader2 = new TwingLoaderArray({});
+            let loader2 = new ArrayLoader({});
 
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
             sinon.stub(loader2, 'getSourceContext').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader2
             ]);
 
@@ -77,12 +77,12 @@ tape('loader chain', (test) => {
         });
 
         test.test('does not construct error message based on loaders that throw non-loader errors', (test) => {
-            let loader2 = new TwingLoaderArray({});
+            let loader2 = new ArrayLoader({});
 
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
             sinon.stub(loader2, 'getSourceContext').returns(Promise.reject(new Error('foo')));
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader2
             ]);
 
@@ -99,7 +99,7 @@ tape('loader chain', (test) => {
     });
 
     test.test('getSourceContextWhenTemplateDoesNotExist', async (test) => {
-        let loader = new TwingLoaderChain([]);
+        let loader = new ChainLoader([]);
 
         try {
             await loader.getSourceContext('foo', null);
@@ -113,9 +113,9 @@ tape('loader chain', (test) => {
     });
 
     test.test('getCacheKey', async (test) => {
-        let loader = new TwingLoaderChain([
-            new TwingLoaderArray({'foo': 'bar'}),
-            new TwingLoaderArray({'foo': 'foobar', 'bar': 'foo'}),
+        let loader = new ChainLoader([
+            new ArrayLoader({'foo': 'bar'}),
+            new ArrayLoader({'foo': 'foobar', 'bar': 'foo'}),
         ]);
 
         test.equals(await loader.getCacheKey('foo', null), 'foo:bar');
@@ -123,7 +123,7 @@ tape('loader chain', (test) => {
 
         let stub = sinon.stub(loader, 'getCacheKey').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
-        loader = new TwingLoaderChain([
+        loader = new ChainLoader([
             loader
         ]);
 
@@ -137,11 +137,11 @@ tape('loader chain', (test) => {
 
         stub.restore();
 
-        let loader2 = new TwingLoaderArray({'foo': 'bar'});
+        let loader2 = new ArrayLoader({'foo': 'bar'});
 
         stub = sinon.stub(loader2, 'getCacheKey').returns(Promise.reject(new Error('foo')));
 
-        loader = new TwingLoaderChain([
+        loader = new ChainLoader([
             loader2
         ]);
 
@@ -159,7 +159,7 @@ tape('loader chain', (test) => {
     });
 
     test.test('getCacheKeyWhenTemplateDoesNotExist', async (test) => {
-        let loader = new TwingLoaderChain([]);
+        let loader = new ChainLoader([]);
 
         try {
             await loader.getCacheKey('foo', null);
@@ -173,8 +173,8 @@ tape('loader chain', (test) => {
     });
 
     test.test('addLoader', (test) => {
-        let loader = new TwingLoaderChain([]);
-        loader.addLoader(new TwingLoaderArray({'foo': 'bar'}));
+        let loader = new ChainLoader([]);
+        loader.addLoader(new ArrayLoader({'foo': 'bar'}));
 
         loader.getSourceContext('foo', null).then((source) => {
             test.equals(source.getCode(), 'bar');
@@ -185,10 +185,10 @@ tape('loader chain', (test) => {
 
     test.test('getLoaders', (test) => {
         let loaders = [
-            new TwingLoaderArray({'foo': 'bar'})
+            new ArrayLoader({'foo': 'bar'})
         ];
 
-        let loader = new TwingLoaderChain(loaders);
+        let loader = new ChainLoader(loaders);
 
         test.same(loader.getLoaders(), loaders);
 
@@ -196,20 +196,20 @@ tape('loader chain', (test) => {
     });
 
     test.test('exists', (test) => {
-        let loader1 = new TwingLoaderArray({});
+        let loader1 = new ArrayLoader({});
         let loader1ExistsStub = sinon.stub(loader1, 'exists').returns(Promise.resolve(false));
         let loader1GetSourceContextSpy = sinon.spy(loader1, 'getSourceContext');
 
-        let loader2 = new TwingLoaderArray({});
+        let loader2 = new ArrayLoader({});
         let loader2ExistsStub = sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
         let loader2GetSourceContextSpy = sinon.spy(loader2, 'getSourceContext');
 
-        let loader3 = new TwingLoaderArray({});
+        let loader3 = new ArrayLoader({});
         let loader3ExistsStub = sinon.stub(loader3, 'exists').returns(Promise.resolve(true));
         let loader3GetSourceContextSpy = sinon.spy(loader3, 'getSourceContext');
 
         test.test('resolves to true as soon as a loader resolves to true', async (test) => {
-            let loader = new TwingLoaderChain([
+            let loader = new ChainLoader([
                 loader1,
                 loader2,
                 loader3
@@ -231,7 +231,7 @@ tape('loader chain', (test) => {
         });
 
         test.test('resolves to false is all loaders resolve to false', async (test) => {
-            let loader = new TwingLoaderChain([
+            let loader = new ChainLoader([
                 loader1,
                 loader2
             ]);
@@ -248,8 +248,8 @@ tape('loader chain', (test) => {
         });
 
         test.test('hits cache on subsequent calls', async (test) => {
-            let loader = new TwingLoaderChain([
-                new TwingLoaderArray({
+            let loader = new ChainLoader([
+                new ArrayLoader({
                     foo: 'foo'
                 })
             ]);
@@ -271,9 +271,9 @@ tape('loader chain', (test) => {
     });
 
     test.test('isFresh', async (test) => {
-        let loader = new TwingLoaderChain([
-            new TwingLoaderArray({'foo': 'bar'}),
-            new TwingLoaderArray({'foo': 'foobar', 'bar': 'foo'}),
+        let loader = new ChainLoader([
+            new ArrayLoader({'foo': 'bar'}),
+            new ArrayLoader({'foo': 'foobar', 'bar': 'foo'}),
         ]);
 
         test.equals(await loader.isFresh('foo', 0, null), true);
@@ -281,7 +281,7 @@ tape('loader chain', (test) => {
 
         let stub = sinon.stub(loader, 'isFresh').returns(Promise.reject(new LoaderError('foo', 1, null)));
 
-        loader = new TwingLoaderChain([
+        loader = new ChainLoader([
             loader
         ]);
 
@@ -295,11 +295,11 @@ tape('loader chain', (test) => {
 
         stub.restore();
 
-        let loader2 = new TwingLoaderArray({'foo': 'bar'});
+        let loader2 = new ArrayLoader({'foo': 'bar'});
 
         stub = sinon.stub(loader2, 'isFresh').returns(Promise.reject(new Error('foo')));
 
-        loader = new TwingLoaderChain([
+        loader = new ChainLoader([
             loader2
         ]);
 
@@ -317,21 +317,21 @@ tape('loader chain', (test) => {
     });
 
     test.test('resolve', async (test) => {
-        let loader = new TwingLoaderChain([
-            new TwingLoaderArray({'foo': 'bar'}),
-            new TwingLoaderArray({'bar': 'foo'}),
+        let loader = new ChainLoader([
+            new ArrayLoader({'foo': 'bar'}),
+            new ArrayLoader({'bar': 'foo'}),
         ]);
 
         test.equals(await loader.resolve('bar', null), 'bar');
 
         test.test('when some loaders throw an error', async (test) => {
-            let loader1 = new TwingLoaderArray({});
+            let loader1 = new ArrayLoader({});
             sinon.stub(loader1, 'resolve').returns(Promise.reject(new Error('foo')));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
-            let loader2 = new TwingLoaderArray({'bar': 'foo'});
+            let loader2 = new ArrayLoader({'bar': 'foo'});
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader1,
                 loader2
             ]);
@@ -342,10 +342,10 @@ tape('loader chain', (test) => {
         });
 
         test.test('when a filesystem loader throws an error in findTemplate', async (test) => {
-            let loader1 = new TwingLoaderFilesystem('.');
-            let loader2 = new TwingLoaderArray({'bar': 'foo'});
+            let loader1 = new FilesystemLoader('.');
+            let loader2 = new ArrayLoader({'bar': 'foo'});
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader1,
                 loader2
             ]);
@@ -356,9 +356,9 @@ tape('loader chain', (test) => {
         });
 
         test.test('when a relative filesystem loader throws an error in findTemplate', async (test) => {
-            let loader = new TwingLoaderChain([
-                new TwingLoaderRelativeFilesystem(),
-                new TwingLoaderArray({'foo': 'bar'}),
+            let loader = new ChainLoader([
+                new RelativeFilesystemLoader(),
+                new ArrayLoader({'foo': 'bar'}),
             ]);
 
             test.equals(await loader.resolve('foo', null), 'foo');
@@ -367,15 +367,15 @@ tape('loader chain', (test) => {
         });
 
         test.test('when all loaders throw loader-related errors', async (test) => {
-            let loader1 = new TwingLoaderArray({});
+            let loader1 = new ArrayLoader({});
             sinon.stub(loader1, 'resolve').returns(Promise.reject(new LoaderError('foo', 1, null)));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
-            let loader2 = new TwingLoaderArray({});
+            let loader2 = new ArrayLoader({});
             sinon.stub(loader2, 'resolve').returns(Promise.reject(new LoaderError('bar', 1, null)));
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader1,
                 loader2
             ]);
@@ -404,15 +404,15 @@ tape('loader chain', (test) => {
         });
 
         test.test('when all loaders throw non loader-related errors', async (test) => {
-            let loader1 = new TwingLoaderArray({});
+            let loader1 = new ArrayLoader({});
             sinon.stub(loader1, 'resolve').returns(Promise.reject(new Error('foo')));
             sinon.stub(loader1, 'exists').returns(Promise.resolve(true));
 
-            let loader2 = new TwingLoaderArray({});
+            let loader2 = new ArrayLoader({});
             sinon.stub(loader2, 'resolve').returns(Promise.reject(new Error('bar')));
             sinon.stub(loader2, 'exists').returns(Promise.resolve(true));
 
-            loader = new TwingLoaderChain([
+            loader = new ChainLoader([
                 loader1,
                 loader2
             ]);

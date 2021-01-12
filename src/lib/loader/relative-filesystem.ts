@@ -1,7 +1,7 @@
 import {Source} from "../source";
 import {LoaderError} from "../error/loader";
 import {Stats} from "fs";
-import {TwingLoaderInterface} from "../loader-interface";
+import {LoaderInterface} from "../loader-interface";
 import {isAbsolute as isAbsolutePath, join as joinPath, dirname, resolve as resolvePath} from "path";
 import {stat as fsStat, statSync, readFile} from "fs";
 
@@ -10,7 +10,7 @@ import {stat as fsStat, statSync, readFile} from "fs";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingLoaderRelativeFilesystem implements TwingLoaderInterface {
+export class RelativeFilesystemLoader implements LoaderInterface {
     protected cache: Map<string, string> = new Map();
     protected errorCache: Map<string, string> = new Map();
 

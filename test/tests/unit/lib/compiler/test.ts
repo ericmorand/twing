@@ -4,7 +4,7 @@ import {ConstantExpressionNode} from "../../../../../src/lib/node/expression/con
 import {Compiler} from "../../../../../src/lib/compiler";
 import {MockEnvironment} from "../../../../mock/environment";
 import {MockLoader} from "../../../../mock/loader";
-import {TwingNodeBody} from "../../../../../src/lib/node/body";
+import {BodyNode} from "../../../../../src/lib/node/body";
 
 tape('compiler', (test) => {
     test.test('subcompile method', (test) => {
@@ -68,7 +68,7 @@ tape('compiler', (test) => {
             source_map: true
         }));
 
-        class CustomNode extends TwingNodeBody {
+        class CustomNode extends BodyNode {
             constructor(line: number, column: number) {
                 super(new Map(), new Map(), line, column);
             }

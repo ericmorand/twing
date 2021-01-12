@@ -5,10 +5,10 @@ import {TokenParserInterface} from "./token-parser-interface";
 import {TwingNodeVisitorInterface} from "./node-visitor-interface";
 import {SyntaxError} from "./error/syntax";
 import {Location, Node, toNodeEdges} from "./node";
-import {TwingNodeText} from "./node/text";
+import {TextNode} from "./node/text";
 import {PrintNode} from "./node/print";
 import {ExpressionNode} from "./node/expression";
-import {TwingNodeBody} from "./node/body";
+import {BodyNode} from "./node/body";
 import {ModuleNode} from "./node/module";
 import {NodeTraverser} from "./node-traverser";
 import {MacroNode} from "./node/macro";
@@ -32,42 +32,42 @@ import {HashExpressionNode, HashExpressionNodeEdge} from "./node/expression/hash
 import {Test} from "./test";
 import {NotUnaryExpressionNode} from "./node/expression/unary/not";
 import {ConditionalExpressionNode} from "./node/expression/conditional";
-import {TwingOperatorAssociativity} from "./operator";
+import {OperatorAssociativity} from "./operator";
 import {namePattern, Token, TokenType} from "twig-lexer";
 import {typeToEnglish} from "./lexer";
 import {TraitNode} from "./node/trait";
 import {CallableWrapperExpressionFactory, CallableWrapper} from "./callable-wrapper";
 import {SpacelessNode} from "./node/spaceless";
 import {BlockReferenceNode} from "./node/block-reference";
-import {NegUnaryExpressionNode} from "./node/expression/unary/neg";
-import {PosUnaryExpressionNode} from "./node/expression/unary/pos";
+import {NegativeUnaryExpressionNode} from "./node/expression/unary/neg";
+import {PositiveUnaryExpressionNode} from "./node/expression/unary/pos";
 import {title} from "./extension/core/filters/title";
 import {EmbeddedTemplateNode} from "./node/embeddedTemplate";
 import {TemplateNode} from "./node/template";
-import {TwingNodeExpressionBinaryOr} from "./node/expression/binary/or";
+import {OrBinaryExpressionNode} from "./node/expression/binary/or";
 import {AndBinaryExpressionNode} from "./node/expression/binary/and";
 import {BitwiseOrBinaryExpressionNode} from "./node/expression/binary/bitwise-or";
 import {BitwiseXorBinaryExpressionNode} from "./node/expression/binary/bitwise-xor";
 import {BitwiseAndBinaryExpressionNode} from "./node/expression/binary/bitwise-and";
 import {EqualBinaryExpressionNode} from "./node/expression/binary/equal";
-import {TwingNodeExpressionBinaryNotEqual} from "./node/expression/binary/not-equal";
-import {TwingNodeExpressionBinaryLess} from "./node/expression/binary/less";
-import {TwingNodeExpressionBinaryLessEqual} from "./node/expression/binary/less-equal";
+import {NotEqualBinaryExpressionNode} from "./node/expression/binary/not-equal";
+import {LessBinaryExpressionNode} from "./node/expression/binary/less";
+import {LessOrEqualBinaryExpressionNode} from "./node/expression/binary/less-equal";
 import {GreaterBinaryExpressionNode} from "./node/expression/binary/greater";
-import {TwingNodeExpressionBinaryGreaterEqual} from "./node/expression/binary/greater-equal";
-import {TwingNodeExpressionBinaryNotIn} from "./node/expression/binary/not-in";
-import {TwingNodeExpressionBinaryIn} from "./node/expression/binary/in";
-import {TwingNodeExpressionBinaryMatches} from "./node/expression/binary/matches";
-import {TwingNodeExpressionBinaryStartsWith} from "./node/expression/binary/starts-with";
+import {GreaterOrEqualBinaryExpressionNode} from "./node/expression/binary/greater-equal";
+import {NotInBinaryExpressionNode} from "./node/expression/binary/not-in";
+import {InBinaryExpressionNode} from "./node/expression/binary/in";
+import {MatchesBinaryExpressionNode} from "./node/expression/binary/matches";
+import {StartsWithBinaryExpressionNode} from "./node/expression/binary/starts-with";
 import {EndsWithBinaryExpressionNode} from "./node/expression/binary/ends-with";
-import {TwingNodeExpressionBinaryRange} from "./node/expression/binary/range";
+import {RangeBinaryExpressionNode} from "./node/expression/binary/range";
 import {AddBinaryExpressionNode} from "./node/expression/binary/add";
-import {SubBinaryExpressionNode} from "./node/expression/binary/sub";
-import {TwingNodeExpressionBinaryMul} from "./node/expression/binary/mul";
+import {SubtractBinaryExpressionNode} from "./node/expression/binary/sub";
+import {MultiplyBinaryExpressionNode} from "./node/expression/binary/mul";
 import {DivBinaryExpressionNode} from "./node/expression/binary/div";
 import {FloorDivBinaryExpressionNode} from "./node/expression/binary/floor-div";
-import {TwingNodeExpressionBinaryMod} from "./node/expression/binary/mod";
-import {TwingNodeExpressionBinaryPower} from "./node/expression/binary/power";
+import {ModuloBinaryExpressionNode} from "./node/expression/binary/mod";
+import {PowerBinaryExpressionNode} from "./node/expression/binary/power";
 import {NullCoalesceExpressionNode} from "./node/expression/null-coalesce";
 import {UnaryOperator} from "./operator/unary";
 import {BinaryOperator} from "./operator/binary";
@@ -170,10 +170,10 @@ export class TwingParser {
                 return new NotUnaryExpressionNode(null, {operand}, location);
             }),
             new UnaryOperator('-', 500, (operand, location) => {
-                return new NegUnaryExpressionNode(null, {operand}, location);
+                return new NegativeUnaryExpressionNode(null, {operand}, location);
             }),
             new UnaryOperator('+', 500, (operand, location) => {
-                return new PosUnaryExpressionNode(null, {operand}, location);
+                return new PositiveUnaryExpressionNode(null, {operand}, location);
             })
         ]) {
             this._unaryOperators.set(operator.name, operator);
@@ -183,7 +183,7 @@ export class TwingParser {
 
         for (let operator of [
             new BinaryOperator('or', 10, (operands, location) => {
-                return new TwingNodeExpressionBinaryOr({}, {left: operands[0], right: operands[1]}, location);
+                return new OrBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('and', 15, (operands, location) => {
                 return new AndBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
@@ -201,49 +201,49 @@ export class TwingParser {
                 return new EqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('!=', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryNotEqual({}, {left: operands[0], right: operands[1]}, location);
+                return new NotEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('<', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryLess({}, {left: operands[0], right: operands[1]}, location);
+                return new LessBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('<=', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryLessEqual({}, {left: operands[0], right: operands[1]}, location);
+                return new LessOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('>', 20, (operands, location) => {
                 return new GreaterBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('>=', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryGreaterEqual({}, {left: operands[0], right: operands[1]}, location);
+                return new GreaterOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('not in', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryNotIn({}, {left: operands[0], right: operands[1]}, location);
+                return new NotInBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('in', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryIn({}, {left: operands[0], right: operands[1]}, location);
+                return new InBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('matches', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryMatches({}, {left: operands[0], right: operands[1]}, location);
+                return new MatchesBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('starts with', 20, (operands, location) => {
-                return new TwingNodeExpressionBinaryStartsWith({}, {left: operands[0], right: operands[1]}, location);
+                return new StartsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('ends with', 20, (operands, location) => {
                 return new EndsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('..', 25, (operands, location) => {
-                return new TwingNodeExpressionBinaryRange({}, {left: operands[0], right: operands[1]}, location);
+                return new RangeBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('+', 30, (operands, location) => {
                 return new AddBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('-', 30, (operands, location) => {
-                return new SubBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+                return new SubtractBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('~', 40, (operands, location) => {
                 return new ConcatBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('*', 60, (operands, location) => {
-                return new TwingNodeExpressionBinaryMul({}, {left: operands[0], right: operands[1]}, location);
+                return new MultiplyBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('/', 60, (operands, location) => {
                 return new DivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
@@ -252,19 +252,19 @@ export class TwingParser {
                 return new FloorDivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('%', 60, (operands, location) => {
-                return new TwingNodeExpressionBinaryMod({}, {left: operands[0], right: operands[1]}, location);
+                return new ModuloBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
             }),
             new BinaryOperator('is', 100, null),
             new BinaryOperator('is not', 100, null),
             new BinaryOperator('**', 200, (operands, location) => {
-                return new TwingNodeExpressionBinaryPower({}, {
+                return new PowerBinaryExpressionNode({}, {
                     left: operands[0],
                     right: operands[1]
-                }, location, TwingOperatorAssociativity.RIGHT)
+                }, location, OperatorAssociativity.RIGHT)
             }),
             new BinaryOperator('??', 300, (operands, location) => {
                 return new NullCoalesceExpressionNode(operands, location);
-            }, TwingOperatorAssociativity.RIGHT)
+            }, OperatorAssociativity.RIGHT)
         ]) {
             this._binaryOperators.set(operator.name, operator);
         }
@@ -372,7 +372,7 @@ export class TwingParser {
             blocks: new Node<null>(null, toNodeEdges(this.blocks), location),
             macros: new Node<null>(null, toNodeEdges(this.macros), location),
             traits: new Node<null>(null, toNodeEdges(this.traits), location),
-            body: new TwingNodeBody(null, {content: body}, location)
+            body: new BodyNode(null, {content: body}, location)
         }, location);
 
         // restore previous stack so previous parse() call can resume working
@@ -421,7 +421,7 @@ export class TwingParser {
             switch (this.getCurrentToken().type) {
                 case TokenType.TEXT:
                     token = this.stream.next();
-                    nodes.set(`${i++}`, new TwingNodeText({data: token.value}, null, token));
+                    nodes.set(`${i++}`, new TextNode({data: token.value}, null, token));
 
                     break;
                 case TokenType.VARIABLE_START:
@@ -637,8 +637,8 @@ export class TwingParser {
 
     filterBodyNodes(node: Node, nested: boolean = false): Node {
         // check that the body does not contain non-empty output nodes
-        if ((node instanceof TwingNodeText && !ctypeSpace(node.attributes.data)) ||
-            ((node.outputs) && !(node instanceof TwingNodeText) && !(node instanceof BlockReferenceNode) && !(node instanceof SpacelessNode))) {
+        if ((node instanceof TextNode && !ctypeSpace(node.attributes.data)) ||
+            ((node.outputs) && !(node instanceof TextNode) && !(node instanceof BlockReferenceNode) && !(node instanceof SpacelessNode))) {
             if (node.toString().indexOf(String.fromCharCode(0xEF, 0xBB, 0xBF)) > -1) {
                 // todo: can this happen? None of TwingNodeOutputInterfaceImpl has a data attribute...
                 let nodeData: string = node.attributes.data as string;
@@ -874,7 +874,7 @@ export class TwingParser {
             } else if (token.value === 'is') {
                 expr = this.parseTestExpression(expr);
             } else {
-                let expr1 = this.parseExpression(operator.associativity === TwingOperatorAssociativity.LEFT ? operator.precedence + 1 : operator.precedence);
+                let expr1 = this.parseExpression(operator.associativity === OperatorAssociativity.LEFT ? operator.precedence + 1 : operator.precedence);
                 const expressionFactory = operator.expressionFactory;
                 const {line, column} = token;
 
@@ -1511,7 +1511,7 @@ export class TwingParser {
      * Checks that the node only contains "constant" elements
      */
     protected checkConstantExpression(node: Node): boolean {
-        if (!(node instanceof ConstantExpressionNode || node instanceof ArrayExpressionNode || node instanceof NegUnaryExpressionNode || node instanceof PosUnaryExpressionNode)) {
+        if (!(node instanceof ConstantExpressionNode || node instanceof ArrayExpressionNode || node instanceof NegativeUnaryExpressionNode || node instanceof PositiveUnaryExpressionNode)) {
             return false;
         }
 

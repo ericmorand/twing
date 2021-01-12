@@ -1,20 +1,21 @@
 import {Node, NodeEdges} from "../node";
 import {Compiler} from "../compiler";
 import {ConstantExpressionNode} from "./expression/constant";
-
-import type {Source} from "../source";
-import type {TwingNodeBody} from "./body";
-import type {TraitNode} from "./trait";
 import {ImportNode} from "./import";
 import {NameExpressionNode} from "./expression/name";
 import {AssignNameExpressionNode} from "./expression/assign-name";
+
+
+import type {Source} from "../source";
+import type {BodyNode} from "./body";
+import type {TraitNode} from "./trait";
 
 export type TemplateNodeAttributes = {
     source: Source
 };
 
 export type TemplateNodeEdges = {
-    body: TwingNodeBody,
+    body: BodyNode,
     blocks: Node,
     macros: Node,
     traits: Node<{}, NodeEdges<TraitNode>>,
@@ -39,7 +40,7 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
 
     protected compileClassHeader(compiler: Compiler) {
         compiler
-            .write(`class extends TwingTemplate {\n`)
+            .write(`class extends Template {\n`)
             .indent();
     }
 

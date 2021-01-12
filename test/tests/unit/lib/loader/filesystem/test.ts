@@ -1,12 +1,12 @@
 import * as tape from 'tape';
-import {TwingLoaderFilesystem} from "../../../../../../src/lib/loader/filesystem";
+import {FilesystemLoader} from "../../../../../../src/lib/loader/filesystem";
 import {LoaderError} from "../../../../../../src/lib/error/loader";
 import {Source} from "../../../../../../src/lib/source";
 import * as fs from "fs";
 import {stub} from "sinon";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingCacheInterface} from "../../../../../../src/lib/cache-interface";
-import {TwingCacheFilesystem} from "../../../../../../src/lib/cache/filesystem";
+import {CacheInterface} from "../../../../../../src/lib/cache-interface";
+import {FilesystemCache} from "../../../../../../src/lib/cache/filesystem";
 
 const nodePath = require('path');
 const os = require('os');
@@ -66,7 +66,7 @@ let securityTests = [
 
 tape('loader filesystem', (test) => {
     test.test('constructor', (test) => {
-        let loader = new TwingLoaderFilesystem([]);
+        let loader = new FilesystemLoader([]);
 
         test.same(loader.getPaths(), []);
 
@@ -74,7 +74,7 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('getSourceContext', async (test) => {
-        class CustomLoader extends TwingLoaderFilesystem {
+        class CustomLoader extends FilesystemLoader {
             validateName(name: string) {
                 super.validateName(name);
             }
@@ -137,7 +137,7 @@ tape('loader filesystem', (test) => {
     test.test('security', async (test) => {
         for (let securityTest of securityTests) {
             let template = securityTest[0];
-            let loader = new TwingLoaderFilesystem([nodePath.resolve('test/tests/unit/lib/loader/filesystem/fixtures')]);
+            let loader = new FilesystemLoader([nodePath.resolve('test/tests/unit/lib/loader/filesystem/fixtures')]);
 
             try {
                 await loader.getCacheKey(template, null);
@@ -157,7 +157,7 @@ tape('loader filesystem', (test) => {
             let cacheKey = basePathArray[1];
             let rootPath = basePathArray[2];
 
-            let loader = new TwingLoaderFilesystem([nodePath.join(basePath, 'normal'), nodePath.join(basePath, 'normal_bis')], rootPath);
+            let loader = new FilesystemLoader([nodePath.join(basePath, 'normal'), nodePath.join(basePath, 'normal_bis')], rootPath);
             loader.setPaths([nodePath.join(basePath, 'named'), nodePath.join(basePath, 'named_bis')], 'named');
             loader.addPath(nodePath.join(basePath, 'named_ter'), 'named');
             loader.addPath(nodePath.join(basePath, 'normal_ter'));
@@ -187,7 +187,7 @@ tape('loader filesystem', (test) => {
             test.same((await loader.getSourceContext('@named/index.html', null)).getCode(), "named path (final)\n");
         }
 
-        let loader = new TwingLoaderFilesystem();
+        let loader = new FilesystemLoader();
         let filePath = nodePath.resolve(nodePath.join(fixturesPath, 'named', 'index.html'));
         let missingPath = nodePath.resolve(nodePath.join(fixturesPath, 'missing'));
 
@@ -225,7 +225,7 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('empty-constructor', (test) => {
-        let loader = new TwingLoaderFilesystem();
+        let loader = new FilesystemLoader();
 
         test.same(loader.getPaths(), []);
         test.same(loader.getPaths('foo'), []);
@@ -234,13 +234,13 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('get-namespaces', (test) => {
-        let loader = new TwingLoaderFilesystem(os.tmpdir());
+        let loader = new FilesystemLoader(os.tmpdir());
 
-        test.same(loader.getNamespaces(), [TwingLoaderFilesystem.MAIN_NAMESPACE]);
+        test.same(loader.getNamespaces(), [FilesystemLoader.MAIN_NAMESPACE]);
 
         loader.addPath(os.tmpdir(), 'named');
 
-        test.same(loader.getNamespaces(), [TwingLoaderFilesystem.MAIN_NAMESPACE, 'named']);
+        test.same(loader.getNamespaces(), [FilesystemLoader.MAIN_NAMESPACE, 'named']);
 
         test.end();
     });
@@ -248,7 +248,7 @@ tape('loader filesystem', (test) => {
     test.test('find-template-exception-namespace', async (test) => {
         let basePath = fixturesPath;
 
-        let loader = new TwingLoaderFilesystem([nodePath.join(basePath, 'normal')]);
+        let loader = new FilesystemLoader([nodePath.join(basePath, 'normal')]);
         loader.addPath(nodePath.join(basePath, 'named'), 'named');
 
         try {
@@ -264,7 +264,7 @@ tape('loader filesystem', (test) => {
     test.test('find-template-with-cache', async (test) => {
         let basePath = fixturesPath;
 
-        let loader = new TwingLoaderFilesystem([nodePath.join(basePath, 'normal')]);
+        let loader = new FilesystemLoader([nodePath.join(basePath, 'normal')]);
 
         loader.addPath(nodePath.join(basePath, 'named'), 'named');
 
@@ -280,7 +280,7 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('should normalize template name', async (test) => {
-        let loader = new TwingLoaderFilesystem(fixturesPath);
+        let loader = new FilesystemLoader(fixturesPath);
 
         let names = [
             ['named/index.html', 'named/index.html'],
@@ -314,7 +314,7 @@ tape('loader filesystem', (test) => {
 
     test.test('addPath and prependPath should trim trailing slashes', (test) => {
         // ensure that trailing slashes are removed by addPath
-        let loader = new TwingLoaderFilesystem(fixturesPath);
+        let loader = new FilesystemLoader(fixturesPath);
         loader.addPath(nodePath.join(fixturesPath, 'normal/'));
         loader.addPath(nodePath.join(fixturesPath, 'normal//'));
         loader.addPath(nodePath.join(fixturesPath, 'normal\\'));
@@ -329,7 +329,7 @@ tape('loader filesystem', (test) => {
         ]);
 
         // ensure that trailing slashes are removed by prependPath
-        loader = new TwingLoaderFilesystem(fixturesPath);
+        loader = new FilesystemLoader(fixturesPath);
         loader.prependPath(nodePath.join(fixturesPath, 'normal/'));
         loader.prependPath(nodePath.join(fixturesPath, 'normal//'));
         loader.prependPath(nodePath.join(fixturesPath, 'normal\\'));
@@ -349,7 +349,7 @@ tape('loader filesystem', (test) => {
     test.test('addPath and prependPath should reset the caches', (test) => {
         test.test('template cache and error cache should be separate objects', async (test) => {
             // @see https://github.com/ericmorand/twing/issues/300
-            let loader = new TwingLoaderFilesystem(fixturesPath);
+            let loader = new FilesystemLoader(fixturesPath);
 
             loader.prependPath(nodePath.join(fixturesPath, 'normal'));
 
@@ -374,13 +374,13 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('exists', async (test) => {
-        let loader = new TwingLoaderFilesystem(fixturesPath);
+        let loader = new FilesystemLoader(fixturesPath);
 
         test.equals(await loader.exists('foo', null), false);
         test.equals(await loader.exists('@foo/bar', null), false);
         test.equals(await loader.exists('@foo/bar', null), false);
 
-        loader = new TwingLoaderFilesystem([]);
+        loader = new FilesystemLoader([]);
 
         test.equals(await loader.exists("foo\0.twig", null), false);
         test.equals(await loader.exists('@foo', null), false);
@@ -393,7 +393,7 @@ tape('loader filesystem', (test) => {
         test.equals(await loader.exists('@foo/index.html', null), true);
 
         test.test('on cache hit', async (test) => {
-            class CustomLoader extends TwingLoaderFilesystem {
+            class CustomLoader extends FilesystemLoader {
                 findTemplate(name: string, throw_: boolean = true, from: Source = null): Promise<string> {
                     return super.findTemplate(name, throw_, from);
                 }
@@ -415,7 +415,7 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('resolve', async (test) => {
-        let loader = new TwingLoaderFilesystem(fixturesPath);
+        let loader = new FilesystemLoader(fixturesPath);
 
         test.equals(await loader.resolve('named/index.html', null), nodePath.resolve(nodePath.join(fixturesPath, 'named/index.html')));
 
@@ -427,7 +427,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve(fixturesPath, path);
         };
 
-        let CustomLoader = class extends TwingLoaderFilesystem {
+        let CustomLoader = class extends FilesystemLoader {
             findTemplate(name: string, throw_: boolean = true, from: Source = null): Promise<string> {
                 return super.findTemplate(name, throw_, from);
             }
@@ -462,10 +462,10 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('supports relative embed', async (test) => {
-        let loader = new TwingLoaderFilesystem(fixturesPath);
+        let loader = new FilesystemLoader(fixturesPath);
         let env = new TwingEnvironmentNode(loader);
 
-        let spy = sinon.spy(env.getCache(false) as TwingCacheInterface, 'generateKey');
+        let spy = sinon.spy(env.getCache(false) as CacheInterface, 'generateKey');
 
         let output = await env.render('embed/index.html.twig');
 

@@ -3,8 +3,8 @@ import {TokenStream} from "../../../../../../src/lib/token-stream";
 import {AutoEscapeTokenParser} from "../../../../../../src/lib/token-parser/auto-escape";
 import {TwingParser} from "../../../../../../src/lib/parser";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {ArrayLoader} from "../../../../../../src/lib/loader/array";
+import {TextNode} from "../../../../../../src/lib/node/text";
 
 const sinon = require('sinon');
 const {Token, TokenType} = require('twig-lexer');
@@ -17,9 +17,9 @@ tape('token-parser/auto-escape', (test) => {
             ]);
 
             let tokenParser = new AutoEscapeTokenParser();
-            let parser = new TwingParser(new TwingEnvironmentNode(new TwingLoaderArray({})));
+            let parser = new TwingParser(new TwingEnvironmentNode(new ArrayLoader({})));
 
-            sinon.stub(parser, 'parseExpression').returns(new TwingNodeText('foo', 1, 1, null));
+            sinon.stub(parser, 'parseExpression').returns(new TextNode('foo', 1, 1, null));
 
             Reflect.set(parser, 'stream', stream);
 

@@ -10,13 +10,13 @@ import {TwingExtension} from "../../../src/lib/extension";
 import {Filter} from "../../../src/lib/filter";
 import {Function} from "../../../src/lib/function";
 import {Test} from "../../../src/lib/test";
-import {TwingSandboxSecurityPolicy} from "../../../src/lib/sandbox/security-policy";
-import {TwingLoaderArray} from "../../../src/lib/loader/array";
+import {SandboxSecurityPolicy} from "../../../src/lib/sandbox/security-policy";
+import {ArrayLoader} from "../../../src/lib/loader/array";
 import {escape} from "../../../src/lib/extension/core/filters/escape";
 import {TwingEnvironmentOptions} from "../../../src/lib/environment-options";
-import {TwingLoaderInterface} from "../../../src/lib/loader-interface";
-import {TwingTemplate} from "../../../src/lib/template";
-import {TwingOutputBuffer} from "../../../src/lib/output-buffer";
+import {LoaderInterface} from "../../../src/lib/loader-interface";
+import {Template} from "../../../src/lib/template";
+import {OutputBuffer} from "../../../src/lib/output-buffer";
 
 class TwingTestTokenParserSection extends TokenParser {
     parse(token: Token) {
@@ -97,7 +97,7 @@ class TwingTestExtension extends TwingExtension {
 
                 return Promise.resolve(object);
             }, []),
-            new Function('getMacro', function (template: TwingTemplate, outputBuffer: TwingOutputBuffer, name: string) {
+            new Function('getMacro', function (template: Template, outputBuffer: OutputBuffer, name: string) {
                 return template.getMacro(name).then((macroHandler) => {
                     return (...args: Array<any>) => macroHandler(outputBuffer, ...args);
                 });
@@ -136,7 +136,7 @@ class TwingTestExtension extends TwingExtension {
     }
 }
 
-type EnvironmentConstructor = new (l: TwingLoaderInterface, o: TwingEnvironmentOptions) => TwingEnvironment;
+type EnvironmentConstructor = new (l: LoaderInterface, o: TwingEnvironmentOptions) => TwingEnvironment;
 
 export default abstract class {
     private _env: TwingEnvironment;
@@ -206,11 +206,11 @@ export default abstract class {
             let templates = this.getTemplates();
 
             // options
-            let loader = new TwingLoaderArray(templates);
+            let loader = new ArrayLoader(templates);
             let environment = new this._environmentConstructor(loader, Object.assign({}, {
                 cache: false,
                 debug: false,
-                sandbox_policy: new TwingSandboxSecurityPolicy(this.getSandboxSecurityPolicyTags(), this.getSandboxSecurityPolicyFilters(), new Map(), new Map(), this.getSandboxSecurityPolicyFunctions()),
+                sandbox_policy: new SandboxSecurityPolicy(this.getSandboxSecurityPolicyTags(), this.getSandboxSecurityPolicyFilters(), new Map(), new Map(), this.getSandboxSecurityPolicyFunctions()),
                 strict_variables: true
             } as TwingEnvironmentOptions, this.getEnvironmentOptions()));
 
@@ -274,7 +274,7 @@ export default abstract class {
 /**
  * nl2br which also escapes, for testing escaper filters.
  */
-function escape_and_nl2br(template: TwingTemplate, value: string, sep = '<br />') {
+function escape_and_nl2br(template: Template, value: string, sep = '<br />') {
     return escape(template, value, 'html').then((result) => {
         return nl2br(result, sep);
     });

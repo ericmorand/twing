@@ -1,7 +1,7 @@
 import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
 
-export class SubBinaryExpressionNode extends BinaryExpressionNode {
+export class SubtractBinaryExpressionNode extends BinaryExpressionNode {
     operator(compiler: Compiler): Compiler {
         return compiler.raw('-');
     }

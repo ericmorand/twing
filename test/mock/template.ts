@@ -1,11 +1,11 @@
 import {TwingEnvironment} from "../../src/lib/environment";
 import {MockEnvironment} from "./environment";
-import {TwingTemplate} from "../../src/lib/template";
+import {Template} from "../../src/lib/template";
 import {MockLoader} from "./loader";
-import {TwingOutputBuffer} from "../../src/lib/output-buffer";
+import {OutputBuffer} from "../../src/lib/output-buffer";
 import {Source} from "../../src/lib/source";
 
-export class MockTemplate extends TwingTemplate {
+export class MockTemplate extends Template {
     protected _mySource: Source;
 
     constructor(env?: TwingEnvironment, source?: Source) {
@@ -26,7 +26,7 @@ export class MockTemplate extends TwingTemplate {
         return this._mySource;
     }
 
-    doDisplay(context: {}, outputBuffer: TwingOutputBuffer, blocks: Map<string, Array<any>>): Promise<void> {
+    doDisplay(context: {}, outputBuffer: OutputBuffer, blocks: Map<string, Array<any>>): Promise<void> {
         return Promise.resolve();
     }
 }

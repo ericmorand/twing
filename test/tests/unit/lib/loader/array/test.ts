@@ -1,9 +1,9 @@
 import * as tape from 'tape';
-import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../../src/lib/loader/array";
 
 tape('loader array', (test) => {
     test.test('constructor', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             foo: 'bar',
             bar: 'foo'
         });
@@ -11,7 +11,7 @@ tape('loader array', (test) => {
         test.true(await loader.exists('foo', null));
         test.true(await loader.exists('bar', null));
 
-        loader = new TwingLoaderArray(new Map([
+        loader = new ArrayLoader(new Map([
             ['foo', 'bar'],
             ['bar', 'foo']
         ]));
@@ -19,7 +19,7 @@ tape('loader array', (test) => {
         test.true(await loader.exists('foo', null));
         test.true(await loader.exists('bar', null));
 
-        loader = new TwingLoaderArray(1);
+        loader = new ArrayLoader(1);
 
         test.false(await loader.exists('foo', null));
         test.false(await loader.exists('bar', null));
@@ -28,7 +28,7 @@ tape('loader array', (test) => {
     });
 
     test.test('getSourceContextWhenTemplateDoesNotExist', async (test) => {
-        let loader = new TwingLoaderArray({});
+        let loader = new ArrayLoader({});
 
         try {
             await loader.getSourceContext('foo', null);
@@ -43,7 +43,7 @@ tape('loader array', (test) => {
     });
 
     test.test('getCacheKey', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             foo: 'bar'
         });
 
@@ -53,7 +53,7 @@ tape('loader array', (test) => {
     });
 
     test.test('getCacheKeyWhenTemplateHasDuplicateContent', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             foo: 'bar',
             baz: 'bar'
         });
@@ -65,7 +65,7 @@ tape('loader array', (test) => {
     });
 
     test.test('getCacheKeyIsProtectedFromEdgeCollisions', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             foo__: 'bar',
             foo: '__bar'
         });
@@ -77,7 +77,7 @@ tape('loader array', (test) => {
     });
 
     test.test('getCacheKeyWhenTemplateDoesNotExist', async (test) => {
-        let loader = new TwingLoaderArray({});
+        let loader = new ArrayLoader({});
 
         try {
             await loader.getCacheKey('foo', null);
@@ -92,7 +92,7 @@ tape('loader array', (test) => {
     });
 
     test.test('setTemplate', async (test) => {
-        let loader = new TwingLoaderArray({});
+        let loader = new ArrayLoader({});
 
         loader.setTemplate('foo', 'bar');
 
@@ -102,7 +102,7 @@ tape('loader array', (test) => {
     });
 
     test.test('isFresh', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             foo: 'bar'
         });
 
@@ -112,7 +112,7 @@ tape('loader array', (test) => {
     });
 
     test.test('isFreshWhenTemplateDoesNotExist', async (test) => {
-        let loader = new TwingLoaderArray({});
+        let loader = new ArrayLoader({});
 
         try {
             await loader.isFresh('foo', new Date().getTime(), null);

@@ -6,14 +6,14 @@
 import {Location, Node} from "../node";
 import {SyntaxError} from "../error/syntax";
 import {Compiler} from "../compiler";
-import {TwingNodeBody} from "./body";
+import {BodyNode} from "./body";
 
 export type MacroNodeAttributes = {
     name: string
 };
 
 export type MacroNodeEdges = {
-    body: TwingNodeBody,
+    body: BodyNode,
     arguments: Node
 };
 

@@ -1,22 +1,22 @@
 import {iteratorToMap} from "../../../helpers/iterator-to-map";
 import {merge} from "../../../helpers/merge";
 import {LoaderError} from "../../../error/loader";
-import {TwingTemplate} from "../../../template";
+import {Template} from "../../../template";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {RuntimeError} from "../../../error/runtime";
 import {isNullOrUndefined} from "util";
 import {isPlainObject} from "../../../helpers/is-plain-object";
-import {TwingOutputBuffer} from "../../../output-buffer";
+import {OutputBuffer} from "../../../output-buffer";
 import {TwingContext} from "../../../context";
 
 /**
  * Renders a template.
  *
- * @param {TwingTemplate} template
+ * @param {Template} template
  * @param {TwingContext<any, any>} context
  * @param {TwingSource} from
- * @param {TwingOutputBuffer} outputBuffer
- * @param {string | Map<number, string | TwingTemplate>} templates The template to render or an array of templates to try consecutively
+ * @param {OutputBuffer} outputBuffer
+ * @param {string | Map<number, string | Template>} templates The template to render or an array of templates to try consecutively
  * @param {any} variables The variables to pass to the template
  * @param {boolean} withContext
  * @param {boolean} ignoreMissing Whether to ignore missing templates or not
@@ -24,7 +24,7 @@ import {TwingContext} from "../../../context";
  *
  * @returns {Promise<string>} The rendered template
  */
-export function include(template: TwingTemplate, context: TwingContext<any, any>, outputBuffer: TwingOutputBuffer, templates: string | Map<number, string | TwingTemplate> | TwingTemplate, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): Promise<string> {
+export function include(template: Template, context: TwingContext<any, any>, outputBuffer: OutputBuffer, templates: string | Map<number, string | Template> | Template, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): Promise<string> {
     let env = template.environment;
     let from = template.source;
     let alreadySandboxed = env.isSandboxed();
@@ -45,7 +45,7 @@ export function include(template: TwingTemplate, context: TwingContext<any, any>
         }
     }
 
-    if (typeof templates === 'string' || templates instanceof TwingTemplate) {
+    if (typeof templates === 'string' || templates instanceof Template) {
         templates = new Map([[0, templates]]);
     }
 
@@ -55,7 +55,7 @@ export function include(template: TwingTemplate, context: TwingContext<any, any>
         }
     };
 
-    let resolveTemplate = (templates: Map<number, string | TwingTemplate>): Promise<TwingTemplate> => {
+    let resolveTemplate = (templates: Map<number, string | Template>): Promise<Template> => {
         return env.resolveTemplate([...templates.values()], from).catch((e) => {
             restoreSandbox();
 

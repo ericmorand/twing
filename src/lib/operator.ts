@@ -1,7 +1,7 @@
 import {Location} from "./node";
 import {ExpressionNode} from "./node/expression";
 
-export enum TwingOperatorAssociativity {
+export enum OperatorAssociativity {
     LEFT = 'LEFT',
     RIGHT = 'RIGHT'
 }
@@ -12,15 +12,15 @@ export abstract class Operator<O> {
     private readonly _name:string;
     private readonly _precedence: number;
     private readonly _expressionFactory: OperatorExpressionFactory<O>;
-    private readonly _associativity: TwingOperatorAssociativity;
+    private readonly _associativity: OperatorAssociativity;
 
     /**
      * @param {string} name
      * @param {number} precedence
      * @param {OperatorExpressionFactory} expressionFactory
-     * @param {TwingOperatorAssociativity} associativity
+     * @param {OperatorAssociativity} associativity
      */
-    constructor(name: string, precedence: number, expressionFactory: OperatorExpressionFactory<O>, associativity?: TwingOperatorAssociativity) {
+    constructor(name: string, precedence: number, expressionFactory: OperatorExpressionFactory<O>, associativity?: OperatorAssociativity) {
         this._name = name;
         this._precedence = precedence;
         this._expressionFactory = expressionFactory;
@@ -36,7 +36,7 @@ export abstract class Operator<O> {
         return this._precedence;
     }
 
-    get associativity(): TwingOperatorAssociativity {
+    get associativity(): OperatorAssociativity {
         return this._associativity;
     }
 

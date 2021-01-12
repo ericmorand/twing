@@ -1,7 +1,7 @@
 import {Source} from "../../src/lib/source";
-import {TwingLoaderNull} from "../../src/lib/loader/null";
+import {NullLoader} from "../../src/lib/loader/null";
 
-export class MockLoader extends TwingLoaderNull {
+export class MockLoader extends NullLoader {
     getSourceContext(name: string) {
         return Promise.resolve(new Source('', ''));
     }

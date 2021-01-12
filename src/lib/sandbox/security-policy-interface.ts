@@ -5,9 +5,7 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export interface TwingSandboxSecurityPolicyInterface {
-    TwingSandboxSecurityPolicyInterfaceImpl: TwingSandboxSecurityPolicyInterface;
-
+export interface SandboxSecurityPolicyInterface {
     checkSecurity(tags: string[], filters: string[], functions: string[]): void;
 
     /**

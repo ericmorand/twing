@@ -2,7 +2,7 @@
 
 import {Source} from "./source";
 
-export interface TwingLoaderInterface {
+export interface LoaderInterface {
     /**
      * Returns the source context for a given template logical name.
      *

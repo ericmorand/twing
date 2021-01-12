@@ -1,4 +1,4 @@
-import {TwingLoaderInterface} from "../loader-interface";
+import {LoaderInterface} from "../loader-interface";
 import {Source} from "../source";
 import {LoaderError} from "../error/loader";
 import {Stats, stat, statSync, readFile} from "fs";
@@ -17,7 +17,7 @@ const rtrim = require('locutus/php/strings/rtrim');
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingLoaderFilesystem implements TwingLoaderInterface {
+export class FilesystemLoader implements LoaderInterface {
     /** Identifier of the main namespace. */
     static MAIN_NAMESPACE = '__main__';
 
@@ -45,7 +45,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      *
      * @returns Array<string> The array of paths where to look for templates
      */
-    getPaths(namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE): Array<string> {
+    getPaths(namespace: string = FilesystemLoader.MAIN_NAMESPACE): Array<string> {
         return this.paths.has(namespace) ? this.paths.get(namespace) : [];
     }
 
@@ -66,7 +66,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      * @param {string|Array<string>} paths A path or an array of paths where to look for templates
      * @param {string} namespace A path namespace
      */
-    setPaths(paths: string | Array<string>, namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
+    setPaths(paths: string | Array<string>, namespace: string = FilesystemLoader.MAIN_NAMESPACE) {
         if (!Array.isArray(paths)) {
             paths = [paths as string];
         }
@@ -86,7 +86,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      *
      * @throws LoaderError
      */
-    addPath(path: string, namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
+    addPath(path: string, namespace: string = FilesystemLoader.MAIN_NAMESPACE) {
         // invalidate the cache
         this.cache = new Map();
         this.errorCache = new Map();
@@ -120,7 +120,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
      *
      * @throws LoaderError
      */
-    prependPath(path: string, namespace: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
+    prependPath(path: string, namespace: string = FilesystemLoader.MAIN_NAMESPACE) {
         // invalidate the cache
         this.cache = new Map();
         this.errorCache = new Map();
@@ -270,7 +270,7 @@ export class TwingLoaderFilesystem implements TwingLoaderInterface {
         return name.replace(/\\/g, '/').replace(/\/{2,}/g, '/')
     }
 
-    protected parseName(name: string, default_: string = TwingLoaderFilesystem.MAIN_NAMESPACE) {
+    protected parseName(name: string, default_: string = FilesystemLoader.MAIN_NAMESPACE) {
         if (name[0] === '@') {
             let pos = name.indexOf('/');
 

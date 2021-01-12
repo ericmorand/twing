@@ -1,4 +1,4 @@
-import {TwingLoaderInterface} from "../loader-interface";
+import {LoaderInterface} from "../loader-interface";
 import {Source} from "../source";
 import {LoaderError} from "../error/loader";
 
@@ -7,7 +7,7 @@ import {LoaderError} from "../error/loader";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingLoaderNull implements TwingLoaderInterface {
+export class NullLoader implements LoaderInterface {
     exists(name: string, from: Source): Promise<boolean> {
         return Promise.resolve(false);
     }

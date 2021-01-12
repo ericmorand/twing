@@ -1,13 +1,13 @@
 import * as tape from 'tape';
-import {TwingTemplate} from "../../../../../../src/lib/template";
+import {Template} from "../../../../../../src/lib/template";
 import {MockEnvironment} from "../../../../../mock/environment";
 import {MockLoader} from "../../../../../mock/loader";
 import {Source} from "../../../../../../src/lib/source";
 import {getAttribute} from "../../../../../../src/lib/helpers/get-attribute";
 import {TwingEnvironment} from "../../../../../../src/lib/environment";
-import {TwingLoaderNull} from "../../../../../../src/lib/loader/null";
+import {NullLoader} from "../../../../../../src/lib/loader/null";
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingOutputBuffer} from "../../../../../../src/lib/output-buffer";
+import {OutputBuffer} from "../../../../../../src/lib/output-buffer";
 
 class Foo {
     oof: string;
@@ -49,12 +49,12 @@ class Foo {
     }
 }
 
-class TwingTestExtensionCoreTemplate extends TwingTemplate {
+class TwingTestExtensionCoreTemplate extends Template {
     constructor(env: TwingEnvironment) {
         super(env);
     }
 
-    doDisplay(context: {}, outputBuffer: TwingOutputBuffer, blocks: Map<string, Array<any>>): Promise<void> {
+    doDisplay(context: {}, outputBuffer: OutputBuffer, blocks: Map<string, Array<any>>): Promise<void> {
         return Promise.resolve();
     }
 
@@ -74,8 +74,8 @@ tape('get-attribute', (test) => {
         let foo = new Foo();
 
         // object property
-        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), TwingTemplate.ANY_CALL, true), true);
-        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), TwingTemplate.ANY_CALL, false, false), 'oof');
+        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), Template.ANY_CALL, true), true);
+        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), Template.ANY_CALL, false, false), 'oof');
 
         test.same(await getAttribute(env, foo, 'foo'), 'foo', 'should resolve methods by their name');
         test.same(await getAttribute(env, foo, 'bar'), 'getBar', 'should resolve get{name} if {name} doesn\'t exist');
@@ -118,7 +118,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, null, 'foo', new Map(), TwingTemplate.ARRAY_CALL);
+            await getAttribute(env, null, 'foo', new Map(), Template.ARRAY_CALL);
 
             test.fail();
         } catch (e) {
@@ -126,7 +126,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, 5, 'foo', new Map(), TwingTemplate.ARRAY_CALL);
+            await getAttribute(env, 5, 'foo', new Map(), Template.ARRAY_CALL);
 
             test.fail();
         } catch (e) {
@@ -134,7 +134,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, null, 'foo', new Map(), TwingTemplate.ANY_CALL);
+            await getAttribute(env, null, 'foo', new Map(), Template.ANY_CALL);
 
             test.fail();
         } catch (e) {
@@ -142,11 +142,11 @@ tape('get-attribute', (test) => {
         }
 
         // METHOD_CALL
-        test.equals(await getAttribute(env, 5, 'foo', new Map(), TwingTemplate.METHOD_CALL, true), false);
-        test.equals(await getAttribute(env, 5, 'foo', new Map(), TwingTemplate.METHOD_CALL, false, true), undefined);
+        test.equals(await getAttribute(env, 5, 'foo', new Map(), Template.METHOD_CALL, true), false);
+        test.equals(await getAttribute(env, 5, 'foo', new Map(), Template.METHOD_CALL, false, true), undefined);
 
         try {
-            await getAttribute(env, null, 'foo', new Map(), TwingTemplate.METHOD_CALL);
+            await getAttribute(env, null, 'foo', new Map(), Template.METHOD_CALL);
 
             test.fail();
         } catch (e) {
@@ -154,7 +154,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, 5, 'foo', new Map(), TwingTemplate.METHOD_CALL);
+            await getAttribute(env, 5, 'foo', new Map(), Template.METHOD_CALL);
 
             test.fail();
         } catch (e) {
@@ -162,7 +162,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, new Map(), 'foo', new Map(), TwingTemplate.METHOD_CALL);
+            await getAttribute(env, new Map(), 'foo', new Map(), Template.METHOD_CALL);
 
             test.fail();
         } catch (e) {
@@ -178,7 +178,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, new Foo(), 'ooof', new Map(), TwingTemplate.ANY_CALL, false, false, false);
+            await getAttribute(env, new Foo(), 'ooof', new Map(), Template.ANY_CALL, false, false, false);
 
             test.fail();
         } catch (e) {
@@ -190,13 +190,13 @@ tape('get-attribute', (test) => {
             strict_variables: false
         });
 
-        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), TwingTemplate.ANY_CALL, false, false), 'oof');
+        test.same(await getAttribute(env, new Foo(), 'oof', new Map(), Template.ANY_CALL, false, false), 'oof');
 
         test.end();
     });
 
     test.test('sandboxed with non-allowed property', async (test) => {
-        let env = new TwingEnvironmentNode(new TwingLoaderNull(), {
+        let env = new TwingEnvironmentNode(new NullLoader(), {
             sandboxed: true
         });
 
@@ -209,7 +209,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, new Obj(), 'foo', new Map(), TwingTemplate.ANY_CALL, false, false, true);
+            await getAttribute(env, new Obj(), 'foo', new Map(), Template.ANY_CALL, false, false, true);
 
             test.fail('should throw a security policy error.');
         } catch (e) {
@@ -220,7 +220,7 @@ tape('get-attribute', (test) => {
     });
 
     test.test('sandboxed with non-allowed method', async (test) => {
-        let env = new TwingEnvironmentNode(new TwingLoaderNull(), {
+        let env = new TwingEnvironmentNode(new NullLoader(), {
             sandboxed: true
         });
 
@@ -231,7 +231,7 @@ tape('get-attribute', (test) => {
         }
 
         try {
-            await getAttribute(env, new Obj(), 'foo', new Map(), TwingTemplate.METHOD_CALL, false, false, true);
+            await getAttribute(env, new Obj(), 'foo', new Map(), Template.METHOD_CALL, false, false, true);
 
             test.fail('should throw a security policy error.');
         } catch (e) {

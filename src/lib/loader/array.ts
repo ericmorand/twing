@@ -1,4 +1,4 @@
-import {TwingLoaderInterface} from "../loader-interface";
+import {LoaderInterface} from "../loader-interface";
 import {Source} from "../source";
 import {LoaderError} from "../error/loader";
 import {iteratorToMap} from "../helpers/iterator-to-map";
@@ -9,7 +9,7 @@ import {iteratorToMap} from "../helpers/iterator-to-map";
  * @author Eric MORAND <eric.morand@gmail.com>
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingLoaderArray implements TwingLoaderInterface {
+export class ArrayLoader implements LoaderInterface {
     private templates: Map<string, string>;
 
     constructor(templates: any) {

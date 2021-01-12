@@ -1,7 +1,7 @@
 import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
 
-export class TwingNodeExpressionBinaryRange extends BinaryExpressionNode {
+export class RangeBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('this.createRange(')

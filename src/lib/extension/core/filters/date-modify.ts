@@ -1,6 +1,6 @@
 import {DateTime, Duration} from "luxon";
 import {date as createDate} from "../functions/date";
-import {TwingTemplate} from "../../../template";
+import {Template} from "../../../template";
 
 /**
  * Returns a new date object modified.
@@ -9,13 +9,13 @@ import {TwingTemplate} from "../../../template";
  *   {{ post.published_at|date_modify("-1day")|date("m/d/Y") }}
  * </pre>
  *
- * @param {TwingTemplate} template
+ * @param {Template} template
  * @param {DateTime|Duration|string} date A date
  * @param {string} modifier A modifier string
  *
  * @returns {Promise<DateTime>} A new date object
  */
-export function dateModify(template: TwingTemplate, date: Date | DateTime | Duration | string, modifier: string): Promise<DateTime> {
+export function dateModify(template: Template, date: Date | DateTime | Duration | string, modifier: string): Promise<DateTime> {
     return createDate(template, date).then((dateTime: DateTime) => {
         let regExp = new RegExp(/(\+|-)([0-9])(.*)/);
         let parts = regExp.exec(modifier);

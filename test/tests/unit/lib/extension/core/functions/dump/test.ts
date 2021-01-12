@@ -1,9 +1,9 @@
 import * as tape from 'tape';
 import {dump} from "../../../../../../../../src/lib/extension/core/functions/dump";
-import {TwingTemplate} from "../../../../../../../../src/lib/template";
+import {Template} from "../../../../../../../../src/lib/template";
 import {TwingEnvironmentNode} from "../../../../../../../../src/lib/environment/node";
-import {TwingLoaderArray} from "../../../../../../../../src/lib/loader/array";
-import {TwingOutputBuffer} from "../../../../../../../../src/lib/output-buffer";
+import {ArrayLoader} from "../../../../../../../../src/lib/loader/array";
+import {OutputBuffer} from "../../../../../../../../src/lib/output-buffer";
 
 tape('dump', async (test) => {
     test.same(await dump({}, null), `NULL
@@ -56,13 +56,13 @@ string(3) "bar"
 }
 `);
 
-    class FooTemplate extends TwingTemplate {
-        protected doDisplay(context: any, outputBuffer: TwingOutputBuffer, blocks: Map<string, [TwingTemplate, string]>): Promise<void> {
+    class FooTemplate extends Template {
+        protected doDisplay(context: any, outputBuffer: OutputBuffer, blocks: Map<string, [Template, string]>): Promise<void> {
             return undefined;
         }
     }
 
-    test.same(await dump({foo: new FooTemplate(new TwingEnvironmentNode(new TwingLoaderArray({})))}), `array(0) {
+    test.same(await dump({foo: new FooTemplate(new TwingEnvironmentNode(new ArrayLoader({})))}), `array(0) {
 }
 `);
 

@@ -1,4 +1,4 @@
-import {TwingCacheInterface} from "../cache-interface";
+import {CacheInterface} from "../cache-interface";
 import {TwingTemplatesModule} from "../environment";
 import {stat, writeFile, rename, unlink} from "fs";
 import {dirname, join, resolve as resolvePath, extname} from "path";
@@ -14,7 +14,7 @@ const hex = require('crypto-js/enc-hex');
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingCacheFilesystem implements TwingCacheInterface {
+export class FilesystemCache implements CacheInterface {
     private directory: string;
 
     /**

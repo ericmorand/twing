@@ -1,7 +1,7 @@
 import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
 
-export class TwingNodeExpressionBinaryMatches extends BinaryExpressionNode {
+export class MatchesBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('this.parseRegExp(')

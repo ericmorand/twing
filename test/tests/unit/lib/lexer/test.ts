@@ -1,14 +1,14 @@
 import * as tape from 'tape';
 import {TwingLexer, typeToEnglish} from "../../../../../src/lib/lexer";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
-import {TwingLoaderNull} from "../../../../../src/lib/loader/null";
+import {NullLoader} from "../../../../../src/lib/loader/null";
 import {TokenType} from "twig-lexer";
-import {Operator, TwingOperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
+import {Operator, OperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
 
 tape('lexer', (test) => {
     test.test('constructor', (test) => {
         test.test('support passing variable_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new TwingLoaderNull()), {
+            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
                 variable_pair: ['<<', '>>']
             });
 
@@ -24,7 +24,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing comment_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new TwingLoaderNull()), {
+            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
                 comment_pair: ['<<', '>>']
             });
 
@@ -40,7 +40,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing interpolation_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new TwingLoaderNull()), {
+            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
                 interpolation_pair: ['#<', '>']
             });
 
@@ -56,7 +56,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing tag_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new TwingLoaderNull()), {
+            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
                 tag_pair: ['<<', '>>']
             });
 
@@ -77,7 +77,7 @@ tape('lexer', (test) => {
                     return new Map([
                         ['foo', new Operator('foo', TwingOperatorType.BINARY, 0, () => {
                             return null;
-                        }, TwingOperatorAssociativity.LEFT)]
+                        }, OperatorAssociativity.LEFT)]
                     ]);
                 }
 
@@ -85,12 +85,12 @@ tape('lexer', (test) => {
                     return new Map([
                         ['bar', new Operator('bar', TwingOperatorType.UNARY, 0, () => {
                             return null;
-                        }, TwingOperatorAssociativity.LEFT)]
+                        }, OperatorAssociativity.LEFT)]
                     ]);
                 }
             }
 
-            let lexer = new TwingLexer(new CustomEnvironment(new TwingLoaderNull(), {}));
+            let lexer = new TwingLexer(new CustomEnvironment(new NullLoader(), {}));
 
             let tokens = lexer.tokenize(`{{a foo b}}{{bar a}}`);
 

@@ -1,9 +1,9 @@
 import * as tape from 'tape';
 import {Error} from "../../../../../src/lib/error";
-import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../src/lib/loader/array";
 import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
 import {RuntimeError} from "../../../../../src/lib/error/runtime";
-import {TwingLoaderFilesystem} from "../../../../../src/lib/loader/filesystem";
+import {FilesystemLoader} from "../../../../../src/lib/loader/filesystem";
 import {Source} from "../../../../../src/lib/source";
 
 const path = require('path');
@@ -31,7 +31,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('twingExceptionGuessWithMissingVarAndArrayLoader', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             'base.html': '{% block content %}{% endblock %}',
             'index.html': `{% extends 'base.html' %}
 {% block content %}
@@ -66,7 +66,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('twingExceptionGuessWithExceptionAndArrayLoader', async (test) => {
-        let loader = new TwingLoaderArray({
+        let loader = new ArrayLoader({
             'base.html': '{% block content %}{% endblock %}',
             'index.html': `{% extends 'base.html' %}
 {% block content %}
@@ -103,7 +103,7 @@ tape('TwingError', (test) => {
     });
 
     test.test('twingExceptionGuessWithMissingVarAndFilesystemLoader', async (test) => {
-        let loader = new TwingLoaderFilesystem(path.resolve('test/tests/integration/fixtures/errors'));
+        let loader = new FilesystemLoader(path.resolve('test/tests/integration/fixtures/errors'));
 
         let twing = new TwingEnvironmentNode(loader, {
             strict_variables: true,
@@ -179,7 +179,7 @@ tape('TwingError', (test) => {
         ];
 
         for (let erroredTemplate of erroredTemplates) {
-            let loader = new TwingLoaderArray(erroredTemplate.templates);
+            let loader = new ArrayLoader(erroredTemplate.templates);
 
             let twing = new TwingEnvironmentNode(loader, {
                 strict_variables: true,

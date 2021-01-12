@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../../src/lib/node/text";
 import {Node} from "../../../../../../src/lib/node";
 import {AutoEscapeNode, type} from "../../../../../../src/lib/node/auto-escape";
 import {MockCompiler} from "../../../../../mock/compiler";
@@ -7,7 +7,7 @@ import {MockCompiler} from "../../../../../mock/compiler";
 tape('node/autoescape', (test) => {
     test.test('constructor', (test) => {
         let bodyNodes = new Map([
-            [0, new TwingNodeText('foo', 1, 1)]
+            [0, new TextNode('foo', 1, 1)]
         ]);
 
         let body = new Node(bodyNodes);
@@ -22,7 +22,7 @@ tape('node/autoescape', (test) => {
 
     test.test('compile', (test) => {
         let bodyNodes = new Map([
-            [0, new TwingNodeText('foo', 1, 1)]
+            [0, new TextNode('foo', 1, 1)]
         ]);
 
         let body = new Node(bodyNodes);

@@ -2,7 +2,7 @@
 
 import {TwingTemplatesModule} from "./environment";
 
-export interface TwingCacheInterface {
+export interface CacheInterface {
     /**
      * Generates a cache key for the given template class name.
      *

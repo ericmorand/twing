@@ -1,8 +1,8 @@
 import * as tape from 'tape';
 import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingLoaderArray} from "../../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../../src/lib/loader/array";
 import {TwingNodeVisitorEscaper} from "../../../../../../src/lib/node-visitor/escaper";
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../../src/lib/node/text";
 import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 import {Node} from "../../../../../../src/lib/node";
 import {Source} from "../../../../../../src/lib/source";
@@ -15,9 +15,9 @@ const sinon = require('sinon');
 tape('node-visitor/escaper', (test) => {
     test.test('doEnterNode', (test) => {
         test.test('with "module" node', function(test) {
-            let env = new TwingEnvironmentNode(new TwingLoaderArray({}));
+            let env = new TwingEnvironmentNode(new ArrayLoader({}));
             let visitor = new TwingNodeVisitorEscaper();
-            let body = new TwingNodeText('foo', 1, 1);
+            let body = new TextNode('foo', 1, 1);
             let parent = new ConstantExpressionNode('layout.twig', 1, 1);
             let blocks = new Node();
             let macros = new Node();
@@ -37,7 +37,7 @@ tape('node-visitor/escaper', (test) => {
 
     test.test('doLeaveNode', (test) => {
         test.test('with safe "print" node', function(test) {
-            let env = new TwingEnvironmentNode(new TwingLoaderArray({}));
+            let env = new TwingEnvironmentNode(new ArrayLoader({}));
             let visitor = new TwingNodeVisitorEscaper();
             let safeAnalysis = new TwingNodeVisitorSafeAnalysis();
             let print = new PrintNode(new ConstantExpressionNode('foo', 1, 1), 1, 1);

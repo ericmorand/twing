@@ -1,17 +1,17 @@
 import * as tape from 'tape';
-import {TwingLoaderArray} from "../../../../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../../../../src/lib/loader/array";
 import {Source} from "../../../../../../../../src/lib/source";
 import {include} from "../../../../../../../../src/lib/extension/core/functions/include";
-import {TwingLoaderRelativeFilesystem} from "../../../../../../../../src/lib/loader/relative-filesystem";
+import {RelativeFilesystemLoader} from "../../../../../../../../src/lib/loader/relative-filesystem";
 import {resolve} from "path";
 import {MockTemplate} from "../../../../../../../mock/template";
 import {TwingContext} from "../../../../../../../../src/lib/context";
 import {MockEnvironment} from "../../../../../../../mock/environment";
-import {TwingOutputBuffer} from "../../../../../../../../src/lib/output-buffer";
+import {OutputBuffer} from "../../../../../../../../src/lib/output-buffer";
 
 tape('include', async (test) => {
     let template = new MockTemplate(
-        new MockEnvironment(new TwingLoaderArray({})),
+        new MockEnvironment(new ArrayLoader({})),
         new Source('', 'index.twig')
     );
 
@@ -33,19 +33,19 @@ tape('include', async (test) => {
     }
 
     template = new MockTemplate(
-        new MockEnvironment(new TwingLoaderArray({foo: 'bar'}))
+        new MockEnvironment(new ArrayLoader({foo: 'bar'}))
     );
     template.environment.enableSandbox();
 
-    test.same(await include(template, new TwingContext(), new TwingOutputBuffer(), 'foo', {}, true, false, true), 'bar');
+    test.same(await include(template, new TwingContext(), new OutputBuffer(), 'foo', {}, true, false, true), 'bar');
 
     test.test('supports relative filesystem loader', async (test) => {
         template = new MockTemplate(
-            new MockEnvironment(new TwingLoaderRelativeFilesystem()),
+            new MockEnvironment(new RelativeFilesystemLoader()),
             new Source('code', resolve('test/tests/unit/lib/extension/core/index.twig'))
         );
 
-        test.same(await include(template, new TwingContext(), new TwingOutputBuffer(), 'templates/foo.twig', {}), 'foo');
+        test.same(await include(template, new TwingContext(), new OutputBuffer(), 'templates/foo.twig', {}), 'foo');
 
         test.end();
     });

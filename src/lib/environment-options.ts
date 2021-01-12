@@ -1,7 +1,7 @@
 /* istanbul ignore next */
 
-import {TwingCacheInterface} from "./cache-interface";
-import {TwingSandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
+import {CacheInterface} from "./cache-interface";
+import {SandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
 import {TwingEscapingStrategyResolver} from "./environment";
 
 /**
@@ -19,11 +19,11 @@ import {TwingEscapingStrategyResolver} from "./environment";
 export type TwingEnvironmentOptions = {
     debug?: boolean;
     charset?: string;
-    cache?: TwingCacheInterface | false | string;
+    cache?: CacheInterface | false | string;
     auto_reload?: boolean;
     strict_variables?: boolean;
     autoescape?: string | false | TwingEscapingStrategyResolver;
     source_map?: boolean;
-    sandbox_policy?: TwingSandboxSecurityPolicyInterface;
+    sandbox_policy?: SandboxSecurityPolicyInterface;
     sandboxed?: boolean
 }

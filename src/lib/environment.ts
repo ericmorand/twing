@@ -8,27 +8,28 @@ import {TwingLexer} from "./lexer";
 import {TwingParser} from "./parser";
 import {TokenStream} from "./token-stream";
 import {Source} from "./source";
-import {TwingLoaderInterface} from "./loader-interface";
+import {LoaderInterface} from "./loader-interface";
 import {LoaderError} from "./error/loader";
 import {Test} from "./test";
 import {Function} from "./function";
 import {SyntaxError} from "./error/syntax";
-import {TwingTemplate} from "./template";
+import {Template} from "./template";
 import {Error} from "./error";
-import {TwingCacheInterface} from "./cache-interface";
+import {CacheInterface} from "./cache-interface";
 import {Compiler} from "./compiler";
 import {ModuleNode} from "./node/module";
-import {TwingCacheNull} from "./cache/null";
+import {NullCache} from "./cache/null";
 import {RuntimeError} from "./error/runtime";
 import {EventEmitter} from 'events';
-import {TwingOutputBuffer} from "./output-buffer";
+import {OutputBuffer} from "./output-buffer";
 import {TwingSourceMapNode} from "./source-map/node";
 import {Operator} from "./operator";
-import {TwingSandboxSecurityPolicy} from "./sandbox/security-policy";
-import {TwingSandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
+import {SandboxSecurityPolicy} from "./sandbox/security-policy";
+import {SandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
 import {TwingEnvironmentOptions} from "./environment-options";
 import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
 import {NativeError} from "./native-error";
+import {NativeFunction} from "./native-function";
 import {UnaryOperator} from "./operator/unary";
 import {BinaryOperator} from "./operator/binary";
 import {Node} from "./node";
@@ -37,8 +38,8 @@ const path = require('path');
 const sha256 = require('crypto-js/sha256');
 const hex = require('crypto-js/enc-hex');
 
-export type TwingTemplateConstructor = new(e: TwingEnvironment) => TwingTemplate;
-export type TwingTemplatesModule = (T: typeof TwingTemplate) => Map<number, TwingTemplateConstructor>;
+export type TwingTemplateConstructor = new(e: TwingEnvironment) => Template;
+export type TwingTemplatesModule = (T: typeof Template) => Map<number, TwingTemplateConstructor>;
 export type TwingEscapingStrategyResolver = (name: string) => string | false;
 
 export const VERSION: string = '__VERSION__';
@@ -48,16 +49,16 @@ export const VERSION: string = '__VERSION__';
  */
 export abstract class TwingEnvironment extends EventEmitter {
     private charset: string;
-    private loader: TwingLoaderInterface = null;
+    private loader: LoaderInterface = null;
     private debug: boolean;
     private autoReload: boolean;
-    private cache: TwingCacheInterface;
+    private cache: CacheInterface;
     private lexer: TwingLexer;
     private parser: TwingParser;
     private globals: Map<any, any> = new Map();
-    private loadedTemplates: Map<string, TwingTemplate> = new Map();
+    private loadedTemplates: Map<string, Template> = new Map();
     private strictVariables: boolean;
-    private originalCache: TwingCacheInterface | string | false;
+    private originalCache: CacheInterface | string | false;
     private extensionSet: TwingExtensionSet = null;
     private optionsHash: string;
     private sourceMapNode: TwingSourceMapNode;
@@ -65,15 +66,15 @@ export abstract class TwingEnvironment extends EventEmitter {
     private autoescape: string | false | TwingEscapingStrategyResolver;
     private coreExtension: TwingExtensionCore;
     private sandboxed: boolean;
-    private sandboxPolicy: TwingSandboxSecurityPolicyInterface;
+    private sandboxPolicy: SandboxSecurityPolicyInterface;
 
     /**
      * Constructor.
      *
-     * @param {TwingLoaderInterface} loader
+     * @param {LoaderInterface} loader
      * @param {TwingEnvironmentOptions} options
      */
-    constructor(loader: TwingLoaderInterface, options: TwingEnvironmentOptions = null) {
+    constructor(loader: LoaderInterface, options: TwingEnvironmentOptions = null) {
         super();
 
         this.setLoader(loader);
@@ -86,7 +87,7 @@ export abstract class TwingEnvironment extends EventEmitter {
             cache: false,
             auto_reload: null,
             source_map: false,
-            sandbox_policy: new TwingSandboxSecurityPolicy([], [], new Map(), new Map(), []),
+            sandbox_policy: new SandboxSecurityPolicy([], [], new Map(), new Map(), []),
             sandboxed: false
         }, options);
 
@@ -193,33 +194,33 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * @param {boolean} original Whether to return the original cache option or the real cache instance
      *
-     * @return {TwingCacheInterface|string|false} A TwingCacheInterface implementation, an absolute path to the compiled templates or false to disable cache
+     * @return {CacheInterface|string|false} A TwingCacheInterface implementation, an absolute path to the compiled templates or false to disable cache
      */
-    getCache(original: boolean = true): TwingCacheInterface | string | false {
+    getCache(original: boolean = true): CacheInterface | string | false {
         return original ? this.originalCache : this.cache;
     }
 
     /**
      * Sets the active cache implementation.
      *
-     * @param {TwingCacheInterface|string|false} cache A TwingCacheInterface implementation, a string or false to disable cache
+     * @param {CacheInterface|string|false} cache A TwingCacheInterface implementation, a string or false to disable cache
      */
-    setCache(cache: TwingCacheInterface | string | false) {
+    setCache(cache: CacheInterface | string | false) {
         if (typeof cache === 'string') {
             this.originalCache = cache;
             this.cache = this.cacheFromString(cache);
         } else if (cache === false) {
             this.originalCache = cache;
-            this.cache = new TwingCacheNull();
+            this.cache = new NullCache();
         } else {
             this.originalCache = this.cache = cache;
         }
     }
 
-    protected abstract cacheFromString(cache: string): TwingCacheInterface;
+    protected abstract cacheFromString(cache: string): CacheInterface;
 
-    protected get templateConstructor(): typeof TwingTemplate {
-        return TwingTemplate;
+    protected get templateConstructor(): typeof Template {
+        return Template;
     }
 
     /**
@@ -284,16 +285,16 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * Loads a template.
      *
-     * @param {string | TwingTemplate} name The template name
+     * @param {string | Template} name The template name
      *
      * @throws {LoaderError}  When the template cannot be found
      * @throws {RuntimeError} When a previously generated cache is corrupted
      * @throws {SyntaxError}  When an error occurred during compilation
      *
-     * @return {Promise<TwingTemplate>}
+     * @return {Promise<Template>}
      */
-    load(name: string | TwingTemplate): Promise<TwingTemplate> {
-        if (name instanceof TwingTemplate) {
+    load(name: string | Template): Promise<Template> {
+        if (name instanceof Template) {
             return Promise.resolve(name);
         }
 
@@ -303,10 +304,10 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * Register a template under an arbitrary name.
      *
-     * @param {TwingTemplate} template The template to register
+     * @param {Template} template The template to register
      * @param {string} name The name of the template
      */
-    protected registerTemplate(template: TwingTemplate, name: string): void {
+    protected registerTemplate(template: Template, name: string): void {
         this.loadedTemplates.set(name, template);
     }
 
@@ -332,13 +333,13 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {number} index The index of the template
      * @param {Source} from The source that initiated the template loading
      *
-     * @return {Promise<TwingTemplate>} A template instance representing the given template name
+     * @return {Promise<Template>} A template instance representing the given template name
      *
      * @throws {LoaderError}  When the template cannot be found
      * @throws {RuntimeError} When a previously generated cache is corrupted
      * @throws {SyntaxError}  When an error occurred during compilation
      */
-    loadTemplate(name: string, index: number = 0, from: Source = null): Promise<TwingTemplate> {
+    loadTemplate(name: string, index: number = 0, from: Source = null): Promise<Template> {
         this.emit('template', name, from);
 
         let cacheKey: string = name + (index !== 0 ? '_' + index : '');
@@ -378,8 +379,8 @@ export abstract class TwingEnvironment extends EventEmitter {
                             }
                         };
 
-                        let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<TwingTemplate> => {
-                            let mainTemplate: TwingTemplate;
+                        let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<Template> => {
+                            let mainTemplate: Template;
 
                             let promises: Array<Promise<void>> = [];
 
@@ -435,12 +436,12 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @param {string} template The template name
      * @param {string} name An optional name for the template to be used in error messages
      *
-     * @return {Promise<TwingTemplate>} A template instance representing the given template name
+     * @return {Promise<Template>} A template instance representing the given template name
      *
      * @throws LoaderError When the template cannot be found
      * @throws SyntaxError When an error occurred during compilation
      */
-    createTemplate(template: string, name: string = null): Promise<TwingTemplate> {
+    createTemplate(template: string, name: string = null): Promise<Template> {
         let hash: string = hex.stringify(sha256(template));
 
         if (name !== null) {
@@ -461,15 +462,15 @@ export abstract class TwingEnvironment extends EventEmitter {
      *
      * Similar to loadTemplate() but it also accepts instances of TwingTemplate and an array of templates where each is tried to be loaded.
      *
-     * @param {string|TwingTemplate|Array<string|TwingTemplate>} names A template or an array of templates to try consecutively
+     * @param {string|Template|Array<string|Template>} names A template or an array of templates to try consecutively
      * @param {Source} from The source of the template that initiated the resolving.
      *
-     * @return {Promise<TwingTemplate>}
+     * @return {Promise<Template>}
      *
      * @throws {LoaderError} When none of the templates can be found
      * @throws {SyntaxError} When an error occurred during compilation
      */
-    resolveTemplate(names: string | TwingTemplate | Array<string | TwingTemplate>, from: Source): Promise<TwingTemplate> {
+    resolveTemplate(names: string | Template | Array<string | Template>, from: Source): Promise<Template> {
         let namesArray: Array<any>;
 
         if (!Array.isArray(names)) {
@@ -480,11 +481,11 @@ export abstract class TwingEnvironment extends EventEmitter {
 
         let error: LoaderError = null;
 
-        let loadTemplateAtIndex = (index: number): Promise<TwingTemplate> => {
+        let loadTemplateAtIndex = (index: number): Promise<Template> => {
             if (index < namesArray.length) {
                 let name = namesArray[index];
 
-                if (name instanceof TwingTemplate) {
+                if (name instanceof Template) {
                     return Promise.resolve(name);
                 } else {
                     return this.loadTemplate(name, 0, from).catch((e) => {
@@ -565,7 +566,7 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * @param {Source} source
      *
-     * @return {Map<number, TwingTemplate> }
+     * @return {Map<number, Template> }
      */
     compileSource(source: Source): string {
         try {
@@ -588,7 +589,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      * @return {TwingTemplatesModule}
      */
     private getTemplatesModule(content: string): TwingTemplatesModule {
-        let resolver = new Function(`let module = {
+        let resolver = new NativeFunction(`let module = {
     exports: undefined
 };
 
@@ -601,14 +602,14 @@ return module.exports;
         return resolver();
     }
 
-    setLoader(loader: TwingLoaderInterface) {
+    setLoader(loader: LoaderInterface) {
         this.loader = loader;
     }
 
     /**
      * Gets the Loader instance.
      *
-     * @return TwingLoaderInterface
+     * @return LoaderInterface
      */
     getLoader() {
         return this.loader;
@@ -916,9 +917,9 @@ return module.exports;
      * @param {number} column 1-based
      * @param {string} nodeTag
      * @param {Source} source
-     * @param {TwingOutputBuffer} outputBuffer
+     * @param {OutputBuffer} outputBuffer
      */
-    enterSourceMapBlock(line: number, column: number, nodeTag: string, source: Source, outputBuffer: TwingOutputBuffer) {
+    enterSourceMapBlock(line: number, column: number, nodeTag: string, source: Source, outputBuffer: OutputBuffer) {
         outputBuffer.start();
 
         let sourceName = source.resolvedName;
@@ -945,9 +946,9 @@ return module.exports;
     }
 
     /**
-     * @param {TwingOutputBuffer} outputBuffer
+     * @param {OutputBuffer} outputBuffer
      */
-    leaveSourceMapBlock(outputBuffer: TwingOutputBuffer) {
+    leaveSourceMapBlock(outputBuffer: OutputBuffer) {
         this.sourceMapNode.content = outputBuffer.getAndFlush() as string;
 
         let parent = this.sourceMapNode.parent;

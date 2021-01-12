@@ -1,4 +1,4 @@
-import {TwingTemplate} from "../template";
+import {Template} from "../template";
 import {isMap} from "./is-map";
 import {RuntimeError} from "../error/runtime";
 import {examineObject} from "./examine-object";
@@ -108,7 +108,7 @@ export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arg
             throw new RuntimeError(message, null);
         }
 
-        if (object instanceof TwingTemplate) {
+        if (object instanceof Template) {
             throw new RuntimeError('Accessing TwingTemplate attributes is forbidden.', null);
         }
 

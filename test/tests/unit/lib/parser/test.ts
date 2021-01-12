@@ -6,9 +6,9 @@ import {Node} from "../../../../../src/lib/node";
 import {TokenStream} from "../../../../../src/lib/token-stream";
 import {TokenParser} from "../../../../../src/lib/token-parser";
 import {Token, TokenType} from "twig-lexer";
-import {TwingNodeText} from "../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../src/lib/node/text";
 import {SetNode} from "../../../../../src/lib/node/set";
-import {TwingLoaderArray} from "../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../src/lib/loader/array";
 import {Source} from "../../../../../src/lib/source";
 import {SyntaxError} from "../../../../../src/lib/error/syntax";
 import {TwingExtension} from "../../../../../src/lib/extension";
@@ -120,7 +120,7 @@ let getFilterBodyNodesData = function () {
 
     return [
         {
-            input: new Node(new Map([[0, new TwingNodeText('   ', 1, 0)]])),
+            input: new Node(new Map([[0, new TextNode('   ', 1, 0)]])),
             expected: new Node(),
         },
         {
@@ -134,7 +134,7 @@ let getFilterBodyNodesData = function () {
                         new Node(),
                         new Node(new Map([[
                             0, new Node(new Map([[
-                                0, new TwingNodeText('foo', 1, 0)
+                                0, new TextNode('foo', 1, 0)
                             ]]))
                         ]])),
                         1, 0
@@ -212,10 +212,10 @@ tape('parser', (test) => {
         let parser = getParser();
 
         let fixtures = [
-            new TwingNodeText('foo', 1, 0),
+            new TextNode('foo', 1, 0),
             new Node(
                 new Map([[0, new Node(
-                    new Map([[0, new TwingNodeText('foo', 1, 0)]])
+                    new Map([[0, new TextNode('foo', 1, 0)]])
                 )]])
             )
         ];
@@ -239,7 +239,7 @@ tape('parser', (test) => {
         let bomData = String.fromCharCode(0xEF, 0xBB, 0xBF);
 
         try {
-            parser.filterBodyNodes(new TwingNodeText(bomData + 'not empty', 1, 0));
+            parser.filterBodyNodes(new TextNode(bomData + 'not empty', 1, 0));
 
             test.fail();
         } catch (e) {
@@ -247,7 +247,7 @@ tape('parser', (test) => {
         }
 
         for (let emptyNode of getFilterBodyNodesWithBOMData()) {
-            test.same(null, parser.filterBodyNodes(new TwingNodeText(bomData + emptyNode, 1, 0)));
+            test.same(null, parser.filterBodyNodes(new TextNode(bomData + emptyNode, 1, 0)));
         }
 
         test.end();
@@ -278,7 +278,7 @@ tape('parser', (test) => {
     });
 
     test.test('testGetVarName', (test) => {
-        let twing = new TwingEnvironmentNode(new TwingLoaderArray(new Map()), {
+        let twing = new TwingEnvironmentNode(new ArrayLoader(new Map()), {
             autoescape: false
         });
 

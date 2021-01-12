@@ -1,7 +1,7 @@
 import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
 
-export class TwingNodeExpressionBinaryNotEqual extends BinaryExpressionNode {
+export class NotEqualBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('!this.compare(')

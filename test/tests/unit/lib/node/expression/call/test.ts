@@ -3,7 +3,7 @@ import {CallExpressionNode, type} from "../../../../../../../src/lib/node/expres
 import {Node} from "../../../../../../../src/lib/node";
 import {Compiler} from "../../../../../../../src/lib/compiler";
 import {TwingEnvironmentNode} from "../../../../../../../src/lib/environment/node";
-import {TwingLoaderArray} from "../../../../../../../src/lib/loader/array";
+import {ArrayLoader} from "../../../../../../../src/lib/loader/array";
 
 class TwingTestsNodeExpressionCall extends CallExpressionNode {
     getArguments(callable: Function, argumentsNode: Node): Node[] {
@@ -275,7 +275,7 @@ tape('node/expression/call', (test) => {
     });
 
     test.test('compile', (test) => {
-        let compiler = new Compiler(new TwingEnvironmentNode(new TwingLoaderArray({})));
+        let compiler = new Compiler(new TwingEnvironmentNode(new ArrayLoader({})));
 
         let node = new Callable(new Map(), new Map([
             ['callable', 'foo']

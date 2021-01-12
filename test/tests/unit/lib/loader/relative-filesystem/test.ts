@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingLoaderRelativeFilesystem} from "../../../../../../src/lib/loader/relative-filesystem";
+import {RelativeFilesystemLoader} from "../../../../../../src/lib/loader/relative-filesystem";
 import {LoaderError} from "../../../../../../src/lib/error/loader";
 import {Source} from "../../../../../../src/lib/source";
 
@@ -36,7 +36,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve('test/tests/integration/fixtures', path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
 
         try {
             await loader.getSourceContext('errors/index.html', null);
@@ -88,7 +88,7 @@ tape('loader filesystem', (test) => {
     test.test('security', async (test) => {
         for (let securityTest of securityTests) {
             let template = securityTest[0];
-            let loader = new TwingLoaderRelativeFilesystem();
+            let loader = new RelativeFilesystemLoader();
 
             try {
                 await loader.getCacheKey(template, null);
@@ -107,7 +107,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve(fixturesPath, path);
         };
 
-        let CustomLoader = class extends TwingLoaderRelativeFilesystem {
+        let CustomLoader = class extends RelativeFilesystemLoader {
             findTemplate(name: string, throw_: boolean, from: Source) {
                 return super.findTemplate(name, throw_, from);
             }
@@ -152,7 +152,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve(fixturesPath, path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
         let namedSource = (await loader.getSourceContext('named/index.html', new Source('', resolvePath('index.html')))).getCode();
 
         test.same(namedSource, "named path\n");
@@ -165,7 +165,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve(fixturesPath, path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
 
         let names = [
             ['named/index.html', 'named/index.html'],
@@ -202,7 +202,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve('test/tests/unit/lib/loader/filesystem/fixtures', path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
         let source = new Source('', resolvePath('index.html'));
 
         test.equals(await loader.exists('normal/index.html', source), true);
@@ -230,7 +230,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve('test/tests/unit/lib/loader/filesystem/fixtures', path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
         let source = new Source('', resolvePath('index.html'));
 
         test.true(await loader.isFresh('normal/index.html', new Date().getTime(), source));
@@ -243,7 +243,7 @@ tape('loader filesystem', (test) => {
             return nodePath.resolve('test/tests/unit/lib/loader/filesystem/fixtures', path);
         };
 
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
         let source = new Source('', resolvePath('index.html'));
 
         test.same(await loader.resolve('normal/index.html', source), resolvePath('normal/index.html'));
@@ -253,7 +253,7 @@ tape('loader filesystem', (test) => {
     });
 
     test.test('getCacheKey', async (test) => {
-        let loader = new TwingLoaderRelativeFilesystem();
+        let loader = new RelativeFilesystemLoader();
         let resolvePath = (path: string) => {
             return nodePath.resolve('test/tests/unit/lib/loader/relative-filesystem/fixtures', path);
         };

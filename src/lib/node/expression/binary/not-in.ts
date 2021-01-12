@@ -1,7 +1,7 @@
 import {Compiler} from "../../../compiler";
 import {BinaryExpressionNode} from "../binary";
 
-export class TwingNodeExpressionBinaryNotIn extends BinaryExpressionNode {
+export class NotInBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('!this.isIn(')

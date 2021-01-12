@@ -8,7 +8,7 @@ import type {Location} from "../node";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingSandboxSecurityNotAllowedPropertyError extends SandboxSecurityError {
+export class NotAllowedPropertySandboxSecurityError extends SandboxSecurityError {
     constructor(message: string, location: Location, source: Source = null) {
         super(message, location, source);
     }

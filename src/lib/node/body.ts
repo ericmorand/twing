@@ -1,6 +1,6 @@
 import {Node} from "../node";
 
-export type TwingNodeBodyNodes = {
+export type BodyNodeEdges = {
     content: Node
 };
 
@@ -10,6 +10,6 @@ export type TwingNodeBodyNodes = {
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 // todo: is it really useful?
-export class TwingNodeBody extends Node<null, TwingNodeBodyNodes> {
+export class BodyNode extends Node<null, BodyNodeEdges> {
 
 }

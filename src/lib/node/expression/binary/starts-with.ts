@@ -1,7 +1,7 @@
 import {BinaryExpressionNode} from "../binary";
 import {Compiler} from "../../../compiler";
 
-export class TwingNodeExpressionBinaryStartsWith extends BinaryExpressionNode {
+export class StartsWithBinaryExpressionNode extends BinaryExpressionNode {
     compile(compiler: Compiler) {
         compiler
             .raw('await (async () => {')

@@ -1,4 +1,4 @@
-import {TwingCacheInterface} from "../cache-interface";
+import {CacheInterface} from "../cache-interface";
 import {TwingTemplatesModule} from "../environment";
 
 /**
@@ -6,7 +6,7 @@ import {TwingTemplatesModule} from "../environment";
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export class TwingCacheNull implements TwingCacheInterface {
+export class NullCache implements CacheInterface {
     generateKey(name: string, className: string): Promise<string> {
         return Promise.resolve('');
     }

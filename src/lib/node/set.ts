@@ -1,7 +1,7 @@
 import {Location, Node} from "../node";
 import {Compiler} from "../compiler";
 import {ConstantExpressionNode} from "./expression/constant";
-import {TwingNodeText} from "./text";
+import {TextNode} from "./text";
 
 export type SetNodeAttributes = {
     capture: boolean,
@@ -25,7 +25,7 @@ export class SetNode extends Node<SetNodeAttributes, SetNodeEdges> {
 
             let values = edges.values;
 
-            if (values instanceof TwingNodeText) {
+            if (values instanceof TextNode) {
                 edges.values = new ConstantExpressionNode({value: values.attributes.data}, null, values.location);
 
                 attributes.capture = false;

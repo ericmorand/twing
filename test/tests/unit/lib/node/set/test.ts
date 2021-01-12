@@ -5,7 +5,7 @@ import {Node} from "../../../../../../src/lib/node";
 import {SetNode, type} from "../../../../../../src/lib/node/set";
 import {MockCompiler} from "../../../../../mock/compiler";
 import {PrintNode} from "../../../../../../src/lib/node/print";
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../../src/lib/node/text";
 
 tape('node/set', (test) => {
     test.test('constructor', (test) => {
@@ -86,7 +86,7 @@ context.proxy[\`foo\`] = (() => {let tmp = outputBuffer.getAndClean(); return tm
             ]);
 
             let namesNode = new Node(namesNodes, new Map(), 1, 1);
-            let valuesNode = new TwingNodeText('foo', 1, 1);
+            let valuesNode = new TextNode('foo', 1, 1);
 
             let node = new SetNode(true, namesNode, valuesNode, 1, 1);
 

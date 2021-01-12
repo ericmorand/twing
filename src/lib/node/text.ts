@@ -1,11 +1,11 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
 
-export type TwingNodeTextAttributes = {
+export type TextNodeAttributes = {
     data: string
 };
 
-export class TwingNodeText extends Node<TwingNodeTextAttributes, null> {
+export class TextNode extends Node<TextNodeAttributes, null> {
     compile(compiler: Compiler) {
         compiler
             .addSourceMapEnter(this)

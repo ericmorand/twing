@@ -1,7 +1,7 @@
-import {TwingCacheNull} from "../../src/lib/cache/null";
+import {NullCache} from "../../src/lib/cache/null";
 import {MockTemplate} from "./template";
 
-export class MockCache extends TwingCacheNull {
+export class MockCache extends NullCache {
     generateKey(name: string, className: string) {
         return Promise.resolve('key');
     }

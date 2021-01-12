@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingSandboxSecurityPolicy} from "../../../../../../src/lib/sandbox/security-policy";
+import {SandboxSecurityPolicy} from "../../../../../../src/lib/sandbox/security-policy";
 
 class Foo {
 
@@ -12,7 +12,7 @@ class Bar {
 tape('sandbox/security-policy', (test) => {
     test.test('checkMethodAllowed', (test) => {
         test.test('when method is allowed', function(test) {
-            let policy = new TwingSandboxSecurityPolicy();
+            let policy = new SandboxSecurityPolicy();
 
             policy.setAllowedMethods(new Map<any, any>([
                 [Foo, 'bar'],
@@ -34,7 +34,7 @@ tape('sandbox/security-policy', (test) => {
         });
 
         test.test('when method is not allowed', function(test) {
-            let policy = new TwingSandboxSecurityPolicy();
+            let policy = new SandboxSecurityPolicy();
 
             policy.setAllowedMethods(new Map([[Foo, 'bar']]));
 
@@ -57,7 +57,7 @@ tape('sandbox/security-policy', (test) => {
     test.test('checkPropertyAllowed', (test) => {
         test.test('when allowed properties is an array', function(test) {
             test.test('and property is allowed', function(test) {
-                let policy = new TwingSandboxSecurityPolicy();
+                let policy = new SandboxSecurityPolicy();
 
                 policy.setAllowedProperties(new Map<any, any>([[Foo, ['bar']]]));
 
@@ -69,7 +69,7 @@ tape('sandbox/security-policy', (test) => {
             });
 
             test.test('and property is not allowed', function(test) {
-                let policy = new TwingSandboxSecurityPolicy();
+                let policy = new SandboxSecurityPolicy();
 
                 policy.setAllowedProperties(new Map<any, any>([[Foo, ['bar']]]));
 
@@ -90,7 +90,7 @@ tape('sandbox/security-policy', (test) => {
 
         test.test('when allowed properties is a string', function(test) {
             test.test('and property is allowed', function(test) {
-                let policy = new TwingSandboxSecurityPolicy();
+                let policy = new SandboxSecurityPolicy();
 
                 policy.setAllowedProperties(new Map([[Foo, 'bar']]));
 
@@ -102,7 +102,7 @@ tape('sandbox/security-policy', (test) => {
             });
 
             test.test('and property is not allowed', (test) => {
-                let policy = new TwingSandboxSecurityPolicy();
+                let policy = new SandboxSecurityPolicy();
 
                 policy.setAllowedProperties(new Map([[Foo, 'bar']]));
 
@@ -125,7 +125,7 @@ tape('sandbox/security-policy', (test) => {
     });
 
     test.test('checkSecurity', (test) => {
-        let policy = new TwingSandboxSecurityPolicy();
+        let policy = new SandboxSecurityPolicy();
 
         test.test('tags', function(test) {
             policy.setAllowedTags(['foo']);

@@ -1,6 +1,6 @@
 import * as tape from 'tape';
 import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
-import {TwingNodeText} from "../../../../../../src/lib/node/text";
+import {TextNode} from "../../../../../../src/lib/node/text";
 import {Node} from "../../../../../../src/lib/node";
 import {ModuleNode, type} from "../../../../../../src/lib/node/module";
 import {Source} from "../../../../../../src/lib/source";
@@ -14,7 +14,7 @@ import {MockEnvironment} from "../../../../../mock/environment";
 
 tape('node/module', (test) => {
     test.test('constructor', (test) => {
-        let body = new TwingNodeText('foo', 1, 1, null);
+        let body = new TextNode('foo', 1, 1, null);
         let parent = new ConstantExpressionNode('layout.twig', 1, 1);
         let blocks = new Node();
         let macros = new Node();
@@ -38,7 +38,7 @@ tape('node/module', (test) => {
         let compiler = new MockCompiler();
 
         test.test('basic', (test) => {
-            let body = new TwingNodeText('foo', 1, 1);
+            let body = new TextNode('foo', 1, 1);
             let parent = null;
             let blocks = new Node();
             let macros = new Node();

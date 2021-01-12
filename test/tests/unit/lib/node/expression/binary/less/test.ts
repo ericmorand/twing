@@ -1,13 +1,13 @@
 import * as tape from 'tape';
 import {ConstantExpressionNode} from "../../../../../../../../src/lib/node/expression/constant";
 import {MockCompiler} from "../../../../../../../mock/compiler";
-import {TwingNodeExpressionBinaryLess, type} from "../../../../../../../../src/lib/node/expression/binary/less";
+import {LessBinaryExpressionNode, type} from "../../../../../../../../src/lib/node/expression/binary/less";
 
 tape('node/expression/binary/less', (test) => {
     test.test('constructor', (test) => {
         let left = new ConstantExpressionNode(1, 1, 1);
         let right = new ConstantExpressionNode(2, 1, 1);
-        let node = new TwingNodeExpressionBinaryLess([left, right], 1, 1);
+        let node = new LessBinaryExpressionNode([left, right], 1, 1);
 
         test.same(node.getNode('left'), left);
         test.same(node.getNode('right'), right);
@@ -19,7 +19,7 @@ tape('node/expression/binary/less', (test) => {
     test.test('compile', (test) => {
         let left = new ConstantExpressionNode(1, 1, 1);
         let right = new ConstantExpressionNode(2, 1, 1);
-        let node = new TwingNodeExpressionBinaryLess([left, right], 1, 1);
+        let node = new LessBinaryExpressionNode([left, right], 1, 1);
         let compiler = new MockCompiler();
 
         test.same(compiler.compile(node).getSource(), '(1 < 2)');

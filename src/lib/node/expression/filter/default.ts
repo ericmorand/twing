@@ -6,7 +6,7 @@ import {ConditionalExpressionNode} from "../conditional";
 import {ExpressionNode} from "../../expression";
 import {Compiler} from "../../../compiler";
 
-export class TwingNodeExpressionFilterDefault extends FilterExpressionNode {
+export class DefaultFilterExpressionNode extends FilterExpressionNode {
     constructor(node: Node, filterName: string, filterArguments: Node, line: number, column: number) {
         // todo: restore
         // let defaultNode = new FilterExpressionNode(node, 'default', filterArguments, node.getLine(), node.getColumn());

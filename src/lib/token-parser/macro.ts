@@ -9,7 +9,7 @@
  */
 import {TokenParser} from "../token-parser";
 import {SyntaxError} from "../error/syntax";
-import {TwingNodeBody} from "../node/body";
+import {BodyNode} from "../node/body";
 
 import {MacroNode} from "../node/macro";
 import {Node, NodeEdges} from "../node";
@@ -41,7 +41,7 @@ export class MacroTokenParser extends TokenParser {
         stream.expect(TokenType.TAG_END);
 
         this.parser.setMacro(name, new MacroNode({name}, {
-            body: new TwingNodeBody(null, {content: body}, token),
+            body: new BodyNode(null, {content: body}, token),
             arguments: macroArguments
         }, token, this.getTag()));
 

@@ -1,9 +1,9 @@
 import * as tape from 'tape';
-import {TwingOutputBuffer} from "../../../../../src/lib/output-buffer";
+import {OutputBuffer} from "../../../../../src/lib/output-buffer";
 
 const sinon = require('sinon');
 
-const outputBuffer = new TwingOutputBuffer();
+const outputBuffer = new OutputBuffer();
 
 let reset = (restart = true) => {
     while (outputBuffer.getLevel()) {

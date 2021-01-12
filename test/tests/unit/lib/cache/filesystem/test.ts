@@ -1,14 +1,14 @@
 import * as tape from 'tape';
 import {Test} from "tape";
 import {stub} from "sinon";
-import {TwingCacheFilesystem} from "../../../../../../src/lib/cache/filesystem";
+import {FilesystemCache} from "../../../../../../src/lib/cache/filesystem";
 import * as fs from "fs";
 import {join, resolve} from "path";
 
 let fixturesPath = resolve('test/tests/unit/lib/cache/filesystem/fixtures');
 
 tape('cache filesystem', (test: Test) => {
-    let cache = new TwingCacheFilesystem(fixturesPath);
+    let cache = new FilesystemCache(fixturesPath);
 
     test.test('load', async (test) => {
         test.same((await cache.load('unknown'))(null), new Map());

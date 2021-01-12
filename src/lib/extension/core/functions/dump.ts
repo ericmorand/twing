@@ -1,4 +1,4 @@
-import {TwingTemplate} from "../../../template";
+import {Template} from "../../../template";
 import {iterate} from "../../../helpers/iterate";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {iteratorToHash} from "../../../helpers/iterator-to-hash";
@@ -100,7 +100,7 @@ export function dump(context: any, ...vars: Array<any>): Promise<string> {
         let vars_: Map<any, any> = new Map();
 
         return iterate(context, (key: any, value: any): Promise<void> => {
-            if (!(value instanceof TwingTemplate)) {
+            if (!(value instanceof Template)) {
                 vars_.set(key, value);
             }
 

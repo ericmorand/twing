@@ -1,6 +1,6 @@
 import {isNullOrUndefined} from "util";
 
-export class TwingOutputHandler {
+export class OutputHandler {
     private content: string;
     private level: number;
 
@@ -26,8 +26,8 @@ export class TwingOutputHandler {
     }
 }
 
-export class TwingOutputBuffer {
-    private readonly _handlers: Array<TwingOutputHandler>;
+export class OutputBuffer {
+    private readonly _handlers: Array<OutputHandler>;
 
     constructor() {
         this._handlers = [];
@@ -50,7 +50,7 @@ export class TwingOutputBuffer {
      * @returns {boolean}
      */
     start() {
-        let handler = new TwingOutputHandler(this.getLevel() + 1, 0);
+        let handler = new OutputHandler(this.getLevel() + 1, 0);
 
         this._handlers.push(handler);
 
@@ -256,7 +256,7 @@ export class TwingOutputBuffer {
         }
     }
 
-    private getActive(): TwingOutputHandler {
+    private getActive(): OutputHandler {
         if (this._handlers.length > 0) {
             return this._handlers[this._handlers.length - 1];
         }

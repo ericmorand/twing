@@ -1,15 +1,13 @@
-import {TwingSandboxSecurityPolicyInterface} from "./security-policy-interface";
+import {SandboxSecurityPolicyInterface} from "./security-policy-interface";
 import {NotAllowedFilterSandboxSecurityError} from "./security-not-allowed-filter-error";
 import {NotAllowedTagSandboxSecurityError} from "./security-not-allowed-tag-error";
 import {NotAllowedFunctionSandboxSecurityError} from "./security-not-allowed-function-error";
-import {TwingSandboxSecurityNotAllowedPropertyError} from "./security-not-allowed-property-error";
+import {NotAllowedPropertySandboxSecurityError} from "./security-not-allowed-property-error";
 import {NotAllowedMethodSandboxSecurityError} from "./security-not-allowed-method-error";
-import {TwingTemplate} from "../template";
+import {Template} from "../template";
 import {Markup} from "../markup";
 
-export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInterface {
-    TwingSandboxSecurityPolicyInterfaceImpl: TwingSandboxSecurityPolicyInterface;
-
+export class SandboxSecurityPolicy implements SandboxSecurityPolicyInterface {
     private allowedTags: Array<string>;
     private allowedFilters: Array<string>;
     private allowedMethods: Map<ObjectConstructor, Array<string>>;
@@ -17,7 +15,6 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
     private allowedFunctions: Array<string>;
 
     constructor(allowedTags: Array<string> = [], allowedFilters: Array<string> = [], allowedMethods: Map<any, string> = new Map(), allowedProperties: Map<any, string> = new Map(), allowedFunctions: Array<string> = []) {
-        this.TwingSandboxSecurityPolicyInterfaceImpl = this;
         this.allowedTags = allowedTags;
         this.allowedFilters = allowedFilters;
         this.setAllowedMethods(allowedMethods);
@@ -73,7 +70,7 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
     }
 
     checkMethodAllowed(obj: any, method: string): void {
-        if (obj instanceof TwingTemplate || obj instanceof Markup) {
+        if (obj instanceof Template || obj instanceof Markup) {
             return;
         }
 
@@ -105,7 +102,7 @@ export class TwingSandboxSecurityPolicy implements TwingSandboxSecurityPolicyInt
         }
 
         if (!allowed) {
-            throw new TwingSandboxSecurityNotAllowedPropertyError(`Calling "${property}" property on a "${obj.constructor.name}" is not allowed.`, null);
+            throw new NotAllowedPropertySandboxSecurityError(`Calling "${property}" property on a "${obj.constructor.name}" is not allowed.`, null);
         }
     }
 }

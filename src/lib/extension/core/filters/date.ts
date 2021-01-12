@@ -2,7 +2,7 @@ import {DateTime, Duration} from "luxon";
 import {formatDuration} from "../../../helpers/format-duration";
 import {formatDateTime} from "../../../helpers/format-date-time";
 import {date as createDate} from "../functions/date";
-import {TwingTemplate} from "../../../template";
+import {Template} from "../../../template";
 
 /**
  * Converts a date to the given format.
@@ -11,14 +11,14 @@ import {TwingTemplate} from "../../../template";
  *   {{ post.published_at|date("m/d/Y") }}
  * </pre>
  *
- * @param {TwingTemplate} template
+ * @param {Template} template
  * @param {DateTime|Duration|string} date A date
  * @param {string|null} format The target format, null to use the default
  * @param {string|null|boolean} timezone The target timezone, null to use the default, false to leave unchanged
  *
  * @return {Promise<string>} The formatted date
  */
-export function date(template: TwingTemplate, date: DateTime | Duration | string, format: string = null, timezone: string | null | false = null): Promise<string> {
+export function date(template: Template, date: DateTime | Duration | string, format: string = null, timezone: string | null | false = null): Promise<string> {
     if (format === null) {
         let coreExtension = template.environment.getCoreExtension();
 
