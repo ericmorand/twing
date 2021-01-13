@@ -6,8 +6,10 @@ import {ConditionalExpressionNode} from "../conditional";
 import {ExpressionNode} from "../../expression";
 import {Compiler} from "../../../compiler";
 
+import type {HashExpressionNode} from "../hash";
+
 export class DefaultFilterExpressionNode extends FilterExpressionNode {
-    constructor(node: Node, filterName: string, filterArguments: Node, line: number, column: number) {
+    constructor(node: Node, filterName: string, filterArguments: HashExpressionNode, line: number, column: number) {
         // todo: restore
         // let defaultNode = new FilterExpressionNode(node, 'default', filterArguments, node.getLine(), node.getColumn());
 

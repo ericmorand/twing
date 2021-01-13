@@ -504,13 +504,12 @@ export class Parser {
         }
 
         // todo: was this even needed to begin with?
-        // // here, nested means "being at the root level of a child template"
-        // // we need to discard the wrapping "TwingNode" for the "body" node
+        // here, nested means "being at the root level of a child template"
+        // we need to discard the wrapping "TwingNode" for the "body" node
         // nested = nested || (node.type !== null);
-        //
         // for (const [k, n] of node) {
         //     if (n !== null && (this.filterBodyNodes(n, nested) === null)) {
-        //         node.removeNode(k);
+        //         delete node.edges[k];
         //     }
         // }
 
@@ -559,13 +558,13 @@ export class Parser {
                     throw new SyntaxError('The "block" function takes one argument (the block name).', null, location, this.getStream().source);
                 }
 
-                const elements = [...blockArguments.edges.elements].map(([, value]) => {
+                const elements = [...blockArguments].map(([, value]) => {
                     return value;
                 });
 
                 return new BlockReferenceExpressionNode({}, {
-                    name: elements[0],
-                    template: elements.length > 1 ? elements[1] : null
+                    name: elements[0].edges.value,
+                    template: elements.length > 1 ? elements[1].edges.value : null
                 }, location);
             }
             case 'attribute': {
@@ -1175,20 +1174,21 @@ export class Parser {
 
     parseFilterExpressionRaw(node: ExpressionNode<any>, tag: string = null): ExpressionNode<any> {
         while (true) {
-            let token = this.getStream().expect(TokenType.NAME);
+            const token = this.getStream().expect(TokenType.NAME);
+            const {line, column} = token;
 
-            let name = new ConstantExpressionNode({value: token.value}, {}, token);
-            let methodArguments;
+            let name = new ConstantExpressionNode<string>({value: token.value}, {}, {line, column});
+            let methodArguments: HashExpressionNode;
 
             if (!this.getStream().test(TokenType.PUNCTUATION, '(')) {
-                methodArguments = new Node<null, null>(null, null, token);
+                methodArguments = new HashExpressionNode(null, null, {line, column});
             } else {
                 methodArguments = this.parseArguments(true, false, true);
             }
 
-            let factory = this.getFilterExpressionFactory('' + name.attributes.value, token);
+            let factory = this.getFilterExpressionFactory(name.attributes.value, {line, column});
 
-            node = factory.call(this, node, name, methodArguments, token.line, tag);
+            node = factory(node, name.attributes.value, methodArguments, {line, column});
 
             if (!this.getStream().test(TokenType.PUNCTUATION, '|')) {
                 break;
@@ -1318,7 +1318,7 @@ export class Parser {
         return new Node(null, toNodeEdges(targets), {line, column});
     }
 
-    parseMultiTargetExpression(): Node<NodeEdges<ExpressionNode<any>>, null> {
+    parseMultiTargetExpression(): Node<null, NodeEdges<ExpressionNode<any>>> {
         const stream = this.getStream();
         const {line, column} = stream.getCurrent();
         const targets: Map<string, ExpressionNode<any>> = new Map();
@@ -1331,7 +1331,7 @@ export class Parser {
             }
         }
 
-        return new Node(toNodeEdges(targets), null, {line, column});
+        return new Node(null, toNodeEdges(targets), {line, column});
     }
 
     /**
@@ -1414,9 +1414,9 @@ export class Parser {
         return this.getExpressionFactory(filter, 'filter', location);
     }
 
-    private getExpressionFactory(callableWrapper: CallableWrapper<any>, type: 'function' | 'filter', location: Location): CallableWrapperExpressionFactory {
+    private getExpressionFactory(callableWrapper: CallableWrapper<any, any>, type: 'function' | 'filter', location: Location): CallableWrapperExpressionFactory {
         if (callableWrapper.isDeprecated) {
-            let message = `Twing ${title(type)} "${callableWrapper.getName()}" is deprecated`;
+            let message = `Twing ${title(type)} "${callableWrapper.name}" is deprecated`;
 
             if (callableWrapper.deprecatedVersion !== true) {
                 message += ` since version ${callableWrapper.deprecatedVersion}`;

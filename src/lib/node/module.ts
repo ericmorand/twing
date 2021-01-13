@@ -17,7 +17,7 @@ export type ModuleNodeEdges = {
 export class ModuleNode extends Node<ModuleNodeAttributes, ModuleNodeEdges> {
     compile(compiler: Compiler) {
         compiler
-            .write('module.exports = (TwingTemplate) => {\n')
+            .write('module.exports = (Template) => {\n')
             .indent()
             .write('return new Map([\n')
             .indent()

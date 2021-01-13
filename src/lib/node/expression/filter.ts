@@ -2,8 +2,8 @@ import {CallExpressionNode} from "./call";
 import {Environment} from "../../environment";
 
 import type {Location} from "../../node";
-import type {CallableWrapper} from "../../callable-wrapper";
 import type {CallExpressionNodeEdges} from "./call";
+import type {Filter} from "../../filter";
 
 export type FilterExpressionNodeAttributes = {
     name: string
@@ -17,7 +17,7 @@ export class FilterExpressionNode extends CallExpressionNode {
         }, edges, location);
     }
 
-    protected getCallableWrapper(environment: Environment, name: string): CallableWrapper<any> {
+    protected getCallableWrapper(environment: Environment, name: string): Filter {
         return environment.getFilter(name);
     }
 }

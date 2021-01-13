@@ -14,6 +14,7 @@ import {TemplateNode} from "../node/template";
 import {BlockNode} from "../node/block";
 import {ImportNode} from "../node/import";
 import {BlockReferenceNode} from "../node/block-reference";
+import {HashExpressionNode} from "../node/expression/hash";
 
 export class EscaperNodeVisitor extends BaseNodeVisitor {
     private statusStack: Array<Node | string | false> = [];
@@ -131,7 +132,6 @@ export class EscaperNodeVisitor extends BaseNodeVisitor {
 
     private preEscapeFilterNode(filter: FilterExpressionNode, env: Environment) {
         let name = filter.attributes.name;
-
         let type = env.getFilter(name).getPreEscape();
 
         if (type === null) {
@@ -181,17 +181,21 @@ export class EscaperNodeVisitor extends BaseNodeVisitor {
     private getEscapedFilter(type: any, node: Node) {
         const location = node.location;
 
-        let nodes: Map<string, ConstantExpressionNode> = new Map();
-
         let name = 'escape';
 
-        nodes.set('strategy', new ConstantExpressionNode({value: type}, null, location));
-        nodes.set('charset', new ConstantExpressionNode({value: null}, null, location));
-
         // todo: useful for what?
-        nodes.set('2', new ConstantExpressionNode({value: true}, null, location));
+        //nodes.set('2', new ConstantExpressionNode({value: true}, null, location));
 
-        let filterArguments = new Node({}, toNodeEdges(nodes), location);
+        let filterArguments = new HashExpressionNode({}, {
+            '0': new Node(null, {
+                key: new ConstantExpressionNode({value: 'strategy'}, null, location),
+                value: new ConstantExpressionNode({value: type}, null, location),
+            }, location),
+            '1': new Node(null, {
+                key: new ConstantExpressionNode({value: 'charset'}, null, location),
+                value: new ConstantExpressionNode({value: null}, null, location),
+            }, location)
+        }, location);
 
         return new FilterExpressionNode({name}, {node, arguments: filterArguments}, location);
     }

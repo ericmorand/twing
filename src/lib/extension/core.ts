@@ -129,6 +129,7 @@ import {FloorDivBinaryExpressionNode} from "../node/expression/binary/floor-div"
 import {ModuloBinaryExpressionNode} from "../node/expression/binary/mod";
 import {PowerBinaryExpressionNode} from "../node/expression/binary/power";
 import {NullCoalesceExpressionNode} from "../node/expression/null-coalesce";
+import {HashExpressionNode} from "../node/expression/hash";
 
 export type Escaper = (env: Environment, string: string, charset: string) => string;
 
@@ -352,7 +353,7 @@ export class CoreExtension extends Extension {
             new Filter('default', defaultFilter, [
                 {name: 'default'}
             ], {
-                expressionFactory: (node: Node, filterName: string, filterArguments: Node, location: Location) => {
+                expressionFactory: (node: Node, filterName: string, filterArguments: HashExpressionNode, location: Location) => {
                     return new DefaultFilterExpressionNode(node, filterName, filterArguments, location.line, location.column);
                 }
             }),
@@ -515,13 +516,13 @@ export class CoreExtension extends Extension {
     getTests(): Array<Test> {
         return [
             new Test('constant', null, [], {
-                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: Node, location: Location) => {
+                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: HashExpressionNode, location: Location) => {
                     return new ConstantTestExpressionNode({name}, {node, arguments: testArguments}, location);
                 }
             }),
             new Test('divisible by', divisibleBy, []),
             new Test('defined', null, [], {
-                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: Node, location: Location) => {
+                expressionFactory: (node: ExpressionNode<any>, name: string, testArguments: HashExpressionNode, location: Location) => {
                     return new DefinedTestExpressionNode(node, name, testArguments, location.line, location.column);
                 }
             }),

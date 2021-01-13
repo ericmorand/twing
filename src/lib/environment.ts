@@ -580,6 +580,8 @@ export abstract class Environment extends EventEmitter {
 
                 throw e;
             } else {
+                console.log(e);
+
                 throw new SyntaxError(`An exception has been thrown during the compilation of a template ("${e.message}").`, null, null, source);
             }
         }

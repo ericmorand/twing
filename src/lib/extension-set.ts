@@ -136,14 +136,14 @@ export class ExtensionSet {
 
     addFunction(twingFunction: Function) {
         if (this.initialized) {
-            throw new Error(`Unable to add function "${twingFunction.getName()}" as extensions have already been initialized.`);
+            throw new Error(`Unable to add function "${twingFunction.name}" as extensions have already been initialized.`);
         }
 
-        if (this.functions.has(twingFunction.getName())) {
-            throw new Error(`Function "${twingFunction.getName()}" is already registered.`);
+        if (this.functions.has(twingFunction.name)) {
+            throw new Error(`Function "${twingFunction.name}" is already registered.`);
         }
 
-        this.functions.set(twingFunction.getName(), twingFunction);
+        this.functions.set(twingFunction.name, twingFunction);
     }
 
     getFunctions() {
@@ -157,8 +157,8 @@ export class ExtensionSet {
     /**
      * Get a function by name.
      *
-     * @param {string} name         function name
-     * @returns {Function}     A TwingFunction instance or null if the function does not exist
+     * @param {string} name The function name
+     * @returns {Function} A Function instance or null if the function does not exist
      */
     getFunction(name: string): Function {
         if (!this.initialized) {
@@ -200,14 +200,14 @@ export class ExtensionSet {
 
     addFilter(filter: Filter) {
         if (this.initialized) {
-            throw new Error(`Unable to add filter "${filter.getName()}" as extensions have already been initialized.`);
+            throw new Error(`Unable to add filter "${filter.name}" as extensions have already been initialized.`);
         }
 
-        if (this.filters.has(filter.getName())) {
-            throw new Error(`Filter "${filter.getName()}" is already registered.`);
+        if (this.filters.has(filter.name)) {
+            throw new Error(`Filter "${filter.name}" is already registered.`);
         }
 
-        this.filters.set(filter.getName(), filter);
+        this.filters.set(filter.name, filter);
     }
 
     getFilters(): Map<string, Filter> {
@@ -234,10 +234,7 @@ export class ExtensionSet {
             return this.filters.get(name);
         }
 
-        let filter: Filter;
-        let pattern: string;
-
-        for ([pattern, filter] of this.filters) {
+        for (let [pattern, filter] of this.filters) {
             let count: number = 0;
 
             pattern = pattern.replace(/\*/g, () => {
@@ -276,14 +273,14 @@ export class ExtensionSet {
 
     addTest(test: Test) {
         if (this.initialized) {
-            throw new Error(`Unable to add test "${test.getName()}" as extensions have already been initialized.`);
+            throw new Error(`Unable to add test "${test.name}" as extensions have already been initialized.`);
         }
 
-        if (this.tests.has(test.getName())) {
-            throw new Error(`Test "${test.getName()}" is already registered.`);
+        if (this.tests.has(test.name)) {
+            throw new Error(`Test "${test.name}" is already registered.`);
         }
 
-        this.tests.set(test.getName(), test);
+        this.tests.set(test.name, test);
     }
 
     /**
@@ -313,10 +310,7 @@ export class ExtensionSet {
             return this.tests.get(name);
         }
 
-        let test: Test;
-        let pattern: string;
-
-        for ([pattern, test] of this.tests) {
+        for (let [pattern, test] of this.tests) {
             let count: number = 0;
 
             pattern = pattern.replace(/\*/g, () => {

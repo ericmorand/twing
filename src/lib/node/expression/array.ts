@@ -1,9 +1,8 @@
 import {ListExpressionNodeEdge, ListExpressionNode} from "./list";
-import {ConstantExpressionNode} from "./constant";
 
-export type ArrayExpressionNodeEdge = ListExpressionNodeEdge<ConstantExpressionNode<number>>;
+export type ArrayExpressionNodeEdge = ListExpressionNodeEdge;
 
-export class ArrayExpressionNode extends ListExpressionNode<ConstantExpressionNode<number>> {
+export class ArrayExpressionNode extends ListExpressionNode {
     // constructor(attributes: TwingNodeExpressionListAttributes<number>, nodes: null, line: number, column: number) {
     //     const listElements: Array<[number, TwingNodeExpressionArrayElement]> = [];
     //

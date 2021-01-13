@@ -29,7 +29,7 @@ class TwingTestTokenParserSection extends TokenParser {
         }, {line: -1, column: -1});
     }
 
-    tag() {
+    get tag(): string {
         return '§';
     }
 }
@@ -147,7 +147,7 @@ export default abstract class {
     private readonly _environmentConstructor: EnvironmentConstructor;
     private readonly _name: string;
 
-    constructor(environmentConstructor: EnvironmentConstructor, name: string) {
+    protected constructor(environmentConstructor: EnvironmentConstructor, name: string) {
         this._environmentConstructor = environmentConstructor;
         this._name = name;
     }
@@ -239,7 +239,7 @@ export default abstract class {
             let consoleData: string[] = [];
 
             if (expectedDeprecationMessages) {
-                consoleStub = sinon.stub(console, 'warn').callsFake((data: string, ...args: any[]) => {
+                consoleStub = sinon.stub(console, 'warn').callsFake((data: string) => {
                     consoleData.push(data);
                 });
             }

@@ -8,25 +8,22 @@ import {
 } from "./callable-wrapper";
 
 import type {Location} from "./node";
+import type {HashExpressionNode} from "./node/expression/hash";
 
 export type FilterOptions = CallableWrapperOptions & {
     preEscape?: string,
     preservesSafety?: Array<string>
 }
 
-export class Filter extends CallableWrapper<any> {
-    readonly options: FilterOptions;
-
+export class Filter extends CallableWrapper<any, FilterOptions> {
     constructor(name: string, callable: Callable<any>, acceptedArguments: CallableArgument[], options: FilterOptions = {}) {
-        super(name, callable, acceptedArguments);
-
-        this.options.preEscape = null;
-        this.options.preservesSafety = null;
-        this.options.expressionFactory = (node: Node, name: string, filterArguments: Node, location: Location) => {
+        options.preEscape = null;
+        options.preservesSafety = null;
+        options.expressionFactory = (node: Node, name: string, filterArguments: HashExpressionNode, location: Location) => {
             return new FilterExpressionNode({name}, {node, arguments: filterArguments}, location);
         };
 
-        this.options = Object.assign({}, this.options, options);
+        super(name, callable, acceptedArguments, options);
     }
 
     getPreservesSafety() {

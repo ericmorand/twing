@@ -254,6 +254,8 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
         compiler.subCompile(this.edges.body);
 
         if (this.edges.parent) {
+            console.log(this.toString());
+
             compiler.write('await (await this.getParent(context)).display(context, this.merge(await this.getBlocks(), blocks), outputBuffer);\n');
         }
 

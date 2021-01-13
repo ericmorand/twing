@@ -12,10 +12,10 @@ export type BlockReferenceNodeAttributes = {
  */
 export class BlockReferenceNode extends Node<BlockReferenceNodeAttributes, null> {
     compile(compiler: Compiler) {
-        const {line, column} = this.location;
-
         compiler
-            .write(`outputBuffer.echo(await this.traceableRenderBlock({line: ${line}, column: ${column}}, this.source)('${this.attributes.name}', context.clone(), outputBuffer, blocks));\n`)
+            .write(`outputBuffer.echo(await this.traceableRenderBlock(`)
+            .repr(this.location)
+            .raw(`, this.source)('${this.attributes.name}', context.clone(), outputBuffer, blocks));\n`)
         ;
     }
 }

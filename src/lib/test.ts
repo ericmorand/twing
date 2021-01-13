@@ -1,5 +1,4 @@
 import {ExpressionNode} from "./node/expression";
-import {Node} from "./node";
 import {TestExpressionNode} from "./node/expression/test";
 import {
     Callable,
@@ -9,10 +8,9 @@ import {
 } from "./callable-wrapper";
 
 import type {Location} from "./node";
+import type {HashExpressionNode} from "./node/expression/hash";
 
-export class Test extends CallableWrapper<boolean> {
-    readonly options: CallableWrapperOptions;
-
+export class Test extends CallableWrapper<boolean, {}> {
     /**
      * Creates a template test.
      *
@@ -22,9 +20,7 @@ export class Test extends CallableWrapper<boolean> {
      * @param {CallableWrapperOptions} options Options
      */
     constructor(name: string, callable: Callable<boolean>, acceptedArguments: CallableArgument[], options: CallableWrapperOptions = {}) {
-        super(name, callable, acceptedArguments);
-
-        this.options.expressionFactory = (node: ExpressionNode<any>, name: string, testArguments: Node, location: Location) => {
+        options.expressionFactory = (node: ExpressionNode<any>, name: string, testArguments: HashExpressionNode, location: Location) => {
             return new TestExpressionNode({
                 name
             }, {
@@ -33,6 +29,6 @@ export class Test extends CallableWrapper<boolean> {
             }, location);
         };
 
-        this.options = Object.assign({}, this.options, options);
+        super(name, callable, acceptedArguments, options);
     }
 }

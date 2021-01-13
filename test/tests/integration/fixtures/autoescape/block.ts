@@ -1,4 +1,5 @@
 import TestBase from "../../TestBase";
+import {EnvironmentOptions} from "../../../../../src/lib/environment-options";
 
 export default class extends TestBase {
     getDescription() {
@@ -29,5 +30,11 @@ export default class extends TestBase {
         return {
             br: '<br />'
         }
+    }
+
+    getEnvironmentOptions(): EnvironmentOptions {
+        return {
+            cache: 'tmp/test/autoescape/block'
+        };
     }
 }

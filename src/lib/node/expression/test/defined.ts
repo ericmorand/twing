@@ -6,6 +6,8 @@ import {FunctionExpressionNode} from "../function";
 import {SyntaxError} from "../../../error/syntax";
 import {Compiler} from "../../../compiler";
 
+import type {HashExpressionNode} from "../hash";
+
 /**
  * Checks if a variable is defined in the active context.
  *
@@ -17,7 +19,7 @@ import {Compiler} from "../../../compiler";
  * </pre>
  */
 export class DefinedTestExpressionNode extends TestExpressionNode {
-    constructor(node: ExpressionNode<any>, name: string, testArguments: Node, line: number, column: number) {
+    constructor(node: ExpressionNode<any>, name: string, testArguments: HashExpressionNode, line: number, column: number) {
         // todo: restore
         // let changeIgnoreStrictCheck = false;
         // let error = null;

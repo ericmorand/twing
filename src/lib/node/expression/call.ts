@@ -6,6 +6,7 @@ import {ArrayExpressionNode} from "./array";
 import {Compiler} from "../../compiler";
 import {CallableWrapper} from "../../callable-wrapper";
 import {Environment} from "../../environment";
+import {HashExpressionNode} from "./hash";
 
 import type {ExpressionNodeAttributes} from "../expression";
 import type {HashExpressionNodeEdge} from "./hash";
@@ -21,7 +22,7 @@ export type CallExpressionNodeAttributes = ExpressionNodeAttributes<{
 
 export type CallExpressionNodeEdges = {
     node?: Node,
-    arguments?: Node
+    arguments?: HashExpressionNode
 };
 
 export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNodeAttributes, CallExpressionNodeEdges> {
@@ -36,7 +37,7 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
     //     }, line, column);
     // }
 
-    protected abstract getCallableWrapper(environment: Environment, name: string): CallableWrapper<any>;
+    protected abstract getCallableWrapper(environment: Environment, name: string): CallableWrapper<any, any>;
 
     public compile(compiler: Compiler) {
         const callableWrapper = this.getCallableWrapper(compiler.getEnvironment(), this.attributes.name);
@@ -45,7 +46,10 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
         if (typeof callable === 'string') {
             compiler.raw(callable);
         } else {
-            compiler.raw(`await this.environment.get${capitalize(this.attributes.type)}('${this.attributes.name}').traceableCallable({line: ${this.location.line}, column: ${this.location.column}}, this.source)`);
+            compiler
+                .raw(`await this.environment.get${capitalize(this.attributes.type)}('${this.attributes.name}').traceableCallable(`)
+                .repr(this.location)
+                .raw(', this.source)');
         }
 
         compiler.raw('(...[');
@@ -55,7 +59,7 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
         compiler.raw('])');
     }
 
-    protected compileArguments(compiler: Compiler, callableWrapper: CallableWrapper<any>) {
+    protected compileArguments(compiler: Compiler, callableWrapper: CallableWrapper<any, any>) {
         let first: boolean = true;
 
         if (callableWrapper.needsTemplate) {
@@ -114,29 +118,34 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
                     compiler.raw(', ');
                 }
 
-                compiler.subCompile(node);
+                compiler.subCompile(node.edges.value);
 
                 first = false;
             }
         }
     }
 
-    protected getArguments(argumentsNode: Node, callableWrapper: CallableWrapper<any>): Array<Node> {
+    protected getArguments(argumentsNode: HashExpressionNode, callableWrapper: CallableWrapper<any, any>): Array<Node<null, {
+        key: Node,
+        value: Node
+    }>> {
         let callType = this.attributes.type;
         let callName = this.attributes.name;
 
         let parameters: Map<string, Node> = new Map();
         let named = false;
 
-        for (let [name, node] of argumentsNode) {
-            if (typeof name !== 'number') {
+        for (let [, node] of argumentsNode) {
+            let key = node.edges.key.attributes.value;
+
+            if (typeof key !== 'number') {
                 named = true;
-                name = this.normalizeName(name);
+                key = this.normalizeName(key);
             } else if (named) {
                 throw new SyntaxError(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, null, this.location);
             }
 
-            parameters.set(name, node);
+            parameters.set(`${key}`, node);
         }
 
         let isVariadic = callableWrapper.isVariadic;
@@ -213,7 +222,7 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
         }
 
         if (parameters.size > 0) {
-            let unknownParameter = [...parameters.values()].find(function (parameter) {
+            let unknownParameter = [...parameters.values()].find((parameter) => {
                 // todo: what other type of data can parameter be?
                 return parameter instanceof Node;
             });

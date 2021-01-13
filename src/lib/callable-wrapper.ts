@@ -4,6 +4,7 @@ import {Node} from "./node";
 import {ExpressionNode} from "./node/expression";
 
 import type {Location} from "./node";
+import {HashExpressionNode} from "./node/expression/hash";
 
 export type Callable<T> = (...args: any[]) => Promise<T>;
 
@@ -12,7 +13,7 @@ export type CallableArgument = {
     defaultValue?: any
 };
 
-export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: Node, location: Location) => ExpressionNode<any>;
+export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: HashExpressionNode, location: Location) => ExpressionNode<any>;
 
 export type CallableWrapperOptions = {
     needsTemplate?: boolean;
@@ -26,20 +27,20 @@ export type CallableWrapperOptions = {
     expressionFactory?: CallableWrapperExpressionFactory;
 }
 
-export abstract class CallableWrapper<T> {
-    readonly name: string;
-    readonly callable: Callable<T>;
-    readonly acceptedArguments: CallableArgument[];
-    readonly options: CallableWrapperOptions;
+export abstract class CallableWrapper<T, O extends CallableWrapperOptions> {
+    private readonly _name: string;
+    private readonly _callable: Callable<T>;
+    private readonly _acceptedArguments: CallableArgument[];
+    private readonly _options: O;
 
-    protected _arguments: Array<any> = [];
+    protected _arguments: Array<number> = [];
 
-    protected constructor(name: string, callable: Callable<any>, acceptedArguments: CallableArgument[], options: CallableWrapperOptions = {}) {
-        this.name = name;
-        this.callable = callable;
-        this.acceptedArguments = acceptedArguments;
+    protected constructor(name: string, callable: Callable<any>, acceptedArguments: CallableArgument[], options: O) {
+        this._name = name;
+        this._callable = callable;
+        this._acceptedArguments = acceptedArguments;
 
-        this.options = Object.assign({}, {
+        this._options = Object.assign({}, {
             needsTemplate: false,
             needsContext: false,
             needsOutputBuffer: false,
@@ -51,26 +52,24 @@ export abstract class CallableWrapper<T> {
         }, options);
     }
 
-    getName() {
-        return this.name;
+    get name(): string {
+        return this._name;
     }
 
-    /**
-     * @returns {Function}
-     */
-    getCallable() {
-        return this.callable;
+    get callable(): Callable<T> {
+        return this._callable;
     }
 
-    /**
-     * @return CallableArgument[]
-     */
-    getAcceptedArguments(): CallableArgument[] {
-        return this.acceptedArguments;
+    get acceptedArguments(): CallableArgument[] {
+        return this._acceptedArguments;
+    }
+
+    get options(): O {
+        return this._options;
     }
 
     traceableCallable(location: Location, source: Source): Callable<T> {
-        let callable = this.callable;
+        let callable = this._callable;
 
         return function () {
             return (callable.apply(null, arguments) as Promise<T>).catch((e: Error) => {
@@ -84,31 +83,31 @@ export abstract class CallableWrapper<T> {
     }
 
     get isVariadic(): boolean {
-        return this.options.isVariadic;
+        return this._options.isVariadic;
     }
 
     get isDeprecated(): boolean {
-        return this.options.deprecated ? true : false;
+        return this._options.deprecated ? true : false;
     }
 
     get needsTemplate(): boolean {
-        return this.options.needsTemplate;
+        return this._options.needsTemplate;
     }
 
     get needsContext(): boolean {
-        return this.options.needsContext;
+        return this._options.needsContext;
     }
 
     get needsOutputBuffer(): boolean {
-        return this.options.needsOutputBuffer;
+        return this._options.needsOutputBuffer;
     }
 
     get deprecatedVersion() {
-        return this.options.deprecated;
+        return this._options.deprecated;
     }
 
     get alternative() {
-        return this.options.alternative;
+        return this._options.alternative;
     }
 
     set arguments(value: Array<any>) {
@@ -120,16 +119,16 @@ export abstract class CallableWrapper<T> {
     }
 
     get expressionFactory(): CallableWrapperExpressionFactory {
-        return this.options.expressionFactory;
+        return this._options.expressionFactory;
     }
 
     isSafe(functionArgs: Node): any[] {
-        if (this.options.isSafe !== null) {
-            return this.options.isSafe;
+        if (this._options.isSafe !== null) {
+            return this._options.isSafe;
         }
 
-        if (this.options.isSafeCallback) {
-            return this.options.isSafeCallback(functionArgs);
+        if (this._options.isSafeCallback) {
+            return this._options.isSafeCallback(functionArgs);
         }
 
         return [];

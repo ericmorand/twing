@@ -1,6 +1,7 @@
 import {ExpressionNode} from "../expression";
 import {Node} from "../../node";
 import {Compiler} from "../../compiler";
+import {ConstantExpressionNode} from "./constant";
 
 export type BlockReferenceExpressionNodeEdges = {
     name: Node,
@@ -31,7 +32,11 @@ export class BlockReferenceExpressionNode extends ExpressionNode<{}, BlockRefere
             ;
         }
 
-        compiler.raw(`.${method}(${this.location}, this.source)`);
+        compiler
+            .raw(`.${method}(`)
+            .repr(this.location)
+            .raw(', this.source)')
+        ;
 
         this.compileBlockArguments(compiler, needsOutputBuffer);
 
