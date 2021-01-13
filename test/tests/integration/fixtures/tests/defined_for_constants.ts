@@ -1,10 +1,10 @@
 import TestBase from "../../TestBase";
-import {TwingEnvironment} from "../../../../../src/lib/environment";
+import {Environment} from "../../../../../src/lib/environment";
 
 const DATE_W3C = 'DATE_W3C';
 
 export default class extends TestBase {
-    setEnvironment(env: TwingEnvironment) {
+    setEnvironment(env: Environment) {
         Reflect.set(env.constructor, 'DATE_W3C', DATE_W3C);
 
         super.setEnvironment(env);

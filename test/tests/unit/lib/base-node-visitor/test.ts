@@ -1,15 +1,15 @@
 import * as tape from 'tape';
 import {Test} from "tape";
-import {TwingBaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
+import {BaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
 import {Node} from "../../../../../src/lib/node";
-import {TwingEnvironment} from "../../../../../src/lib/environment";
+import {Environment} from "../../../../../src/lib/environment";
 
-class CustomVisitor extends TwingBaseNodeVisitor {
-    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
+class CustomVisitor extends BaseNodeVisitor {
+    protected doEnterNode(node: Node, env: Environment): Node {
         return undefined;
     }
 
-    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
+    protected doLeaveNode(node: Node, env: Environment): Node {
         return undefined;
     }
 

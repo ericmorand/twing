@@ -1,10 +1,10 @@
 import * as tape from 'tape';
-import {TwingSourceMapNode} from "../../../../../../../src/lib/source-map/node";
+import {SourceMapNode} from "../../../../../../../src/lib/source-map/node";
 import {Source} from "../../../../../../../src/lib/source";
-import {TwingSourceMapNodeSpaceless} from "../../../../../../../src/lib/source-map/node/spaceless";
+import {SpacelessSourceMapNode} from "../../../../../../../src/lib/source-map/node/spaceless";
 
 tape('source-map/node/spaceless', (test) => {
-    class ChildSourceMapNode extends TwingSourceMapNode {
+    class ChildSourceMapNode extends SourceMapNode {
         constructor(content: string) {
             super(1, 0, new Source('foo', 'foo.twig'), 'text');
 
@@ -13,7 +13,7 @@ tape('source-map/node/spaceless', (test) => {
     }
 
     test.test('should handle edge trimmjng and spaces between tags', (test) => {
-        let spacelessNode = new TwingSourceMapNodeSpaceless(1, 0, new Source('foo', 'foo.twig'));
+        let spacelessNode = new SpacelessSourceMapNode(1, 0, new Source('foo', 'foo.twig'));
 
         spacelessNode.addChild(new ChildSourceMapNode(' '));
         spacelessNode.addChild(new ChildSourceMapNode('\n'));
@@ -43,7 +43,7 @@ tape('source-map/node/spaceless', (test) => {
     });
 
     test.test('should support having only empty children', (test) => {
-        let spacelessNode = new TwingSourceMapNodeSpaceless(1, 0, new Source('foo', 'foo.twig'));
+        let spacelessNode = new SpacelessSourceMapNode(1, 0, new Source('foo', 'foo.twig'));
 
         spacelessNode.addChild(new ChildSourceMapNode(' \n'));
         spacelessNode.addChild(new ChildSourceMapNode(' '));
@@ -55,7 +55,7 @@ tape('source-map/node/spaceless', (test) => {
     });
 
     test.test('should support not having children', (test) => {
-        let spacelessNode = new TwingSourceMapNodeSpaceless(1, 0, new Source('foo', 'foo.twig'));
+        let spacelessNode = new SpacelessSourceMapNode(1, 0, new Source('foo', 'foo.twig'));
 
         test.same(spacelessNode.toSourceNode().toString(), '');
 

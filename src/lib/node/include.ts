@@ -2,18 +2,18 @@ import {Node} from "../node";
 import {ExpressionNode} from "./expression";
 import {Compiler} from "../compiler";
 
-export type TwingNodeIncludeAttributes = {
+export type IncludeNodeAttributes = {
     ignoreMissing: boolean,
     only: boolean
 };
 
-export type TwingNodeIncludeNodes = {
+export type IncludeNodeEdges = {
     template: ExpressionNode<any>,
     variables: ExpressionNode<any>,
 };
 
-export class IncludeNode<A extends TwingNodeIncludeAttributes = TwingNodeIncludeAttributes,
-    N extends TwingNodeIncludeNodes = TwingNodeIncludeNodes> extends Node<A, N> {
+export class IncludeNode<A extends IncludeNodeAttributes = IncludeNodeAttributes,
+    N extends IncludeNodeEdges = IncludeNodeEdges> extends Node<A, N> {
     compile(compiler: Compiler) {
         compiler.write('outputBuffer.echo(await this.include(context, outputBuffer, ');
 

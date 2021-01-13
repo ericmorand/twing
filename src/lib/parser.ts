@@ -1,8 +1,8 @@
-import {TwingEnvironment} from "./environment";
+import {Environment} from "./environment";
 import {TokenStream} from "./token-stream";
 import {BlockNode} from "./node/block";
 import {TokenParserInterface} from "./token-parser-interface";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
 import {SyntaxError} from "./error/syntax";
 import {Location, Node, toNodeEdges} from "./node";
 import {TextNode} from "./node/text";
@@ -20,11 +20,10 @@ import {ctypeSpace} from "./helpers/ctype-space";
 import {ConstantExpressionNode} from "./node/expression/constant";
 import {ConcatBinaryExpressionNode} from "./node/expression/binary/concat";
 import {AssignNameExpressionNode} from "./node/expression/assign-name";
-import {TwingNodeExpressionArrowFunction} from "./node/expression/arrow-function";
+import {ArrowFunctionExpressionNode} from "./node/expression/arrow-function";
 import {NameExpressionNode} from "./node/expression/name";
 import {ParentExpressionNode} from "./node/expression/parent";
 import {BlockReferenceExpressionNode} from "./node/expression/block-reference";
-import type {CallType} from "./node/expression/get-attribute";
 import {ANY_CALL, ARRAY_CALL, GetAttributeExpressionNode, METHOD_CALL} from "./node/expression/get-attribute";
 import {ArrayExpressionNode, ArrayExpressionNodeEdge} from "./node/expression/array";
 import {MethodCallExpressionNode} from "./node/expression/method-call";
@@ -44,63 +43,16 @@ import {PositiveUnaryExpressionNode} from "./node/expression/unary/pos";
 import {title} from "./extension/core/filters/title";
 import {EmbeddedTemplateNode} from "./node/embeddedTemplate";
 import {TemplateNode} from "./node/template";
-import {OrBinaryExpressionNode} from "./node/expression/binary/or";
-import {AndBinaryExpressionNode} from "./node/expression/binary/and";
-import {BitwiseOrBinaryExpressionNode} from "./node/expression/binary/bitwise-or";
-import {BitwiseXorBinaryExpressionNode} from "./node/expression/binary/bitwise-xor";
-import {BitwiseAndBinaryExpressionNode} from "./node/expression/binary/bitwise-and";
-import {EqualBinaryExpressionNode} from "./node/expression/binary/equal";
-import {NotEqualBinaryExpressionNode} from "./node/expression/binary/not-equal";
-import {LessBinaryExpressionNode} from "./node/expression/binary/less";
-import {LessOrEqualBinaryExpressionNode} from "./node/expression/binary/less-equal";
-import {GreaterBinaryExpressionNode} from "./node/expression/binary/greater";
-import {GreaterOrEqualBinaryExpressionNode} from "./node/expression/binary/greater-equal";
-import {NotInBinaryExpressionNode} from "./node/expression/binary/not-in";
-import {InBinaryExpressionNode} from "./node/expression/binary/in";
-import {MatchesBinaryExpressionNode} from "./node/expression/binary/matches";
-import {StartsWithBinaryExpressionNode} from "./node/expression/binary/starts-with";
-import {EndsWithBinaryExpressionNode} from "./node/expression/binary/ends-with";
-import {RangeBinaryExpressionNode} from "./node/expression/binary/range";
-import {AddBinaryExpressionNode} from "./node/expression/binary/add";
-import {SubtractBinaryExpressionNode} from "./node/expression/binary/sub";
-import {MultiplyBinaryExpressionNode} from "./node/expression/binary/mul";
-import {DivBinaryExpressionNode} from "./node/expression/binary/div";
-import {FloorDivBinaryExpressionNode} from "./node/expression/binary/floor-div";
-import {ModuloBinaryExpressionNode} from "./node/expression/binary/mod";
-import {PowerBinaryExpressionNode} from "./node/expression/binary/power";
-import {NullCoalesceExpressionNode} from "./node/expression/null-coalesce";
 import {UnaryOperator} from "./operator/unary";
 import {BinaryOperator} from "./operator/binary";
-import {ApplyTokenParser} from "./token-parser/apply";
-import {AutoEscapeTokenParser} from "./token-parser/auto-escape";
-import {BlockTokenParser} from "./token-parser/block";
-import {DeprecatedTokenParser} from "./token-parser/deprecated";
-import {DoTokenParser} from "./token-parser/do";
-import {EmbedTokenParser} from "./token-parser/embed";
-import {ExtendsTokenParser} from "./token-parser/extends";
-import {FilterTokenParser} from "./token-parser/filter";
-import {FlushTokenParser} from "./token-parser/flush";
-import {ForTokenParser} from "./token-parser/for";
-import {FromTokenParser} from "./token-parser/from";
-import {IfTokenParser} from "./token-parser/if";
-import {ImportTokenParser} from "./token-parser/import";
-import {IncludeTokenParser} from "./token-parser/include";
-import {LineTokenParser} from "./token-parser/line";
-import {MacroTokenParser} from "./token-parser/macro";
-import {SandboxTokenParser} from "./token-parser/sandbox";
-import {SetTokenParser} from "./token-parser/set";
-import {SpacelessTokenParser} from "./token-parser/spaceless";
-import {UseTokenParser} from "./token-parser/use";
-import {VerbatimTokenParser} from "./token-parser/verbatim";
-import {WithTokenParser} from "./token-parser/with";
 
 import type {NodeEdges} from "./node";
-import {Filter} from "./filter";
+import type {CallType} from "./node/expression/get-attribute";
 
 const sha256 = require('crypto-js/sha256');
 const hex = require('crypto-js/enc-hex');
 
-class TwingParserStackEntry {
+class ParserStackEntry {
     stream: TokenStream;
     parent: Node;
     blocks: Map<string, BlockNode>;
@@ -132,171 +84,40 @@ class TwingParserStackEntry {
 
 const nameRegExp = new RegExp(namePattern);
 
-type TwingParserImportedSymbolAlias = {
+type ParserImportedSymbolAlias = {
     name: string,
     node: NameExpressionNode
 };
-type TwingParserImportedSymbolType = Map<string, TwingParserImportedSymbolAlias>;
-type TwingParserImportedSymbol = Map<string, TwingParserImportedSymbolType>;
+type ParserImportedSymbolType = Map<string, ParserImportedSymbolAlias>;
+type ParserImportedSymbol = Map<string, ParserImportedSymbolType>;
 type ParseTest = [TokenParser, (token: Token) => boolean];
 
-export class TwingParser {
-    private stack: Array<TwingParserStackEntry> = [];
+export class Parser {
+    private stack: Array<ParserStackEntry> = [];
     private stream: TokenStream;
     private parent: Node;
     private handlers: Map<string, TokenParserInterface> = null;
-    private visitors: Array<TwingNodeVisitorInterface>;
+    private visitors: Array<NodeVisitorInterface>;
     private blocks: Map<string, BlockNode>;
     private blockStack: Array<string>;
     private macros: Map<string, Node>;
-    private readonly env: TwingEnvironment;
-    private importedSymbols: Array<TwingParserImportedSymbol>;
+    private readonly env: Environment;
+    private importedSymbols: Array<ParserImportedSymbol>;
     private traits: Map<string, TraitNode>;
     private embeddedTemplates: Array<EmbeddedTemplateNode> = [];
     private varNameSalt: number = 0;
     private _embeddedTemplateIndex: number = 1;
 
-    private readonly _unaryOperators: Map<string, UnaryOperator>;
-    private readonly _binaryOperators: Map<string, BinaryOperator>;
-
-    private readonly _tokenParsers: Array<TokenParserInterface>;
-
-    constructor(env: TwingEnvironment) {
+    constructor(env: Environment) {
         this.env = env;
-        this._unaryOperators = new Map();
-
-        for (let operator of [
-            new UnaryOperator('not', 50, (operand, location) => {
-                return new NotUnaryExpressionNode(null, {operand}, location);
-            }),
-            new UnaryOperator('-', 500, (operand, location) => {
-                return new NegativeUnaryExpressionNode(null, {operand}, location);
-            }),
-            new UnaryOperator('+', 500, (operand, location) => {
-                return new PositiveUnaryExpressionNode(null, {operand}, location);
-            })
-        ]) {
-            this._unaryOperators.set(operator.name, operator);
-        }
-
-        this._binaryOperators = new Map();
-
-        for (let operator of [
-            new BinaryOperator('or', 10, (operands, location) => {
-                return new OrBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('and', 15, (operands, location) => {
-                return new AndBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('b-or', 16, (operands, location) => {
-                return new BitwiseOrBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('b-xor', 17, (operands, location) => {
-                return new BitwiseXorBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('b-and', 18, (operands, location) => {
-                return new BitwiseAndBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('==', 20, (operands, location) => {
-                return new EqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('!=', 20, (operands, location) => {
-                return new NotEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('<', 20, (operands, location) => {
-                return new LessBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('<=', 20, (operands, location) => {
-                return new LessOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('>', 20, (operands, location) => {
-                return new GreaterBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('>=', 20, (operands, location) => {
-                return new GreaterOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('not in', 20, (operands, location) => {
-                return new NotInBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('in', 20, (operands, location) => {
-                return new InBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('matches', 20, (operands, location) => {
-                return new MatchesBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('starts with', 20, (operands, location) => {
-                return new StartsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('ends with', 20, (operands, location) => {
-                return new EndsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('..', 25, (operands, location) => {
-                return new RangeBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('+', 30, (operands, location) => {
-                return new AddBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('-', 30, (operands, location) => {
-                return new SubtractBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('~', 40, (operands, location) => {
-                return new ConcatBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('*', 60, (operands, location) => {
-                return new MultiplyBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('/', 60, (operands, location) => {
-                return new DivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('//', 60, (operands, location) => {
-                return new FloorDivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('%', 60, (operands, location) => {
-                return new ModuloBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
-            }),
-            new BinaryOperator('is', 100, null),
-            new BinaryOperator('is not', 100, null),
-            new BinaryOperator('**', 200, (operands, location) => {
-                return new PowerBinaryExpressionNode({}, {
-                    left: operands[0],
-                    right: operands[1]
-                }, location, OperatorAssociativity.RIGHT)
-            }),
-            new BinaryOperator('??', 300, (operands, location) => {
-                return new NullCoalesceExpressionNode(operands, location);
-            }, OperatorAssociativity.RIGHT)
-        ]) {
-            this._binaryOperators.set(operator.name, operator);
-        }
-
-        this._tokenParsers = [
-            new ApplyTokenParser(),
-            new AutoEscapeTokenParser(),
-            new BlockTokenParser(),
-            new DeprecatedTokenParser(),
-            new DoTokenParser(),
-            new EmbedTokenParser(),
-            new ExtendsTokenParser(),
-            new FilterTokenParser(),
-            new FlushTokenParser(),
-            new ForTokenParser(),
-            new FromTokenParser(),
-            new IfTokenParser(),
-            new ImportTokenParser(),
-            new IncludeTokenParser(),
-            new LineTokenParser(),
-            new MacroTokenParser(),
-            new SandboxTokenParser(),
-            new SetTokenParser(),
-            new SpacelessTokenParser(),
-            new UseTokenParser(),
-            new VerbatimTokenParser(),
-            new WithTokenParser(),
-        ];
     }
 
-    get filters(): Array<Filter> {
-        return [];
+    get binaryOperators(): Map<string, BinaryOperator> {
+        return this.env.binaryOperators;
+    }
+
+    get unaryOperators(): Map<string, UnaryOperator> {
+        return this.env.unaryOperators;
     }
 
     get embeddedTemplateIndex(): number {
@@ -308,7 +129,7 @@ export class TwingParser {
     }
 
     parseTemplate(stream: TokenStream, test: ParseTest = null, dropNeedle: boolean = false): TemplateNode {
-        this.stack.push(new TwingParserStackEntry(
+        this.stack.push(new ParserStackEntry(
             this.stream,
             this.parent,
             this.blocks,
@@ -323,10 +144,10 @@ export class TwingParser {
         if (this.handlers === null) {
             this.handlers = new Map();
 
-            for (let handler of this._tokenParsers) {
-                handler.setParser(this);
+            for (let tokenParser of this.env.tokenParsers) {
+                tokenParser.setParser(this);
 
-                this.handlers.set(handler.getTag(), handler);
+                this.handlers.set(tokenParser.tag, tokenParser);
             }
         }
 
@@ -459,7 +280,7 @@ export class TwingParser {
                             let message: string = `Unexpected "${token.value}" tag`;
 
                             if (Array.isArray(test) && (test.length > 1) && (test[0] instanceof TokenParser)) {
-                                message = `${message} (expecting closing tag for the "${test[0].getTag()}" tag defined near line ${line}).`;
+                                message = `${message} (expecting closing tag for the "${test[0].tag}" tag defined near line ${line}).`;
                             }
 
                             e = new SyntaxError(message, null, token, this.stream.source);
@@ -588,10 +409,10 @@ export class TwingParser {
         localScopeType.set(alias, {name, node});
     }
 
-    getImportedSymbol(type: string, alias: string): TwingParserImportedSymbolAlias {
-        let result: TwingParserImportedSymbolAlias;
+    getImportedSymbol(type: string, alias: string): ParserImportedSymbolAlias {
+        let result: ParserImportedSymbolAlias;
 
-        let testImportedSymbol = (importedSymbol: TwingParserImportedSymbol) => {
+        let testImportedSymbol = (importedSymbol: ParserImportedSymbol) => {
             if (importedSymbol.has(type)) {
                 let importedSymbolType = importedSymbol.get(type);
 
@@ -678,7 +499,7 @@ export class TwingParser {
             return null;
         }
 
-        if ((node as any).TwingNodeOutputInterfaceImpl && !(node instanceof SpacelessNode)) {
+        if (node.outputs && !(node instanceof SpacelessNode)) {
             return null;
         }
 
@@ -700,7 +521,7 @@ export class TwingParser {
         let token = this.getCurrentToken();
 
         if (this.isUnary(token)) {
-            let operator = this._unaryOperators.get(token.value);
+            let operator = this.unaryOperators.get(token.value);
             this.getStream().next();
             let expr = this.parseExpression(operator.precedence);
 
@@ -781,7 +602,7 @@ export class TwingParser {
 
                     return new MethodCallExpressionNode({
                         method: alias.name,
-                        safe: true
+                        isSafe: true
                     }, {
                         template: alias.node,
                         arguments: methodArguments
@@ -864,8 +685,8 @@ export class TwingParser {
         let expr = this.getPrimary();
         let token = this.getCurrentToken();
 
-        while (this.isBinary(token) && this._binaryOperators.get(token.value).precedence >= precedence) {
-            let operator: BinaryOperator = this._binaryOperators.get(token.value);
+        while (this.isBinary(token) && this.binaryOperators.get(token.value).precedence >= precedence) {
+            let operator: BinaryOperator = this.binaryOperators.get(token.value);
 
             this.getStream().next();
 
@@ -891,7 +712,7 @@ export class TwingParser {
         return expr;
     }
 
-    parseArrow(): TwingNodeExpressionArrowFunction {
+    parseArrow(): ArrowFunctionExpressionNode {
         const stream = this.getStream();
         const names: Map<string, ExpressionNode<{
             value: string
@@ -901,7 +722,7 @@ export class TwingParser {
         let location: Location;
 
         const createNode = () => {
-            return new TwingNodeExpressionArrowFunction({}, {
+            return new ArrowFunctionExpressionNode({}, {
                     expr: this.parseExpression(0),
                     names: new Node(null, toNodeEdges(names), location)
                 },
@@ -1041,8 +862,8 @@ export class TwingParser {
                     node = new NameExpressionNode({value}, null, {line, column});
 
                     break;
-                } else if (this._unaryOperators.has(token.value)) {
-                    let operator: UnaryOperator = this._unaryOperators.get(token.value);
+                } else if (this.unaryOperators.has(token.value)) {
+                    let operator: UnaryOperator = this.unaryOperators.get(token.value);
 
                     this.getStream().next();
 
@@ -1059,9 +880,15 @@ export class TwingParser {
                 } else if (token.test(TokenType.PUNCTUATION, '{')) {
                     node = this.parseHashExpression();
                 } else if (token.test(TokenType.OPERATOR, '=') && (this.getStream().look(-1).value === '==' || this.getStream().look(-1).value === '!=')) {
-                    throw new SyntaxError(`Unexpected operator of value "${token.value}". Did you try to use "===" or "!==" for strict comparison? Use "is same as(value)" instead.`, null, {line, column}, this.getStream().source);
+                    throw new SyntaxError(`Unexpected operator of value "${token.value}". Did you try to use "===" or "!==" for strict comparison? Use "is same as(value)" instead.`, null, {
+                        line,
+                        column
+                    }, this.getStream().source);
                 } else {
-                    throw new SyntaxError(`Unexpected token "${typeToEnglish(token.type)}" of value "${token.value}".`, null, {line, column}, this.getStream().source);
+                    throw new SyntaxError(`Unexpected token "${typeToEnglish(token.type)}" of value "${token.value}".`, null, {
+                        line,
+                        column
+                    }, this.getStream().source);
                 }
         }
 
@@ -1297,7 +1124,7 @@ export class TwingParser {
             if (alias !== null) {
                 node = new MethodCallExpressionNode({
                     method: alias.name,
-                    safe: true
+                    isSafe: true
                 }, {
                     template: alias.node,
                     arguments: new ArrayExpressionNode({}, {}, node.location)
@@ -1525,11 +1352,11 @@ export class TwingParser {
     }
 
     protected isUnary(token: Token) {
-        return token.test(TokenType.OPERATOR) && this._unaryOperators.has(token.value);
+        return token.test(TokenType.OPERATOR) && this.unaryOperators.has(token.value);
     }
 
     protected isBinary(token: Token) {
-        return token.test(TokenType.OPERATOR) && this._binaryOperators.has(token.value);
+        return token.test(TokenType.OPERATOR) && this.binaryOperators.has(token.value);
     }
 
     protected getTest(location: Location): Array<any> {

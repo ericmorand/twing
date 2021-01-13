@@ -1,5 +1,5 @@
 import {TokenParserInterface} from "./token-parser-interface";
-import {TwingParser} from "./parser";
+import {Parser} from "./parser";
 import {Node} from "./node";
 import {Token} from "twig-lexer";
 
@@ -12,13 +12,13 @@ export abstract class TokenParser implements TokenParserInterface {
     /**
      * @var TwingParser
      */
-    protected parser: TwingParser;
+    protected parser: Parser;
 
     abstract parse(token: Token): Node;
 
-    abstract getTag(): string;
+    abstract get tag(): string;
 
-    setParser(parser: TwingParser): void {
+    setParser(parser: Parser): void {
         this.parser = parser;
     }
 }

@@ -43,7 +43,7 @@ export class UseTokenParser extends TokenParser {
         return new Node<null, null>(null, null, token);
     }
 
-    getTag() {
+    get tag(): string {
         return 'use';
     }
 }

@@ -4,14 +4,14 @@ import {Compiler} from "../../compiler";
 import type {ExpressionNodeAttributes} from "../expression";
 import type {Location} from "../../node";
 
-export type TwingNodeExpressionNameAttributes = {
+export type NameExpressionNodeAttributes = {
     value: string
 };
 
-export class NameExpressionNode extends ExpressionNode<TwingNodeExpressionNameAttributes> {
+export class NameExpressionNode extends ExpressionNode<NameExpressionNodeAttributes> {
     private specialVars: Map<string, string>;
 
-    constructor(attributes: ExpressionNodeAttributes<TwingNodeExpressionNameAttributes>, nodes: null, location: Location) {
+    constructor(attributes: ExpressionNodeAttributes<NameExpressionNodeAttributes>, nodes: null, location: Location) {
         super(attributes, nodes, location);
 
         this.specialVars = new Map([
@@ -35,7 +35,7 @@ export class NameExpressionNode extends ExpressionNode<TwingNodeExpressionNameAt
         else if (this.isSpecial()) {
             compiler.raw(this.specialVars.get(name));
         }
-        else if (this.attributes.alwaysDefined) {
+        else if (this.attributes.isAlwaysDefined) {
             compiler
                 .raw('context.get(')
                 .string(name)

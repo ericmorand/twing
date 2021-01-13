@@ -1,4 +1,4 @@
-import {TwingEnvironment} from "../../../environment";
+import {Environment} from "../../../environment";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {iteratorToMap} from "../../../helpers/iterator-to-map";
 import {slice as sliceHelper} from "../../../helpers/slice";

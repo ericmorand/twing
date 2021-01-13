@@ -1,18 +1,18 @@
-import {TwingExtensionInterface} from "./extension-interface";
+import {ExtensionInterface} from "./extension-interface";
 import {TokenParserInterface} from "./token-parser-interface";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
 import {Filter} from "./filter";
 import {Function} from "./function";
 import {Test} from "./test";
 import {Operator} from "./operator";
-import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
+import {SourceMapNodeFactory} from "./source-map/node-factory";
 
-export class TwingExtension implements TwingExtensionInterface {
+export class Extension implements ExtensionInterface {
     getTokenParsers(): Array<TokenParserInterface> {
         return [];
     }
 
-    getNodeVisitors(): TwingNodeVisitorInterface[] {
+    getNodeVisitors(): NodeVisitorInterface[] {
         return [];
     }
 
@@ -32,7 +32,7 @@ export class TwingExtension implements TwingExtensionInterface {
         return [];
     }
 
-    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory> {
+    getSourceMapNodeFactories(): Map<string, SourceMapNodeFactory> {
         return new Map();
     }
 }

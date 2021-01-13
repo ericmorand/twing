@@ -165,7 +165,7 @@ export function escape(template: Template, string: any, strategy: string = 'html
                 return rawurlencode(string);
             default:
                 let coreExtension = env.getCoreExtension();
-                let escapers: Map<string, Function> = coreExtension.getEscapers();
+                let escapers = coreExtension.escapers;
 
                 if (escapers.has(strategy)) {
                     return escapers.get(strategy)(env, string, charset);

@@ -29,8 +29,8 @@ export class FilterTokenParser extends TokenParser {
         }, {
             line,
             column
-        }, this.getTag());
-        let filter = this.parser.parseFilterExpressionRaw(ref, this.getTag());
+        }, this.tag);
+        let filter = this.parser.parseFilterExpressionRaw(ref, this.tag);
 
         stream.expect(TokenType.TAG_END);
 
@@ -42,14 +42,14 @@ export class FilterTokenParser extends TokenParser {
 
         this.parser.setBlock(name, block);
 
-        return new PrintNode(null, {content: filter}, {line, column}, this.getTag());
+        return new PrintNode(null, {content: filter}, {line, column}, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endfilter');
     }
 
-    getTag() {
+    get tag(): string {
         return 'filter';
     }
 }

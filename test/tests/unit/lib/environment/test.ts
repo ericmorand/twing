@@ -5,21 +5,21 @@ import {readFileSync} from 'fs';
 import {TokenParser} from "../../../../../src/lib/token-parser";
 import {Token, TokenType} from "twig-lexer";
 import {Node} from "../../../../../src/lib/node";
-import {TwingEnvironment, TwingTemplatesModule} from "../../../../../src/lib/environment";
-import {TwingExtension} from "../../../../../src/lib/extension";
+import {Environment, TemplatesModule} from "../../../../../src/lib/environment";
+import {Extension} from "../../../../../src/lib/extension";
 import {Filter} from "../../../../../src/lib/filter";
 import {Operator, OperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
 import {Function} from "../../../../../src/lib/function";
 import {Test} from "../../../../../src/lib/test";
-import {TwingBaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
-import {TwingParser} from "../../../../../src/lib/parser";
+import {BaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
+import {Parser} from "../../../../../src/lib/parser";
 import {TokenStream} from "../../../../../src/lib/token-stream";
-import {TwingLexer} from "../../../../../src/lib/lexer";
+import {Lexer} from "../../../../../src/lib/lexer";
 import {MockLoader} from "../../../../mock/loader";
 import {ModuleNode} from "../../../../../src/lib/node/module";
 import {Source} from "../../../../../src/lib/source";
 import {ArrayLoader} from "../../../../../src/lib/loader/array";
-import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../src/lib/environment/node";
 import {FilesystemCache} from "../../../../../src/lib/cache/filesystem";
 import {MockEnvironment} from "../../../../mock/environment";
 import {MockCache} from "../../../../mock/cache";
@@ -45,26 +45,26 @@ class TwingTestsEnvironmentTestTokenParser extends TokenParser {
         return null;
     }
 
-    getTag() {
+    tag() {
         return 'test';
     }
 }
 
-class TwingTestsEnvironmentTestNodeVisitor extends TwingBaseNodeVisitor {
+class TwingTestsEnvironmentTestNodeVisitor extends BaseNodeVisitor {
     getPriority() {
         return 0;
     }
 
-    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
+    protected doEnterNode(node: Node, env: Environment): Node {
         return node;
     }
 
-    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
+    protected doLeaveNode(node: Node, env: Environment): Node {
         return node;
     }
 }
 
-class TwingTestsEnvironmentTestExtension extends TwingExtension {
+class TwingTestsEnvironmentTestExtension extends Extension {
     constructor() {
         super();
     }
@@ -125,7 +125,7 @@ class TwingTestsEnvironmentTestExtensionRegression extends TwingTestsEnvironment
     }
 }
 
-class TwingTestsEnvironmentParserBar extends TwingParser {
+class TwingTestsEnvironmentParserBar extends Parser {
     parse(stream: TokenStream, test: any, dropNeedle: any): ModuleNode {
         return new ModuleNode(
             new TextNode('bar', 1, 1),
@@ -139,13 +139,13 @@ class TwingTestsEnvironmentParserBar extends TwingParser {
     }
 }
 
-class TwingTestsEnvironmentLexerBar extends TwingLexer {
+class TwingTestsEnvironmentLexerBar extends Lexer {
     tokenize(source: string) {
         return [new Token(TokenType.TEXT, 'bar', 1, 1)];
     }
 }
 
-class TwingTestsEnvironmentParserError extends TwingParser {
+class TwingTestsEnvironmentParserError extends Parser {
     parse(stream: TokenStream, test: any, dropNeedle: any): ModuleNode {
         throw new Error('Parser error "foo".');
     }
@@ -167,7 +167,7 @@ tape('environment', (test) => {
             'js': '{{ bar }} {{ bar }}',
         });
 
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             debug: true,
             cache: false,
             autoescape: escapingStrategyCallback
@@ -185,7 +185,7 @@ tape('environment', (test) => {
         sinon.stub(loader, 'getSourceContext').returns(Promise.resolve(new Source('', '')));
 
         // globals can be added after calling getGlobals
-        let twing = new TwingEnvironmentNode(loader);
+        let twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.addGlobal('foo', 'bar');
@@ -193,7 +193,7 @@ tape('environment', (test) => {
         test.same(globals.get('foo'), 'bar');
 
         // globals can be modified after a template has been loaded
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         await twing.loadTemplate('index');
@@ -202,7 +202,7 @@ tape('environment', (test) => {
         test.same(globals.get('foo'), 'bar');
 
         // globals can be modified after extensions init
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.getFunctions();
@@ -212,7 +212,7 @@ tape('environment', (test) => {
 
         // globals can be modified after extensions and a template has been loaded
         let arrayLoader = new ArrayLoader({index: '{{foo}}'});
-        twing = new TwingEnvironmentNode(arrayLoader);
+        twing = new NodeEnvironment(arrayLoader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.getFunctions();
@@ -221,14 +221,14 @@ tape('environment', (test) => {
         globals = twing.getGlobals();
         test.same(globals.get('foo'), 'bar');
 
-        twing = new TwingEnvironmentNode(arrayLoader);
+        twing = new NodeEnvironment(arrayLoader);
         twing.getGlobals();
         twing.addGlobal('foo', 'bar');
         let template = await twing.loadTemplate('index');
         test.same(await template.render({}), 'bar');
 
         // globals cannot be added after a template has been loaded
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.addGlobal('foo', 'bar');
@@ -242,7 +242,7 @@ tape('environment', (test) => {
         }
 
         // globals cannot be added after extensions init
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.getFunctions();
@@ -255,7 +255,7 @@ tape('environment', (test) => {
         }
 
         // globals cannot be added after extensions and a template has been loaded
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         twing.addGlobal('foo', 'foo');
         twing.getGlobals();
         twing.getFunctions();
@@ -269,7 +269,7 @@ tape('environment', (test) => {
         }
 
         // test adding globals after a template has been loaded without call to getGlobals
-        twing = new TwingEnvironmentNode(loader);
+        twing = new NodeEnvironment(loader);
         await twing.loadTemplate('index');
 
         try {
@@ -390,7 +390,7 @@ tape('environment', (test) => {
 
         let cache = new MockCache();
         let loader = getMockLoader(templateName, templateContent);
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             cache: cache,
             source_map: true
         });
@@ -415,7 +415,7 @@ tape('environment', (test) => {
 
         await twing.loadTemplate(templateName);
 
-        twing = new TwingEnvironmentNode(loader, {
+        twing = new NodeEnvironment(loader, {
             cache: cache,
             source_map: false
         });
@@ -433,7 +433,7 @@ tape('environment', (test) => {
 
         let cache = new MockCache();
         let loader = getMockLoader(templateName, templateContent);
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             cache: cache,
             autoescape: 'html'
         });
@@ -458,7 +458,7 @@ tape('environment', (test) => {
 
         await twing.loadTemplate(templateName);
 
-        twing = new TwingEnvironmentNode(loader, {
+        twing = new NodeEnvironment(loader, {
             cache: cache,
             autoescape: false
         });
@@ -471,7 +471,7 @@ tape('environment', (test) => {
     });
 
     test.test('addExtension', (test) => {
-        let twing = new TwingEnvironmentNode(new MockLoader());
+        let twing = new NodeEnvironment(new MockLoader());
         let ext = new TwingTestsEnvironmentTestExtension();
 
         twing.addExtension(ext, 'TwingTestsEnvironmentTestExtension');
@@ -496,7 +496,7 @@ tape('environment', (test) => {
         test.true(found);
 
         test.test('with explicit name', (test) => {
-            let twing = new TwingEnvironmentNode(new MockLoader());
+            let twing = new NodeEnvironment(new MockLoader());
             let ext1 = new TwingTestsEnvironmentTestExtension();
             let ext2 = new TwingTestsEnvironmentTestExtension();
 
@@ -510,7 +510,7 @@ tape('environment', (test) => {
         });
 
         test.test('support pre-1.2.0 API', (test) => {
-            let twing = new TwingEnvironmentNode(new MockLoader());
+            let twing = new NodeEnvironment(new MockLoader());
             let ext = new TwingTestsEnvironmentTestExtensionRegression();
 
             twing.addExtension(ext, 'TwingTestsEnvironmentTestExtensionRegression');
@@ -529,7 +529,7 @@ tape('environment', (test) => {
 
         let loader = new ArrayLoader({page: 'hey'});
 
-        let twing = new TwingEnvironmentNode(loader);
+        let twing = new NodeEnvironment(loader);
 
         twing.addExtension(extension, 'foo');
 
@@ -539,7 +539,7 @@ tape('environment', (test) => {
     });
 
     test.test('overrideExtension', (test) => {
-        let twing = new TwingEnvironmentNode(new ArrayLoader({}));
+        let twing = new NodeEnvironment(new ArrayLoader({}));
 
         twing.addExtension(new TwingTestsEnvironmentTestExtension(), 'TwingTestsEnvironmentTestExtension');
 
@@ -555,7 +555,7 @@ tape('environment', (test) => {
     });
 
     test.test('debug', async (test) => {
-        class CustomEnvironment extends TwingEnvironmentNode {
+        class CustomEnvironment extends NodeEnvironment {
             getTemplateHash(name: string, index: number, from: Source) {
                 return super.getTemplateHash(name, index, from);
             }
@@ -587,7 +587,7 @@ tape('environment', (test) => {
     });
 
     test.test('autoreload', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader(), {
+        let env = new NodeEnvironment(new MockLoader(), {
             auto_reload: false
         });
 
@@ -610,7 +610,7 @@ tape('environment', (test) => {
     });
 
     test.test('strict_variables', async (test) => {
-        class CustomEnvironment extends TwingEnvironmentNode {
+        class CustomEnvironment extends NodeEnvironment {
             getTemplateHash(name: string, index: number, from: Source) {
                 return super.getTemplateHash(name, index, from);
             }
@@ -643,7 +643,7 @@ tape('environment', (test) => {
 
     test.test('cache', (test) => {
         test.test('set', (test) => {
-            let env = new TwingEnvironmentNode(new MockLoader(), {
+            let env = new NodeEnvironment(new MockLoader(), {
                 cache: false
             });
 
@@ -663,7 +663,7 @@ tape('environment', (test) => {
     });
 
     test.test('display', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'bar'
         }));
 
@@ -685,7 +685,7 @@ tape('environment', (test) => {
     });
 
     test.test('load', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'bar'
         }));
 
@@ -710,7 +710,7 @@ tape('environment', (test) => {
     });
 
     test.test('resolveTemplate', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: '{{ foo'
         }));
 
@@ -735,7 +735,7 @@ tape('environment', (test) => {
     });
 
     test.test('parse', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'foo'
         }));
 
@@ -747,7 +747,7 @@ tape('environment', (test) => {
     });
 
     test.test('lexer', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'foo'
         }));
 
@@ -759,7 +759,7 @@ tape('environment', (test) => {
     });
 
     test.test('compileSource', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'foo'
         }));
 
@@ -789,7 +789,7 @@ tape('environment', (test) => {
     });
 
     test.test('extensions', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'foo'
         }));
 
@@ -803,7 +803,7 @@ tape('environment', (test) => {
     });
 
     test.test('nodeVisitors', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: 'foo'
         }));
 
@@ -818,7 +818,7 @@ tape('environment', (test) => {
 
     test.test('should emit events', (test) => {
         test.test('template', async (test) => {
-            let env = new TwingEnvironmentNode(new ArrayLoader({
+            let env = new NodeEnvironment(new ArrayLoader({
                 index: '{% include "foo" %}',
                 foo: 'Foo'
             }));
@@ -853,7 +853,7 @@ tape('environment', (test) => {
         let backgroundSource = join(fixturesPath, 'css', 'partial/background.css.twig');
 
         test.test('when source_map is set to true', async (test) => {
-            let env = new TwingEnvironmentNode(loader, {
+            let env = new NodeEnvironment(loader, {
                 source_map: true
             });
 
@@ -998,7 +998,7 @@ tape('environment', (test) => {
         });
 
         test.test('when source_map is set to false', async (test) => {
-            let env = new TwingEnvironmentNode(loader, {
+            let env = new NodeEnvironment(loader, {
                 source_map: false
             });
 
@@ -1029,7 +1029,7 @@ tape('environment', (test) => {
                     return Promise.resolve(className);
                 }
 
-                load(key: string): Promise<TwingTemplatesModule> {
+                load(key: string): Promise<TemplatesModule> {
                     return Promise.resolve(() => {
                         return new Map([
                             [0, CustomTemplate]
@@ -1038,7 +1038,7 @@ tape('environment', (test) => {
                 }
             }
 
-            let env = new TwingEnvironmentNode(loader, {
+            let env = new NodeEnvironment(loader, {
                 source_map: true,
                 cache: new CustomCache()
             });
@@ -1052,7 +1052,7 @@ tape('environment', (test) => {
         });
 
         test.test('with spaceless tag', async (test) => {
-            let env = new TwingEnvironmentNode(loader, {
+            let env = new NodeEnvironment(loader, {
                 source_map: true
             });
 
@@ -1183,7 +1183,7 @@ BAROOF</FOO></foo>oof`);
         });
 
         test.test('handle templates coming from non-filesystem loader', async (test) => {
-            let env = new TwingEnvironmentNode(new ArrayLoader({
+            let env = new NodeEnvironment(new ArrayLoader({
                 index: 'FOO'
             }), {
                 source_map: true
@@ -1202,7 +1202,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('createTemplate', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({}));
+        let env = new NodeEnvironment(new ArrayLoader({}));
 
         let template = await env.createTemplate('foo');
 
@@ -1216,7 +1216,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('registerTemplatesModule', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             foo: ''
         }));
 
@@ -1256,7 +1256,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('getSourceMapNodeFactories', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({}));
+        let env = new NodeEnvironment(new ArrayLoader({}));
 
         let factories = env.getSourceMapNodeFactories();
 
@@ -1266,7 +1266,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('checkMethodAllowed', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({}));
+        let env = new NodeEnvironment(new ArrayLoader({}));
 
         let obj = {};
 
@@ -1278,7 +1278,7 @@ BAROOF</FOO></foo>oof`);
             test.fail();
         }
 
-        env = new TwingEnvironmentNode(new ArrayLoader({}), {
+        env = new NodeEnvironment(new ArrayLoader({}), {
             sandboxed: true
         });
 
@@ -1294,7 +1294,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('checkPropertyAllowed', (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({}));
+        let env = new NodeEnvironment(new ArrayLoader({}));
 
         let obj = {};
 
@@ -1306,7 +1306,7 @@ BAROOF</FOO></foo>oof`);
             test.fail();
         }
 
-        env = new TwingEnvironmentNode(new ArrayLoader({}), {
+        env = new NodeEnvironment(new ArrayLoader({}), {
             sandboxed: true
         });
 
@@ -1322,7 +1322,7 @@ BAROOF</FOO></foo>oof`);
     });
 
     test.test('disabling the sandbox actually...disable the sandbox', async (test) => {
-        let env = new TwingEnvironmentNode(new ArrayLoader({
+        let env = new NodeEnvironment(new ArrayLoader({
             index: '{{foo}}'
         }), {
             sandboxed: false
@@ -1346,7 +1346,7 @@ BAROOF</FOO></foo>oof`);
         test.test('doesnt\'t trigger the security policy when sandboxing is disabled', (test) => {
             const fooPolicy = new SandboxSecurityPolicy();
 
-            let env = new TwingEnvironmentNode(new ArrayLoader({
+            let env = new NodeEnvironment(new ArrayLoader({
                 index: '{{foo}}'
             }), {
                 sandboxed: false,
@@ -1378,7 +1378,7 @@ BAROOF</FOO></foo>oof`);
 
         const cache = new CustomCache();
         const fixturesPath = 'test/tests/unit/lib/environment/fixtures';
-        const env = new TwingEnvironmentNode(new RelativeFilesystemLoader(), {
+        const env = new NodeEnvironment(new RelativeFilesystemLoader(), {
             cache: cache
         });
 

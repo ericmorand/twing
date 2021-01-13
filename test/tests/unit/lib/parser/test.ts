@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import * as sinon from 'sinon';
-import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
-import {TwingParser} from "../../../../../src/lib/parser";
+import {NodeEnvironment} from "../../../../../src/lib/environment/node";
+import {Parser} from "../../../../../src/lib/parser";
 import {Node} from "../../../../../src/lib/node";
 import {TokenStream} from "../../../../../src/lib/token-stream";
 import {TokenParser} from "../../../../../src/lib/token-parser";
@@ -11,7 +11,7 @@ import {SetNode} from "../../../../../src/lib/node/set";
 import {ArrayLoader} from "../../../../../src/lib/loader/array";
 import {Source} from "../../../../../src/lib/source";
 import {SyntaxError} from "../../../../../src/lib/error/syntax";
-import {TwingExtension} from "../../../../../src/lib/extension";
+import {Extension} from "../../../../../src/lib/extension";
 import {Operator, TwingOperatorType} from "../../../../../src/lib/operator";
 import {ConstantExpressionNode} from "../../../../../src/lib/node/expression/constant";
 import {Function} from "../../../../../src/lib/function";
@@ -26,10 +26,10 @@ import {HashExpressionNode} from "../../../../../src/lib/node/expression/hash";
 import {ExpressionNode} from "../../../../../src/lib/node/expression";
 import {type} from "../../../../../src/lib/node/comment";
 
-let testEnv = new TwingEnvironmentNode(null);
+let testEnv = new NodeEnvironment(null);
 
 let getParser = function () {
-    let parser = new TwingParser(testEnv);
+    let parser = new Parser(testEnv);
 
     parser.setParent(new Node());
     parser['stream'] = new TokenStream([], new Source('', 'foo'));
@@ -37,13 +37,13 @@ let getParser = function () {
     return parser;
 };
 
-class Parser extends TwingParser {
+class Parser extends Parser {
     parseArrow() {
         return super.parseArrow();
     }
 }
 
-class TwingTestExpressionParserExtension extends TwingExtension {
+class TwingTestExpressionParserExtension extends Extension {
     getOperators() {
         return [
             new Operator('with-callable', TwingOperatorType.BINARY, 1, () => {
@@ -106,7 +106,7 @@ class TestTokenParser extends TokenParser {
         return new Node();
     }
 
-    getTag() {
+    tag() {
         return 'test';
     }
 }
@@ -164,7 +164,7 @@ tape('parser', (test) => {
             new Token(TokenType.EOF, '', 1, 0),
         ], new Source('', 'foo'));
 
-        let parser = new TwingParser(testEnv);
+        let parser = new Parser(testEnv);
 
         try {
             parser.parse(stream);
@@ -185,7 +185,7 @@ tape('parser', (test) => {
             new Token(TokenType.EOF, '', 1, 0),
         ], new Source('', 'foo'));
 
-        let parser = new TwingParser(testEnv);
+        let parser = new Parser(testEnv);
 
         try {
             parser.parse(stream);
@@ -199,7 +199,7 @@ tape('parser', (test) => {
     });
 
     test.test('testFilterBodyNodes', (test) => {
-        let parser = new TwingParser(testEnv);
+        let parser = new Parser(testEnv);
 
         getFilterBodyNodesData().forEach(function (data) {
             test.same(parser.filterBodyNodes(data.input), data.expected);
@@ -254,13 +254,13 @@ tape('parser', (test) => {
     });
 
     test.test('testParseIsReentrant', (test) => {
-        let twing = new TwingEnvironmentNode(null, {
+        let twing = new NodeEnvironment(null, {
             autoescape: false
         });
 
         twing.addTokenParser(new TestTokenParser());
 
-        let parser = new TwingParser(twing);
+        let parser = new Parser(twing);
 
         parser.parse(new TokenStream([
             new Token(TokenType.TAG_START, '', 1, 0),
@@ -278,7 +278,7 @@ tape('parser', (test) => {
     });
 
     test.test('testGetVarName', (test) => {
-        let twing = new TwingEnvironmentNode(new ArrayLoader(new Map()), {
+        let twing = new NodeEnvironment(new ArrayLoader(new Map()), {
             autoescape: false
         });
 
@@ -297,13 +297,13 @@ tape('parser', (test) => {
     });
 
     test.test('should throw an error on missing tag name', (test) => {
-        let twing = new TwingEnvironmentNode(null, {
+        let twing = new NodeEnvironment(null, {
             autoescape: false
         });
 
         twing.addTokenParser(new TestTokenParser());
 
-        let parser = new TwingParser(twing);
+        let parser = new Parser(twing);
 
         try {
             parser.parse(new TokenStream([
@@ -321,11 +321,11 @@ tape('parser', (test) => {
     });
 
     test.test('parse', (test) => {
-        let twing = new TwingEnvironmentNode(null, {
+        let twing = new NodeEnvironment(null, {
             autoescape: false
         });
 
-        let parser = new TwingParser(twing);
+        let parser = new Parser(twing);
 
         let stub = sinon.stub(parser, 'subparse');
 
@@ -355,11 +355,11 @@ tape('parser', (test) => {
     });
 
     test.test('subparse', (test) => {
-        let twing = new TwingEnvironmentNode(null, {
+        let twing = new NodeEnvironment(null, {
             autoescape: false
         });
 
-        let parser = new TwingParser(twing);
+        let parser = new Parser(twing);
 
         try {
             parser.parse(new TokenStream([
@@ -393,8 +393,8 @@ tape('parser', (test) => {
     });
 
     test.test('getImportedSymbol', (test) => {
-        let twing = new TwingEnvironmentNode(null);
-        let parser = new TwingParser(twing);
+        let twing = new NodeEnvironment(null);
+        let parser = new Parser(twing);
 
         Reflect.set(parser, 'importedSymbols', [new Map()]);
         parser.addImportedSymbol('foo', null);
@@ -405,8 +405,8 @@ tape('parser', (test) => {
     });
 
     test.test('hasMacro', (test) => {
-        let twing = new TwingEnvironmentNode(null);
-        let parser = new TwingParser(twing);
+        let twing = new NodeEnvironment(null);
+        let parser = new Parser(twing);
 
         Reflect.set(parser, 'macros', new Map([['foo', 'bar']]));
 
@@ -416,11 +416,11 @@ tape('parser', (test) => {
     });
 
     test.test('supports comment tokens', (test) => {
-        let twing = new TwingEnvironmentNode(null, {
+        let twing = new NodeEnvironment(null, {
             autoescape: false
         });
 
-        let parser = new TwingParser(twing);
+        let parser = new Parser(twing);
 
         let node = parser.parse(new TokenStream([
             new Token(TokenType.COMMENT_START, '', 1, 0),
@@ -455,7 +455,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let templateAndMessage of templatesAndMessages) {
             let source = new Source(templateAndMessage[0], 'index');
@@ -549,7 +549,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let templateAndNodes of templatesAndNodes) {
             let stream = env.tokenize(new Source(templateAndNodes[0], ''));
@@ -577,7 +577,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let templateAndMessage of templatesAndMessages) {
             let source = new Source(templateAndMessage[0], 'index');
@@ -600,7 +600,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ "a" "b" }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -653,7 +653,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let templateAndNodes of templatesAndNodes) {
             let stream = env.tokenize(new Source(templateAndNodes[0], ''));
@@ -677,7 +677,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ foo.bar(name="Foo") }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -696,7 +696,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{% from _self import foo %}{% macro foo() %}{% endmacro %}{{ foo(name="Foo") }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -715,7 +715,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{% macro foo("a") %}{% endmacro %}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -737,7 +737,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let template of templates) {
             let source = new Source(template, 'index');
@@ -769,7 +769,7 @@ tape('parser', (test) => {
 
         let loader = new MockLoader();
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         for (let template of templates) {
             let source = new Source(template, 'index');
@@ -786,7 +786,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ cycl() }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -805,7 +805,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ foobar() }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -824,7 +824,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{  1|lowe }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -843,7 +843,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ 1|foobar }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -862,7 +862,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{  1 is nul }}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -881,7 +881,7 @@ tape('parser', (test) => {
         let env = new MockEnvironment(loader, {cache: false, autoescape: false});
         let source = new Source('{{ 1 is foobar}}', 'index');
         let stream = env.tokenize(source);
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         try {
             parser.parse(stream);
@@ -896,7 +896,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseExpression', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         env.addExtension(new TwingTestExpressionParserExtension(), 'TwingTestExpressionParserExtension');
 
@@ -907,7 +907,7 @@ tape('parser', (test) => {
             new Token(TokenType.VARIABLE_END, null, 1, 1)
         ]);
 
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         Reflect.set(parser, 'stream', stream);
 
@@ -921,7 +921,7 @@ tape('parser', (test) => {
 
     test.test('getFunctionNode', (test) => {
         let env = new MockEnvironment(new MockLoader());
-        let parser = new TwingParser(env);
+        let parser = new Parser(env);
 
         let stream = new TokenStream([
             new Token(TokenType.PUNCTUATION, '(', 1, 1),
@@ -945,7 +945,7 @@ tape('parser', (test) => {
         });
 
         test.test('parent', (test) => {
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             let stream = new TokenStream([
                 new Token(TokenType.PUNCTUATION, '(', 1, 1),
@@ -981,7 +981,7 @@ tape('parser', (test) => {
                 ['deprecated', true, 'Twing Function "deprecated" is deprecated in "index.html.twig" at line 1.']
             ];
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             sinon.stub(parser, 'getImportedSymbol').returns(null);
 
@@ -1014,7 +1014,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseHashExpression', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         test.test('with key as an expression', (test) => {
             let stream = new TokenStream([
@@ -1028,7 +1028,7 @@ tape('parser', (test) => {
                 new Token(TokenType.EOF, null, 1, 1)
             ]);
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             Reflect.set(parser, 'stream', stream);
 
@@ -1045,7 +1045,7 @@ tape('parser', (test) => {
                 new Token(TokenType.OPERATOR, 'foo', 1, 1)
             ], new Source('', 'foo'));
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             Reflect.set(parser, 'stream', stream);
 
@@ -1065,7 +1065,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseSubscriptExpression', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         test.test('with dot syntax and non-name/number token', (test) => {
             let stream = new TokenStream([
@@ -1074,7 +1074,7 @@ tape('parser', (test) => {
                 new Token(TokenType.EOF, null, 1, 1)
             ], new Source('', 'foo'));
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             Reflect.set(parser, 'stream', stream);
 
@@ -1094,7 +1094,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseTestExpression', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         env.addExtension(new TwingTestExpressionParserExtension(), 'foo');
 
@@ -1105,7 +1105,7 @@ tape('parser', (test) => {
                 new Token(TokenType.EOF, null, 1, 1)
             ], new Source('', 'foo'));
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             Reflect.set(parser, 'stream', stream);
 
@@ -1125,7 +1125,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseArguments', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         test.test('with non-name named argument', (test) => {
             let stream = new TokenStream([
@@ -1136,7 +1136,7 @@ tape('parser', (test) => {
                 new Token(TokenType.PUNCTUATION, ')', 1, 1)
             ], new Source('', 'foo'));
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             Reflect.set(parser, 'stream', stream);
 
@@ -1157,7 +1157,7 @@ tape('parser', (test) => {
 
     test.test('parseFilterExpressionRaw', (test) => {
         test.test('deprecated filter', (test) => {
-            let env = new TwingEnvironmentNode(new MockLoader());
+            let env = new NodeEnvironment(new MockLoader());
 
             env.addExtension(new TwingTestExpressionParserExtension(), 'foo');
 
@@ -1168,7 +1168,7 @@ tape('parser', (test) => {
                 ['deprecated', true, 'Twing Filter "deprecated" is deprecated in "index.html.twig" at line 1.']
             ];
 
-            let parser = new TwingParser(env);
+            let parser = new Parser(env);
 
             for (let testCase of testCases) {
                 let stream = new TokenStream([
@@ -1198,7 +1198,7 @@ tape('parser', (test) => {
     });
 
     test.test('parseArrow', (test) => {
-        let env = new TwingEnvironmentNode(new MockLoader());
+        let env = new NodeEnvironment(new MockLoader());
 
         test.test('returns null when closing parenthesis is missing', (test) => {
             let stream = new TokenStream([

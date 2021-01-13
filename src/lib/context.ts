@@ -1,6 +1,6 @@
 import {iteratorToMap} from "./helpers/iterator-to-map";
 
-export class TwingContext<K, V> {
+export class Context<K, V> {
     private readonly _container: Map<any, any>;
     private readonly _proxy: any;
 
@@ -54,13 +54,13 @@ export class TwingContext<K, V> {
         return this._container.delete(key);
     }
 
-    clone(): TwingContext<K, V> {
+    clone(): Context<K, V> {
         let clonedContainer: Map<K, V> = new Map();
 
         for (let [key, value] of this._container) {
             clonedContainer.set(key, value);
         }
 
-        return new TwingContext<K, V>(clonedContainer);
+        return new Context<K, V>(clonedContainer);
     }
 }

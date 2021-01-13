@@ -1,4 +1,4 @@
-import {TwingEnvironment} from "../../../environment";
+import {Environment} from "../../../environment";
 import {iconv} from "../../../helpers/iconv";
 import {isTraversable} from "../../../helpers/is-traversable";
 import {iteratorToArray} from "../../../helpers/iterator-to-array";
@@ -14,7 +14,7 @@ const array_rand = require('locutus/php/array/array_rand');
  * - a random character from a string
  * - a random integer between 0 and the integer parameter.
  *
- * @param {TwingEnvironment} env
+ * @param {Environment} env
  * @param {*} values The values to pick a random item from
  * @param {number} max Maximum value used when values is an integer
  *
@@ -22,7 +22,7 @@ const array_rand = require('locutus/php/array/array_rand');
  *
  * @returns {Promise<any>} A random value from the given sequence
  */
-export function random(env: TwingEnvironment, values: any = null, max: number = null): any {
+export function random(env: Environment, values: any = null, max: number = null): any {
     let _do = (): any => {
         if (values === null) {
             return max === null ? mt_rand() : mt_rand(0, max);

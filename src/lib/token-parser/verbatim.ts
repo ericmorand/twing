@@ -13,21 +13,18 @@ export class VerbatimTokenParser extends TokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        /**
-         * @type {TwingNodeText}
-         */
         let text = this.parser.subparse([this, this.decideBlockEnd], true);
 
         stream.expect(TokenType.TAG_END);
 
-        return new VerbatimNode({data: text.attributes.data}, null, token, this.getTag());
+        return new VerbatimNode({data: text.attributes.data}, null, token, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endverbatim');
     }
 
-    getTag() {
+    get tag(): string {
         return 'verbatim';
     }
 }

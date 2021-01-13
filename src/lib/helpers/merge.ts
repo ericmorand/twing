@@ -1,6 +1,6 @@
-import {TwingContext} from "../context";
+import {Context} from "../context";
 
-export function merge<V>(iterable1: TwingContext<any, V> | Map<any, V>, iterable2: TwingContext<any, V> | Map<any, V>): Map<any, V> {
+export function merge<V>(iterable1: Context<any, V> | Map<any, V>, iterable2: Context<any, V> | Map<any, V>): Map<any, V> {
     let result = new Map();
 
     let index = 0;

@@ -1,13 +1,13 @@
 import * as tape from 'tape';
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../src/lib/loader/array";
-import {TwingNodeVisitorEscaper} from "../../../../../../src/lib/node-visitor/escaper";
+import {EscaperNodeVisitor} from "../../../../../../src/lib/node-visitor/escaper";
 import {TextNode} from "../../../../../../src/lib/node/text";
 import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 import {Node} from "../../../../../../src/lib/node";
 import {Source} from "../../../../../../src/lib/source";
 import {ModuleNode} from "../../../../../../src/lib/node/module";
-import {TwingNodeVisitorSafeAnalysis} from "../../../../../../src/lib/node-visitor/safe-analysis";
+import {SafeAnalysisNodeVisitor} from "../../../../../../src/lib/node-visitor/safe-analysis";
 import {PrintNode} from "../../../../../../src/lib/node/print";
 
 const sinon = require('sinon');
@@ -15,8 +15,8 @@ const sinon = require('sinon');
 tape('node-visitor/escaper', (test) => {
     test.test('doEnterNode', (test) => {
         test.test('with "module" node', function(test) {
-            let env = new TwingEnvironmentNode(new ArrayLoader({}));
-            let visitor = new TwingNodeVisitorEscaper();
+            let env = new NodeEnvironment(new ArrayLoader({}));
+            let visitor = new EscaperNodeVisitor();
             let body = new TextNode('foo', 1, 1);
             let parent = new ConstantExpressionNode('layout.twig', 1, 1);
             let blocks = new Node();
@@ -37,9 +37,9 @@ tape('node-visitor/escaper', (test) => {
 
     test.test('doLeaveNode', (test) => {
         test.test('with safe "print" node', function(test) {
-            let env = new TwingEnvironmentNode(new ArrayLoader({}));
-            let visitor = new TwingNodeVisitorEscaper();
-            let safeAnalysis = new TwingNodeVisitorSafeAnalysis();
+            let env = new NodeEnvironment(new ArrayLoader({}));
+            let visitor = new EscaperNodeVisitor();
+            let safeAnalysis = new SafeAnalysisNodeVisitor();
             let print = new PrintNode(new ConstantExpressionNode('foo', 1, 1), 1, 1);
 
             sinon.stub(env, 'hasExtension').returns(false);

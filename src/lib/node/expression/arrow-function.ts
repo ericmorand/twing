@@ -4,7 +4,7 @@ import {Node} from "../../node";
 
 import type {NodeEdges} from "../../node";
 
-export type TwingNodeExpressionArrowFunctionNodes = {
+export type ArrowFunctionExpressionNodeEdges = {
     expr: ExpressionNode<any>,
     names: Node<null, NodeEdges<ExpressionNode<{
         value: string
@@ -14,7 +14,7 @@ export type TwingNodeExpressionArrowFunctionNodes = {
 /**
  * Represents an arrow function.
  */
-export class TwingNodeExpressionArrowFunction extends ExpressionNode<{}, TwingNodeExpressionArrowFunctionNodes> {
+export class ArrowFunctionExpressionNode extends ExpressionNode<{}, ArrowFunctionExpressionNodeEdges> {
     compile(compiler: Compiler) {
         compiler.raw('async (');
 

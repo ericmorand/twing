@@ -1,11 +1,11 @@
 import {Node} from "../node";
 import {Compiler} from "../compiler";
 
-export type TwingNodeSandboxEdges = {
+export type SandboxNodeEdges = {
     body: Node
 };
 
-export class SandboxNode extends Node<null, TwingNodeSandboxEdges> {
+export class SandboxNode extends Node<null, SandboxNodeEdges> {
     compile(compiler: Compiler) {
         compiler
             .write('await (async () => {\n')

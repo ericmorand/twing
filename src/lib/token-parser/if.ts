@@ -66,7 +66,7 @@ export class IfTokenParser extends TokenParser {
         return new IfNode(null, {
             tests: new Node(null, toNodeEdges(tests), token),
             else: elseNode
-        }, token, this.getTag());
+        }, token, this.tag);
     }
 
     decideIfFork(token: Token) {
@@ -77,7 +77,7 @@ export class IfTokenParser extends TokenParser {
         return token.test(TokenType.NAME, 'endif');
     }
 
-    getTag() {
+    get tag(): string {
         return 'if';
     }
 }

@@ -26,14 +26,14 @@ export class SpacelessTokenParser extends TokenParser {
         let body = this.parser.subparse([this, this.decideSpacelessEnd], true);
         stream.expect(TokenType.TAG_END);
 
-        return new SpacelessNode(null, {body}, token, this.getTag());
+        return new SpacelessNode(null, {body}, token, this.tag);
     }
 
     decideSpacelessEnd(token: Token) {
         return token.test(TokenType.NAME, 'endspaceless');
     }
 
-    getTag() {
+    get tag(): string {
         return 'spaceless';
     }
 }

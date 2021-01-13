@@ -6,10 +6,10 @@ export class FlushTokenParser extends TokenParser {
     parse(token: Token) {
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new FlushNode(null, null, token, this.getTag());
+        return new FlushNode(null, null, token, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'flush';
     }
 }

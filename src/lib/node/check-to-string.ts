@@ -10,11 +10,11 @@ import {Compiler} from "../compiler";
  * method is allowed if 'article' is an object. The same goes for {{ article|upper }}
  * or {{ random(article) }}.
  */
-export type TwingNodeCheckToStringEdges = {
+export type CheckToStringNodeEdges = {
     expression: ExpressionNode<any>
 }
 
-export class TwingNodeCheckToString extends Node<null, TwingNodeCheckToStringEdges> {
+export class CheckToStringNode extends Node<null, CheckToStringNodeEdges> {
     compile(compiler: Compiler) {
         compiler
             .raw('this.environment.ensureToStringAllowed(')

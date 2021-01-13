@@ -2,10 +2,10 @@ import * as tape from 'tape';
 import {MockEnvironment} from "../../../../../../../mock/environment";
 import {MockLoader} from "../../../../../../../mock/loader";
 import {escape} from "../../../../../../../../src/lib/extension/core/filters/escape";
-import {TwingEnvironment} from "../../../../../../../../src/lib/environment";
+import {Environment} from "../../../../../../../../src/lib/environment";
 import {MockTemplate} from "../../../../../../../mock/template";
 
-function foo_escaper_for_test(env: TwingEnvironment, string: string, charset: string) {
+function foo_escaper_for_test(env: Environment, string: string, charset: string) {
     return (string ? string : '') + charset;
 }
 
@@ -340,7 +340,7 @@ tape('escaping', (test) => {
         for (let customEscaperCase of customEscaperCases) {
             let template = getTemplate();
 
-            template.environment.getCoreExtension().setEscaper('foo', foo_escaper_for_test);
+            template.environment.getCoreExtension().addEscaper('foo', foo_escaper_for_test);
 
             test.same(await escape(template, customEscaperCase[1], customEscaperCase[2], customEscaperCase[3]), customEscaperCase[0]);
         }

@@ -1,5 +1,5 @@
 import {CacheInterface} from "../cache-interface";
-import {TwingTemplatesModule} from "../environment";
+import {TemplatesModule} from "../environment";
 import {stat, writeFile, rename, unlink} from "fs";
 import {dirname, join, resolve as resolvePath, extname} from "path";
 import {ensureDir} from "fs-extra";
@@ -34,7 +34,7 @@ export class FilesystemCache implements CacheInterface {
         ));
     }
 
-    load(key: string): Promise<TwingTemplatesModule> {
+    load(key: string): Promise<TemplatesModule> {
         let modulePath: string = resolvePath(key);
 
         return new Promise((resolve) => {

@@ -8,10 +8,10 @@ export class DoTokenParser extends TokenParser {
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new DoNode(null, {expr}, token, this.getTag());
+        return new DoNode(null, {expression: expr}, token, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'do';
     }
 }

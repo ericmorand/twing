@@ -16,23 +16,6 @@ tape('token', (test) => {
         test.end();
     });
 
-    test.test('clone', (test) => {
-        let childNode = new Node();
-        let childAttribute = new Node();
-        let node = new Node(new Map([[0, childNode]]), new Map([['foo', childAttribute]]));
-        let clone = node.clone();
-
-        test.notEquals(clone, node);
-        test.notEquals(clone.getNode(0), childNode);
-        test.notEquals(clone.getAttribute('foo'), childAttribute);
-        test.same(clone.getLine(), node.getLine());
-        test.same(clone.getColumn(), node.getColumn());
-        test.same(clone.type, node.type);
-        test.same(clone.getTag(), node.getTag());
-
-        test.end();
-    });
-
     test.test('getAttribute', (test) => {
         let node = new Node();
 

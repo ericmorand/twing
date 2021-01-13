@@ -1,8 +1,8 @@
 import * as tape from 'tape';
 import {TokenStream} from "../../../../../../src/lib/token-stream";
 import {AutoEscapeTokenParser} from "../../../../../../src/lib/token-parser/auto-escape";
-import {TwingParser} from "../../../../../../src/lib/parser";
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
+import {Parser} from "../../../../../../src/lib/parser";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../src/lib/loader/array";
 import {TextNode} from "../../../../../../src/lib/node/text";
 
@@ -17,7 +17,7 @@ tape('token-parser/auto-escape', (test) => {
             ]);
 
             let tokenParser = new AutoEscapeTokenParser();
-            let parser = new TwingParser(new TwingEnvironmentNode(new ArrayLoader({})));
+            let parser = new Parser(new NodeEnvironment(new ArrayLoader({})));
 
             sinon.stub(parser, 'parseExpression').returns(new TextNode('foo', 1, 1, null));
 

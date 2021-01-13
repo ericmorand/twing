@@ -3,8 +3,8 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {Lexer, SyntaxError as LexerSyntaxError, TokenType} from "twig-lexer";
-import {TwingEnvironment} from "./environment";
+import {Lexer as TwigLexer, SyntaxError as LexerSyntaxError, TokenType} from "twig-lexer";
+import {Environment} from "./environment";
 import {Source} from "./source";
 import {TokenStream} from "./token-stream";
 import {SyntaxError} from "./error/syntax";
@@ -48,17 +48,17 @@ export const typeToEnglish = (type: TokenType): string => {
     }
 };
 
-type TwingLexerOptions = {
+type LexerOptions = {
     interpolation_pair?: [string, string],
     comment_pair?: [string, string],
     tag_pair?: [string, string],
     variable_pair?: [string, string]
 };
 
-export class TwingLexer extends Lexer {
-    private env: TwingEnvironment;
+export class Lexer extends TwigLexer {
+    private env: Environment;
 
-    constructor(env: TwingEnvironment, options: TwingLexerOptions = {}) {
+    constructor(env: Environment, options: LexerOptions = {}) {
         super();
 
         this.env = env;
@@ -80,10 +80,10 @@ export class TwingLexer extends Lexer {
         }
 
         // custom operators
-        for (let operators of [env.getBinaryOperators(), env.getUnaryOperators()]) {
-            for (let [key, operator] of operators) {
-                if (!this.operators.includes(key)) {
-                    this.operators.push(key);
+        for (let operators of [env.binaryOperators, env.unaryOperators]) {
+            for (let [name] of operators) {
+                if (!this.operators.includes(name)) {
+                    this.operators.push(name);
                 }
             }
         }

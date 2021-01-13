@@ -1,12 +1,12 @@
 import * as tape from 'tape';
-import {TwingExtensionCore} from "../../../../../../../../src/lib/extension/core";
+import {CoreExtension} from "../../../../../../../../src/lib/extension/core";
 
 tape('date-format', (test) => {
-    let extension = new TwingExtensionCore();
+    let extension = new CoreExtension();
 
     extension.setDateFormat();
 
-    test.same(extension.getDateFormat(), ['F j, Y H:i', '%d days']);
+    test.same(extension.dateFormat(), ['F j, Y H:i', '%d days']);
 
     test.end();
 });

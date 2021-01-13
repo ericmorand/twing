@@ -5,23 +5,23 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {TwingEnvironment} from "./environment";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
+import {Environment} from "./environment";
+import {NodeVisitorInterface} from "./node-visitor-interface";
 import {Node} from "./node";
 
 import {ksort} from "./helpers/ksort";
 import {push} from "./helpers/push";
 
 export class NodeTraverser {
-    private env: TwingEnvironment;
-    private visitors: Map<number, Map<string, TwingNodeVisitorInterface>> = new Map();
+    private readonly env: Environment;
+    private visitors: Map<number, Map<string, NodeVisitorInterface>> = new Map();
 
     /**
      *
-     * @param {TwingEnvironment} env
-     * @param {Array<TwingNodeVisitorInterface>} visitors
+     * @param {Environment} env
+     * @param {Array<NodeVisitorInterface>} visitors
      */
-    constructor(env: TwingEnvironment, visitors: Array<TwingNodeVisitorInterface> = []) {
+    constructor(env: Environment, visitors: Array<NodeVisitorInterface> = []) {
         let self = this;
 
         this.env = env;
@@ -31,12 +31,12 @@ export class NodeTraverser {
         }
     }
 
-    addVisitor(visitor: TwingNodeVisitorInterface) {
-        if (!this.visitors.has(visitor.getPriority())) {
-            this.visitors.set(visitor.getPriority(), new Map());
+    addVisitor(visitor: NodeVisitorInterface) {
+        if (!this.visitors.has(visitor.priority)) {
+            this.visitors.set(visitor.priority, new Map());
         }
 
-        push(this.visitors.get(visitor.getPriority()), visitor);
+        push(this.visitors.get(visitor.priority), visitor);
     }
 
     /**
@@ -58,21 +58,23 @@ export class NodeTraverser {
         return result;
     }
 
-    visit(node: Node, visitor: TwingNodeVisitorInterface): Node {
-        node = visitor.TwingNodeVisitorInterfaceImpl.enterNode(node, this.env);
+    visit(node: Node, visitor: NodeVisitorInterface): Node {
+        node = visitor.enterNode(node, this.env);
 
-        for (let [key, subNode] of node) {
-            let visitedNode = this.visit(subNode, visitor);
+        if (node) {
+            for (let [key, subNode] of node) {
+                let visitedNode = this.visit(subNode, visitor);
 
-            if (visitedNode) {
-                if (visitedNode !== subNode) {
-                    node.edges[key] = visitedNode;
+                if (visitedNode) {
+                    if (visitedNode !== subNode) {
+                        node.edges[key] = visitedNode;
+                    }
+                } else {
+                    delete node.edges[key];
                 }
-            } else {
-                delete node.edges[key];
             }
         }
 
-        return visitor.TwingNodeVisitorInterfaceImpl.leaveNode(node, this.env);
+        return visitor.leaveNode(node, this.env);
     }
 }

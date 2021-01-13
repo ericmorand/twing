@@ -1,11 +1,11 @@
 import {SourceNode} from "source-map";
-import {TwingSourceMapNode} from "../node";
+import {SourceMapNode} from "../node";
 
-export class TwingSourceMapNodeSpaceless extends TwingSourceMapNode {
+export class SpacelessSourceMapNode extends SourceMapNode {
     toSourceNode(): SourceNode {
-        let flattenedChildren: TwingSourceMapNode[] = [];
+        let flattenedChildren: SourceMapNode[] = [];
 
-        let flattenChildren = (node: TwingSourceMapNode) => {
+        let flattenChildren = (node: SourceMapNode) => {
             for (let child of node.children) {
                 flattenedChildren.push(child);
 
@@ -19,8 +19,8 @@ export class TwingSourceMapNodeSpaceless extends TwingSourceMapNode {
         let tagOpenRegex = /^\s*</;
         let emptyRegex = /^\s*$/;
 
-        let leadingChildrenToTrim: TwingSourceMapNode[] = [];
-        let trailingChildrenToTrim: TwingSourceMapNode[] = [];
+        let leadingChildrenToTrim: SourceMapNode[] = [];
+        let trailingChildrenToTrim: SourceMapNode[] = [];
 
         let i: number;
         let done: boolean;
@@ -59,8 +59,8 @@ export class TwingSourceMapNodeSpaceless extends TwingSourceMapNode {
             child.content = child.content.trimRight();
         }
 
-        let closeTagNode: TwingSourceMapNode = null;
-        let toEmptyNodes: TwingSourceMapNode[] = [];
+        let closeTagNode: SourceMapNode = null;
+        let toEmptyNodes: SourceMapNode[] = [];
 
         for (let child of flattenedChildren) {
             if (!emptyRegex.test(child.content)) {

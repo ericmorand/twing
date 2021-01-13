@@ -3,11 +3,11 @@ import {Node} from "../node";
 import type {NodeEdges} from "../node";
 
 export type ExpressionNodeAttributes<A> = A & {
-    optimizable?: boolean,
+    isOptimizable?: boolean,
     ignoreStrictCheck?: boolean,
     isDefinedTest?: boolean,
-    alwaysDefined?: boolean,
-    safe?: boolean
+    isAlwaysDefined?: boolean,
+    isSafe?: boolean
 };
 
 /**

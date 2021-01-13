@@ -26,7 +26,7 @@ export class ApplyTokenParser extends TokenParser {
         // todo: is this used somewhere?
         //ref.setAttribute('always_defined', true);
 
-        let filter = this.parser.parseFilterExpressionRaw(ref, this.getTag());
+        let filter = this.parser.parseFilterExpressionRaw(ref, this.tag);
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
@@ -44,8 +44,8 @@ export class ApplyTokenParser extends TokenParser {
         nodes.set('0', new SetNode({capture: true}, {
             names: ref,
             values: body
-        }, token, this.getTag()));
-        nodes.set('1', new PrintNode(null, {content: filter}, token, this.getTag()));
+        }, token, this.tag));
+        nodes.set('1', new PrintNode(null, {content: filter}, token, this.tag));
 
         return new Node(toNodeEdges(nodes), null, token);
     }
@@ -54,7 +54,7 @@ export class ApplyTokenParser extends TokenParser {
         return token.test(TokenType.NAME, 'endapply');
     }
 
-    getTag() {
+    get tag(): string {
         return 'apply';
     }
 }

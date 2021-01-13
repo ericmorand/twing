@@ -1,6 +1,6 @@
 import * as tape from 'tape';
-import {TwingLexer, typeToEnglish} from "../../../../../src/lib/lexer";
-import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
+import {Lexer, typeToEnglish} from "../../../../../src/lib/lexer";
+import {NodeEnvironment} from "../../../../../src/lib/environment/node";
 import {NullLoader} from "../../../../../src/lib/loader/null";
 import {TokenType} from "twig-lexer";
 import {Operator, OperatorAssociativity, TwingOperatorType} from "../../../../../src/lib/operator";
@@ -8,7 +8,7 @@ import {Operator, OperatorAssociativity, TwingOperatorType} from "../../../../..
 tape('lexer', (test) => {
     test.test('constructor', (test) => {
         test.test('support passing variable_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
+            let lexer = new Lexer(new NodeEnvironment(new NullLoader()), {
                 variable_pair: ['<<', '>>']
             });
 
@@ -24,7 +24,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing comment_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
+            let lexer = new Lexer(new NodeEnvironment(new NullLoader()), {
                 comment_pair: ['<<', '>>']
             });
 
@@ -40,7 +40,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing interpolation_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
+            let lexer = new Lexer(new NodeEnvironment(new NullLoader()), {
                 interpolation_pair: ['#<', '>']
             });
 
@@ -56,7 +56,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support passing tag_pair option', (test) => {
-            let lexer = new TwingLexer(new TwingEnvironmentNode(new NullLoader()), {
+            let lexer = new Lexer(new NodeEnvironment(new NullLoader()), {
                 tag_pair: ['<<', '>>']
             });
 
@@ -72,7 +72,7 @@ tape('lexer', (test) => {
         });
 
         test.test('support custom operators', (test) => {
-            class CustomEnvironment extends TwingEnvironmentNode {
+            class CustomEnvironment extends NodeEnvironment {
                 getBinaryOperators() {
                     return new Map([
                         ['foo', new Operator('foo', TwingOperatorType.BINARY, 0, () => {
@@ -90,7 +90,7 @@ tape('lexer', (test) => {
                 }
             }
 
-            let lexer = new TwingLexer(new CustomEnvironment(new NullLoader(), {}));
+            let lexer = new Lexer(new CustomEnvironment(new NullLoader(), {}));
 
             let tokens = lexer.tokenize(`{{a foo b}}{{bar a}}`);
 

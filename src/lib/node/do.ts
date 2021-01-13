@@ -11,13 +11,13 @@ import {Compiler} from "../compiler";
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export type DoNodeEdges = {
-    expr: ExpressionNode<any>
+    expression: ExpressionNode<any>
 };
 
 export class DoNode extends Node<null, DoNodeEdges> {
     compile(compiler: Compiler) {
         compiler
-            .subCompile(this.edges.expr, true)
+            .subCompile(this.edges.expression, true)
             .raw(";\n")
         ;
     }

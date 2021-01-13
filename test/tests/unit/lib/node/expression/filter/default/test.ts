@@ -4,7 +4,7 @@ import {DefaultFilterExpressionNode} from "../../../../../../../../src/lib/node/
 import {NameExpressionNode} from "../../../../../../../../src/lib/node/expression/name";
 import {Node} from "../../../../../../../../src/lib/node";
 import {Compiler} from "../../../../../../../../src/lib/compiler";
-import {TwingEnvironmentNode} from "../../../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../../../src/lib/loader/array";
 
 tape('node/expression/filter/default', (test) => {
@@ -17,7 +17,7 @@ tape('node/expression/filter/default', (test) => {
                 1, 1
             );
 
-            let compiler = new Compiler(new TwingEnvironmentNode(new ArrayLoader({})));
+            let compiler = new Compiler(new NodeEnvironment(new ArrayLoader({})));
 
             test.same(compiler.compile(node).getSource(), `(((context.has(\`foo\`))) ? (await this.environment.getFilter('default').traceableCallable(1, this.source)(...[(context.has(\`foo\`) ? context.get(\`foo\`) : null)])) : (\`\`))`);
 

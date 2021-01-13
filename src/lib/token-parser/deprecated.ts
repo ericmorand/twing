@@ -19,10 +19,10 @@ export class DeprecatedTokenParser extends TokenParser {
 
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new DeprecatedNode(null, {expression}, token, this.getTag());
+        return new DeprecatedNode(null, {expression}, token, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'deprecated';
     }
 }

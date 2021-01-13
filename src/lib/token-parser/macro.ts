@@ -43,7 +43,7 @@ export class MacroTokenParser extends TokenParser {
         this.parser.setMacro(name, new MacroNode({name}, {
             body: new BodyNode(null, {content: body}, token),
             arguments: macroArguments
-        }, token, this.getTag()));
+        }, token, this.tag));
 
         return null;
     }
@@ -52,7 +52,7 @@ export class MacroTokenParser extends TokenParser {
         return token.test(TokenType.NAME, 'endmacro');
     }
 
-    getTag() {
+    get tag(): string {
         return 'macro';
     }
 }

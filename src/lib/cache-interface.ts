@@ -1,6 +1,6 @@
 /* istanbul ignore next */
 
-import {TwingTemplatesModule} from "./environment";
+import {TemplatesModule} from "./environment";
 
 export interface CacheInterface {
     /**
@@ -28,9 +28,9 @@ export interface CacheInterface {
      *
      * @param {string} key The cache key
      *
-     * @return {Promise<TwingTemplatesModule>}
+     * @return {Promise<TemplatesModule>}
      */
-    load(key: string): Promise<TwingTemplatesModule>;
+    load(key: string): Promise<TemplatesModule>;
 
     /**
      * Returns the modification timestamp of a key.

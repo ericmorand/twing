@@ -1,54 +1,9 @@
-import {TwingExtension} from "../extension";
-import {ForTokenParser} from "../token-parser/for";
-import {AndBinaryExpressionNode} from "../node/expression/binary/and";
-import {ExtendsTokenParser} from "../token-parser/extends";
-import {FromTokenParser} from "../token-parser/from";
-import {MacroTokenParser} from "../token-parser/macro";
+import {Extension} from "../extension";
 import {Location, Node} from "../node";
-import {InBinaryExpressionNode} from "../node/expression/binary/in";
-import {IfTokenParser} from "../token-parser/if";
-import {SetTokenParser} from "../token-parser/set";
-import {BlockTokenParser} from "../token-parser/block";
-import {GreaterBinaryExpressionNode} from "../node/expression/binary/greater";
-import {LessBinaryExpressionNode} from "../node/expression/binary/less";
-import {IncludeTokenParser} from "../token-parser/include";
-import {WithTokenParser} from "../token-parser/with";
-import {NotUnaryExpressionNode} from "../node/expression/unary/not";
-import {NegativeUnaryExpressionNode} from "../node/expression/unary/neg";
-import {PositiveUnaryExpressionNode} from "../node/expression/unary/pos";
 import {Function} from "../function";
-import {SpacelessTokenParser} from "../token-parser/spaceless";
-import {ConcatBinaryExpressionNode} from "../node/expression/binary/concat";
-import {MultiplyBinaryExpressionNode} from "../node/expression/binary/mul";
-import {DivBinaryExpressionNode} from "../node/expression/binary/div";
-import {FloorDivBinaryExpressionNode} from "../node/expression/binary/floor-div";
-import {ModuloBinaryExpressionNode} from "../node/expression/binary/mod";
-import {SubtractBinaryExpressionNode} from "../node/expression/binary/sub";
-import {AddBinaryExpressionNode} from "../node/expression/binary/add";
-import {UseTokenParser} from "../token-parser/use";
-import {EmbedTokenParser} from "../token-parser/embed";
-import {FilterTokenParser} from "../token-parser/filter";
-import {RangeBinaryExpressionNode} from "../node/expression/binary/range";
-import {ImportTokenParser} from "../token-parser/import";
-import {DoTokenParser} from "../token-parser/do";
-import {FlushTokenParser} from "../token-parser/flush";
-import {EqualBinaryExpressionNode} from "../node/expression/binary/equal";
-import {NotEqualBinaryExpressionNode} from "../node/expression/binary/not-equal";
-import {OrBinaryExpressionNode} from "../node/expression/binary/or";
-import {BitwiseOrBinaryExpressionNode} from "../node/expression/binary/bitwise-or";
-import {BitwiseXorBinaryExpressionNode} from "../node/expression/binary/bitwise-xor";
-import {BitwiseAndBinaryExpressionNode} from "../node/expression/binary/bitwise-and";
-import {GreaterOrEqualBinaryExpressionNode} from "../node/expression/binary/greater-equal";
-import {LessOrEqualBinaryExpressionNode} from "../node/expression/binary/less-equal";
-import {NotInBinaryExpressionNode} from "../node/expression/binary/not-in";
-import {NullCoalesceExpressionNode} from "../node/expression/null-coalesce";
 import {ExpressionNode} from "../node/expression";
-import {PowerBinaryExpressionNode} from "../node/expression/binary/power";
 import {DefinedTestExpressionNode} from "../node/expression/test/defined";
 import {Test} from "../test";
-import {MatchesBinaryExpressionNode} from "../node/expression/binary/matches";
-import {StartsWithBinaryExpressionNode} from "../node/expression/binary/starts-with";
-import {EndsWithBinaryExpressionNode} from "../node/expression/binary/ends-with";
 import {Filter} from "../filter";
 import {Settings as DateTimeSettings} from 'luxon';
 import {ConstantExpressionNode} from "../node/expression/constant";
@@ -57,8 +12,6 @@ import {merge} from "../helpers/merge";
 import {slice} from "../helpers/slice";
 import {reverse} from "../helpers/reverse";
 import {first} from "../helpers/first";
-import {DeprecatedTokenParser} from "../token-parser/deprecated";
-import {ApplyTokenParser} from "../token-parser/apply";
 import {Operator, OperatorAssociativity} from "../operator";
 import {even} from "./core/tests/even";
 import {odd} from "./core/tests/odd";
@@ -67,7 +20,6 @@ import {nullTest} from "./core/tests/null";
 import {divisibleBy} from "./core/tests/divisible-by";
 import {min} from "./core/functions/min";
 import {max} from "./core/functions/max";
-import {VerbatimTokenParser} from "../token-parser/verbatim";
 import {date} from "./core/filters/date";
 import {dateModify} from "./core/filters/date-modify";
 import {format} from "./core/filters/format";
@@ -105,11 +57,7 @@ import {column} from "./core/filters/column";
 import {filter} from "./core/filters/filter";
 import {map} from "./core/filters/map";
 import {reduce} from "./core/filters/reduce";
-import {AutoEscapeTokenParser} from "../token-parser/auto-escape";
-import {SandboxTokenParser} from "../token-parser/sandbox";
-import {TwingBaseNodeVisitor} from "../base-node-visitor";
-// import {TwingNodeVisitorEscaper} from "../node-visitor/escaper";
-// import {TwingNodeVisitorSandbox} from "../node-visitor/sandbox";
+import {BaseNodeVisitor} from "../base-node-visitor";
 import {range} from "./core/functions/range";
 import {constant} from "./core/functions/constant";
 import {cycle} from "./core/functions/cycle";
@@ -120,36 +68,106 @@ import {dump} from "./core/functions/dump";
 import {empty} from "./core/tests/empty";
 import {iterable} from "./core/tests/iterable";
 import {date as dateFunction} from "./core/functions/date";
-import {TwingSourceMapNodeFactorySpaceless} from "../source-map/node-factory/spaceless";
-import {TwingSourceMapNodeFactory} from "../source-map/node-factory";
+import {SpacelessSourceMapNodeFactory} from "../source-map/node-factory/spaceless";
+import {SourceMapNodeFactory} from "../source-map/node-factory";
 import {ConstantTestExpressionNode} from "../node/expression/test/constant";
-import {LineTokenParser} from "../token-parser/line";
 import {extname, basename} from "path";
-import {TwingEscapingStrategyResolver} from "../environment";
+import {Environment, EscapingStrategyResolver} from "../environment";
 import {TokenParserInterface} from "../token-parser-interface";
+import {EscaperNodeVisitor} from "../node-visitor/escaper";
+import {SandboxNodeVisitor} from "../node-visitor/sandbox";
+import {ApplyTokenParser} from "../token-parser/apply";
+import {AutoEscapeTokenParser} from "../token-parser/auto-escape";
+import {BlockTokenParser} from "../token-parser/block";
+import {DeprecatedTokenParser} from "../token-parser/deprecated";
+import {DoTokenParser} from "../token-parser/do";
+import {EmbedTokenParser} from "../token-parser/embed";
+import {ExtendsTokenParser} from "../token-parser/extends";
+import {FilterTokenParser} from "../token-parser/filter";
+import {FlushTokenParser} from "../token-parser/flush";
+import {ForTokenParser} from "../token-parser/for";
+import {FromTokenParser} from "../token-parser/from";
+import {IfTokenParser} from "../token-parser/if";
+import {ImportTokenParser} from "../token-parser/import";
+import {IncludeTokenParser} from "../token-parser/include";
+import {LineTokenParser} from "../token-parser/line";
+import {MacroTokenParser} from "../token-parser/macro";
+import {SandboxTokenParser} from "../token-parser/sandbox";
+import {SetTokenParser} from "../token-parser/set";
+import {SpacelessTokenParser} from "../token-parser/spaceless";
+import {UseTokenParser} from "../token-parser/use";
+import {VerbatimTokenParser} from "../token-parser/verbatim";
+import {WithTokenParser} from "../token-parser/with";
+import {UnaryOperator} from "../operator/unary";
+import {NotUnaryExpressionNode} from "../node/expression/unary/not";
+import {NegativeUnaryExpressionNode} from "../node/expression/unary/neg";
+import {PositiveUnaryExpressionNode} from "../node/expression/unary/pos";
+import {BinaryOperator} from "../operator/binary";
+import {OrBinaryExpressionNode} from "../node/expression/binary/or";
+import {AndBinaryExpressionNode} from "../node/expression/binary/and";
+import {BitwiseOrBinaryExpressionNode} from "../node/expression/binary/bitwise-or";
+import {BitwiseXorBinaryExpressionNode} from "../node/expression/binary/bitwise-xor";
+import {BitwiseAndBinaryExpressionNode} from "../node/expression/binary/bitwise-and";
+import {EqualBinaryExpressionNode} from "../node/expression/binary/equal";
+import {NotEqualBinaryExpressionNode} from "../node/expression/binary/not-equal";
+import {LessBinaryExpressionNode} from "../node/expression/binary/less";
+import {LessOrEqualBinaryExpressionNode} from "../node/expression/binary/less-equal";
+import {GreaterBinaryExpressionNode} from "../node/expression/binary/greater";
+import {GreaterOrEqualBinaryExpressionNode} from "../node/expression/binary/greater-equal";
+import {NotInBinaryExpressionNode} from "../node/expression/binary/not-in";
+import {InBinaryExpressionNode} from "../node/expression/binary/in";
+import {MatchesBinaryExpressionNode} from "../node/expression/binary/matches";
+import {StartsWithBinaryExpressionNode} from "../node/expression/binary/starts-with";
+import {EndsWithBinaryExpressionNode} from "../node/expression/binary/ends-with";
+import {RangeBinaryExpressionNode} from "../node/expression/binary/range";
+import {AddBinaryExpressionNode} from "../node/expression/binary/add";
+import {SubtractBinaryExpressionNode} from "../node/expression/binary/sub";
+import {ConcatBinaryExpressionNode} from "../node/expression/binary/concat";
+import {MultiplyBinaryExpressionNode} from "../node/expression/binary/mul";
+import {DivBinaryExpressionNode} from "../node/expression/binary/div";
+import {FloorDivBinaryExpressionNode} from "../node/expression/binary/floor-div";
+import {ModuloBinaryExpressionNode} from "../node/expression/binary/mod";
+import {PowerBinaryExpressionNode} from "../node/expression/binary/power";
+import {NullCoalesceExpressionNode} from "../node/expression/null-coalesce";
 
-export class TwingExtensionCore extends TwingExtension {
-    private dateFormats: Array<string> = ['F j, Y H:i', '%d days'];
+export type Escaper = (env: Environment, string: string, charset: string) => string;
+
+export class CoreExtension extends Extension {
+    private _dateFormats: Array<string> = ['F j, Y H:i', '%d days'];
     private numberFormat: Array<number | string> = [0, '.', ','];
     private timezone: string = null;
-    private escapers: Map<string, Function> = new Map();
-    private defaultStrategy: string | false | TwingEscapingStrategyResolver;
+    private defaultStrategy: string | false | EscapingStrategyResolver;
+
+    private readonly _escapers: Map<string, Escaper>;
 
     /**
-     * @param {string | false | TwingEscapingStrategyResolver} defaultStrategy An escaping strategy
+     * @param {string | false | EscapingStrategyResolver} defaultStrategy An escaping strategy
      */
-    constructor(defaultStrategy: string | false | TwingEscapingStrategyResolver = 'html') {
+    constructor(defaultStrategy: string | false | EscapingStrategyResolver = 'html') {
         super();
 
+        this._escapers = new Map();
         this.setDefaultStrategy(defaultStrategy);
+    }
+
+
+    get escapers() {
+        return this._escapers;
+    }
+
+    /**
+     * The default format to be used by the date filter.
+     */
+    get dateFormat() {
+        return this._dateFormats;
     }
 
     /**
      * Sets the default strategy to use when not defined by the user.
      *
-     * @param {string | false | TwingEscapingStrategyResolver} defaultStrategy An escaping strategy
+     * @param {string | false | EscapingStrategyResolver} defaultStrategy An escaping strategy
      */
-    setDefaultStrategy(defaultStrategy: string | false | TwingEscapingStrategyResolver) {
+    setDefaultStrategy(defaultStrategy: string | false | EscapingStrategyResolver) {
         if (defaultStrategy === 'name') {
             defaultStrategy = (name: string) => {
                 let extension = extname(name);
@@ -196,21 +214,9 @@ export class TwingExtensionCore extends TwingExtension {
 
     /**
      * Defines a new escaper to be used via the escape filter.
-     *
-     * @param {string} strategy     The strategy name that should be used as a strategy in the escape call
-     * @param {Function} callable   A valid PHP callable
      */
-    setEscaper(strategy: string, callable: Function) {
-        this.escapers.set(strategy, callable);
-    }
-
-    /**
-     * Gets all defined escapers.
-     *
-     * @returns {Map<string, Function>}
-     */
-    getEscapers() {
-        return this.escapers;
+    addEscaper(strategy: string, callable: Escaper) {
+        this._escapers.set(strategy, callable);
     }
 
     /**
@@ -221,21 +227,12 @@ export class TwingExtensionCore extends TwingExtension {
      */
     setDateFormat(format: string = null, dateIntervalFormat: string = null) {
         if (format !== null) {
-            this.dateFormats[0] = format;
+            this._dateFormats[0] = format;
         }
 
         if (dateIntervalFormat !== null) {
-            this.dateFormats[1] = dateIntervalFormat;
+            this._dateFormats[1] = dateIntervalFormat;
         }
-    }
-
-    /**
-     * Gets the default format to be used by the date filter.
-     *
-     * @return array The default date format string and the default date interval format string
-     */
-    getDateFormat() {
-        return this.dateFormats;
     }
 
     /**
@@ -281,20 +278,42 @@ export class TwingExtensionCore extends TwingExtension {
     }
 
     getTokenParsers(): Array<TokenParserInterface> {
-        return [];
+        return [
+            new ApplyTokenParser(),
+            new AutoEscapeTokenParser(),
+            new BlockTokenParser(),
+            new DeprecatedTokenParser(),
+            new DoTokenParser(),
+            new EmbedTokenParser(),
+            new ExtendsTokenParser(),
+            new FilterTokenParser(),
+            new FlushTokenParser(),
+            new ForTokenParser(),
+            new FromTokenParser(),
+            new IfTokenParser(),
+            new ImportTokenParser(),
+            new IncludeTokenParser(),
+            new LineTokenParser(),
+            new MacroTokenParser(),
+            new SandboxTokenParser(),
+            new SetTokenParser(),
+            new SpacelessTokenParser(),
+            new UseTokenParser(),
+            new VerbatimTokenParser(),
+            new WithTokenParser()
+        ];
     }
 
-    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory> {
+    getSourceMapNodeFactories(): Map<string, SourceMapNodeFactory> {
         return new Map([
-            ['spaceless', new TwingSourceMapNodeFactorySpaceless()]
+            ['spaceless', new SpacelessSourceMapNodeFactory()]
         ]);
     }
 
-    getNodeVisitors(): TwingBaseNodeVisitor[] {
+    getNodeVisitors(): BaseNodeVisitor[] {
         return [
-            //new TwingNodeVisitorEscaper(),
-            //new TwingNodeVisitorMacroAutoImport(),
-            //new TwingNodeVisitorSandbox()
+            new EscaperNodeVisitor(),
+            new SandboxNodeVisitor()
         ];
     }
 
@@ -517,7 +536,100 @@ export class TwingExtensionCore extends TwingExtension {
     }
 
     getOperators(): Operator<any>[] {
-        return [];
+        return [
+            new UnaryOperator('not', 50, (operand, location) => {
+                return new NotUnaryExpressionNode(null, {operand}, location);
+            }),
+            new UnaryOperator('-', 500, (operand, location) => {
+                return new NegativeUnaryExpressionNode(null, {operand}, location);
+            }),
+            new UnaryOperator('+', 500, (operand, location) => {
+                return new PositiveUnaryExpressionNode(null, {operand}, location);
+            }),
+            new BinaryOperator('or', 10, (operands, location) => {
+                return new OrBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('and', 15, (operands, location) => {
+                return new AndBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('b-or', 16, (operands, location) => {
+                return new BitwiseOrBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('b-xor', 17, (operands, location) => {
+                return new BitwiseXorBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('b-and', 18, (operands, location) => {
+                return new BitwiseAndBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('==', 20, (operands, location) => {
+                return new EqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('!=', 20, (operands, location) => {
+                return new NotEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('<', 20, (operands, location) => {
+                return new LessBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('<=', 20, (operands, location) => {
+                return new LessOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('>', 20, (operands, location) => {
+                return new GreaterBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('>=', 20, (operands, location) => {
+                return new GreaterOrEqualBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('not in', 20, (operands, location) => {
+                return new NotInBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('in', 20, (operands, location) => {
+                return new InBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('matches', 20, (operands, location) => {
+                return new MatchesBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('starts with', 20, (operands, location) => {
+                return new StartsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('ends with', 20, (operands, location) => {
+                return new EndsWithBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('..', 25, (operands, location) => {
+                return new RangeBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('+', 30, (operands, location) => {
+                return new AddBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('-', 30, (operands, location) => {
+                return new SubtractBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('~', 40, (operands, location) => {
+                return new ConcatBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('*', 60, (operands, location) => {
+                return new MultiplyBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('/', 60, (operands, location) => {
+                return new DivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('//', 60, (operands, location) => {
+                return new FloorDivBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('%', 60, (operands, location) => {
+                return new ModuloBinaryExpressionNode({}, {left: operands[0], right: operands[1]}, location);
+            }),
+            new BinaryOperator('is', 100, null),
+            new BinaryOperator('is not', 100, null),
+            new BinaryOperator('**', 200, (operands, location) => {
+                return new PowerBinaryExpressionNode({}, {
+                    left: operands[0],
+                    right: operands[1]
+                }, location, OperatorAssociativity.RIGHT)
+            }),
+            new BinaryOperator('??', 300, (operands, location) => {
+                return new NullCoalesceExpressionNode(operands, location);
+            }, OperatorAssociativity.RIGHT)
+        ];
     }
 
     /**

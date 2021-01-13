@@ -1,20 +1,20 @@
 import * as tape from 'tape';
 import {Operator, TwingOperatorType} from "../../../../../src/lib/operator";
-import {TwingExtension} from "../../../../../src/lib/extension";
-import {TwingExtensionSet} from "../../../../../src/lib/extension-set";
+import {Extension} from "../../../../../src/lib/extension";
+import {ExtensionSet} from "../../../../../src/lib/extension-set";
 import {FilterTokenParser} from "../../../../../src/lib/token-parser/filter";
 import {Test} from "../../../../../src/lib/test";
 import {Filter} from "../../../../../src/lib/filter";
 import {Function} from "../../../../../src/lib/function";
-import {TwingSourceMapNodeFactory} from "../../../../../src/lib/source-map/node-factory";
+import {SourceMapNodeFactory} from "../../../../../src/lib/source-map/node-factory";
 import {TokenParser} from "../../../../../src/lib/token-parser";
 import {Token} from "twig-lexer";
 import {Node} from "../../../../../src/lib/node";
-import {TwingBaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
-import {TwingEnvironment} from "../../../../../src/lib/environment";
+import {BaseNodeVisitor} from "../../../../../src/lib/base-node-visitor";
+import {Environment} from "../../../../../src/lib/environment";
 import {spy} from "sinon";
 
-class TwingTestExtensionSetExtension extends TwingExtension {
+class TwingTestExtensionSetExtension extends Extension {
     getOperators() {
         return [
             new Operator('foo', TwingOperatorType.UNARY, 1, () => null),
@@ -24,7 +24,7 @@ class TwingTestExtensionSetExtension extends TwingExtension {
 }
 
 class TwingTestExtensionSetTokenParser extends TokenParser {
-    getTag() {
+    tag() {
         return 'foo';
     }
 
@@ -33,12 +33,12 @@ class TwingTestExtensionSetTokenParser extends TokenParser {
     }
 }
 
-class TwingTestExtensionSetNodeVisitor extends TwingBaseNodeVisitor {
-    protected doEnterNode(node: Node, env: TwingEnvironment): Node {
+class TwingTestExtensionSetNodeVisitor extends BaseNodeVisitor {
+    protected doEnterNode(node: Node, env: Environment): Node {
         return undefined;
     }
 
-    protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
+    protected doLeaveNode(node: Node, env: Environment): Node {
         return undefined;
     }
 
@@ -50,14 +50,14 @@ class TwingTestExtensionSetNodeVisitor extends TwingBaseNodeVisitor {
 
 tape('extension-set', (test) => {
     test.test('addExtension', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
 
         extensionSet.addExtension(new TwingTestExtensionSetExtension(), 'TwingTestExtensionSetExtension');
 
         test.true(extensionSet.hasExtension('TwingTestExtensionSetExtension'));
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             // initialize the extension set
             extensionSet.getFunctions();
@@ -78,7 +78,7 @@ tape('extension-set', (test) => {
 
     test.test('addTokenParser', (test) => {
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getFunctions();
 
@@ -98,7 +98,7 @@ tape('extension-set', (test) => {
 
     test.test('addNodeVisitor', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             let parser = new FilterTokenParser();
 
             extensionSet.addTokenParser(parser);
@@ -115,7 +115,7 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getFunctions();
 
@@ -135,7 +135,7 @@ tape('extension-set', (test) => {
 
     test.test('addTest', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             let test_ = new Test('foo', () => Promise.resolve(true), []);
 
@@ -153,7 +153,7 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getTests();
 
@@ -172,7 +172,7 @@ tape('extension-set', (test) => {
     });
 
     test.test('getTests', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
         extensionSet.getTests();
 
         test.true(extensionSet.isInitialized());
@@ -182,7 +182,7 @@ tape('extension-set', (test) => {
 
     test.test('addFilter', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             let filter = new Filter('foo', () => Promise.resolve(), []);
 
@@ -200,7 +200,7 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getFilters();
 
@@ -219,7 +219,7 @@ tape('extension-set', (test) => {
     });
 
     test.test('getFilters', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
         extensionSet.getFilters();
 
         test.true(extensionSet.isInitialized());
@@ -229,7 +229,7 @@ tape('extension-set', (test) => {
 
     test.test('addTest', (test) => {
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getFunctions();
 
@@ -249,7 +249,7 @@ tape('extension-set', (test) => {
 
     test.test('addFunction', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             let function_ = new Function('foo', () => Promise.resolve(), []);
 
@@ -267,7 +267,7 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             // initialize the extension set
             extensionSet.getFunctions();
 
@@ -286,7 +286,7 @@ tape('extension-set', (test) => {
     });
 
     test.test('getFunctions', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
 
         extensionSet.getFunctions();
 
@@ -296,7 +296,7 @@ tape('extension-set', (test) => {
     });
 
     test.test('getUnaryOperators', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
         let extension = new TwingTestExtensionSetExtension();
 
         extensionSet.addExtension(extension, 'TwingTestExtensionSetExtension');
@@ -307,7 +307,7 @@ tape('extension-set', (test) => {
     });
 
     test.test('getBinaryOperators', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
         let extension = new TwingTestExtensionSetExtension();
 
         extensionSet.addExtension(extension, 'TwingTestExtensionSetExtension');
@@ -319,7 +319,7 @@ tape('extension-set', (test) => {
 
     test.test('addOperator', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             let operator = new Operator('foo', TwingOperatorType.BINARY, 1, () => null);
 
@@ -337,7 +337,7 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
             let extension = new TwingTestExtensionSetExtension();
 
             extensionSet.addExtension(extension, 'TwingTestExtensionSetExtension');
@@ -360,9 +360,9 @@ tape('extension-set', (test) => {
 
     test.test('addSourceMapNodeFactory', (test) => {
         test.test('already registered', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
-            let factory = new TwingSourceMapNodeFactory('foo' as any);
+            let factory = new SourceMapNodeFactory('foo' as any);
 
             extensionSet.addSourceMapNodeFactory(factory);
 
@@ -378,13 +378,13 @@ tape('extension-set', (test) => {
         });
 
         test.test('initialized', (test) => {
-            let extensionSet = new TwingExtensionSet();
+            let extensionSet = new ExtensionSet();
 
             // initialize the extension set
             extensionSet.getSourceMapNodeFactories();
 
             try {
-                extensionSet.addSourceMapNodeFactory(new TwingSourceMapNodeFactory('foo' as any));
+                extensionSet.addSourceMapNodeFactory(new SourceMapNodeFactory('foo' as any));
 
                 test.fail();
             } catch (e) {
@@ -398,17 +398,17 @@ tape('extension-set', (test) => {
     });
 
     test.test('getSourceMapNodeFactories', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
 
         extensionSet.getSourceMapNodeFactories();
 
         test.true(extensionSet.isInitialized());
 
         test.test('on subsequent calls, don\'t initialize extensions', (test) => {
-            let fooExtension = new TwingExtension();
+            let fooExtension = new Extension();
             let getFiltersSpy = spy(fooExtension, 'getFilters');
 
-            extensionSet = new TwingExtensionSet();
+            extensionSet = new ExtensionSet();
             extensionSet.addExtension(fooExtension, 'foo');
             extensionSet.getSourceMapNodeFactories();
             extensionSet.getSourceMapNodeFactories();
@@ -422,9 +422,9 @@ tape('extension-set', (test) => {
     });
 
     test.test('getSourceMapNodeFactory', (test) => {
-        let extensionSet = new TwingExtensionSet();
+        let extensionSet = new ExtensionSet();
 
-        let factory = new TwingSourceMapNodeFactory('foo' as any);
+        let factory = new SourceMapNodeFactory('foo' as any);
 
         extensionSet.addSourceMapNodeFactory(factory);
 

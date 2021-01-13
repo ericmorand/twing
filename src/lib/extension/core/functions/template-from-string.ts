@@ -1,4 +1,4 @@
-import {TwingEnvironment} from "../../../environment";
+import {Environment} from "../../../environment";
 import {Template} from "../../../template";
 
 /**

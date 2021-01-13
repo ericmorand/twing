@@ -4,7 +4,7 @@ import {LoaderError} from "../../../../../../src/lib/error/loader";
 import {Source} from "../../../../../../src/lib/source";
 import * as fs from "fs";
 import {stub} from "sinon";
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
 import {CacheInterface} from "../../../../../../src/lib/cache-interface";
 import {FilesystemCache} from "../../../../../../src/lib/cache/filesystem";
 
@@ -463,7 +463,7 @@ tape('loader filesystem', (test) => {
 
     test.test('supports relative embed', async (test) => {
         let loader = new FilesystemLoader(fixturesPath);
-        let env = new TwingEnvironmentNode(loader);
+        let env = new NodeEnvironment(loader);
 
         let spy = sinon.spy(env.getCache(false) as CacheInterface, 'generateKey');
 

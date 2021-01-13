@@ -42,7 +42,7 @@ export class FromTokenParser extends TokenParser {
         }, {
             templateName,
             variable
-        }, token, this.getTag());
+        }, token, this.tag);
 
         for (let [name, alias] of targets) {
             this.parser.addImportedSymbol('function', alias, name, variable);
@@ -51,7 +51,7 @@ export class FromTokenParser extends TokenParser {
         return node;
     }
 
-    getTag() {
+    get tag(): string {
         return 'from';
     }
 }

@@ -2,10 +2,10 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 import {Source} from "../source";
-import {TwingSourceMapNode} from "./node";
+import {SourceMapNode} from "./node";
 
-export class TwingSourceMapNodeFactory {
-    create(line: number, column: number, source: Source, name: string): TwingSourceMapNode {
-        return new TwingSourceMapNode(line, column, source, name);
+export class SourceMapNodeFactory {
+    create(line: number, column: number, source: Source, name: string): SourceMapNode {
+        return new SourceMapNode(line, column, source, name);
     }
 }

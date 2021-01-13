@@ -7,13 +7,13 @@ import {RuntimeError} from "../../../error/runtime";
 import {isNullOrUndefined} from "util";
 import {isPlainObject} from "../../../helpers/is-plain-object";
 import {OutputBuffer} from "../../../output-buffer";
-import {TwingContext} from "../../../context";
+import {Context} from "../../../context";
 
 /**
  * Renders a template.
  *
  * @param {Template} template
- * @param {TwingContext<any, any>} context
+ * @param {Context<any, any>} context
  * @param {TwingSource} from
  * @param {OutputBuffer} outputBuffer
  * @param {string | Map<number, string | Template>} templates The template to render or an array of templates to try consecutively
@@ -24,7 +24,7 @@ import {TwingContext} from "../../../context";
  *
  * @returns {Promise<string>} The rendered template
  */
-export function include(template: Template, context: TwingContext<any, any>, outputBuffer: OutputBuffer, templates: string | Map<number, string | Template> | Template, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): Promise<string> {
+export function include(template: Template, context: Context<any, any>, outputBuffer: OutputBuffer, templates: string | Map<number, string | Template> | Template, variables: any = {}, withContext: boolean = true, ignoreMissing: boolean = false, sandboxed: boolean = false): Promise<string> {
     let env = template.environment;
     let from = template.source;
     let alreadySandboxed = env.isSandboxed();

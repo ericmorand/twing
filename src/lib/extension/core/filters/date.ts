@@ -22,7 +22,7 @@ export function date(template: Template, date: DateTime | Duration | string, for
     if (format === null) {
         let coreExtension = template.environment.getCoreExtension();
 
-        let formats = coreExtension.getDateFormat();
+        let formats = coreExtension.dateFormat;
 
         format = date instanceof Duration ? formats[1] : formats[0];
     }

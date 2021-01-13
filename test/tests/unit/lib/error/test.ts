@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {Error} from "../../../../../src/lib/error";
 import {ArrayLoader} from "../../../../../src/lib/loader/array";
-import {TwingEnvironmentNode} from "../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../src/lib/environment/node";
 import {RuntimeError} from "../../../../../src/lib/error/runtime";
 import {FilesystemLoader} from "../../../../../src/lib/loader/filesystem";
 import {Source} from "../../../../../src/lib/source";
@@ -42,7 +42,7 @@ tape('TwingError', (test) => {
 {% endblock %}`
         });
 
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             strict_variables: true,
             debug: true,
             cache: false
@@ -77,7 +77,7 @@ tape('TwingError', (test) => {
 {% endblock %}`
         });
 
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             strict_variables: true,
             debug: true,
             cache: false
@@ -105,7 +105,7 @@ tape('TwingError', (test) => {
     test.test('twingExceptionGuessWithMissingVarAndFilesystemLoader', async (test) => {
         let loader = new FilesystemLoader(path.resolve('test/tests/integration/fixtures/errors'));
 
-        let twing = new TwingEnvironmentNode(loader, {
+        let twing = new NodeEnvironment(loader, {
             strict_variables: true,
             debug: true,
             cache: false
@@ -181,7 +181,7 @@ tape('TwingError', (test) => {
         for (let erroredTemplate of erroredTemplates) {
             let loader = new ArrayLoader(erroredTemplate.templates);
 
-            let twing = new TwingEnvironmentNode(loader, {
+            let twing = new NodeEnvironment(loader, {
                 strict_variables: true,
                 debug: true,
                 cache: false

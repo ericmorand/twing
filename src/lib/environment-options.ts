@@ -2,7 +2,7 @@
 
 import {CacheInterface} from "./cache-interface";
 import {SandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
-import {TwingEscapingStrategyResolver} from "./environment";
+import {EscapingStrategyResolver} from "./environment";
 
 /**
  *  * debug: When set to true, it automatically set "auto_reload" to true as well (default to false).
@@ -16,13 +16,13 @@ import {TwingEscapingStrategyResolver} from "./environment";
  *    * name: set the autoescaping strategy based on the template name extension
  *    * callback: a callback that returns an escaping strategy based on the template "name"
  */
-export type TwingEnvironmentOptions = {
+export type EnvironmentOptions = {
     debug?: boolean;
     charset?: string;
     cache?: CacheInterface | false | string;
     auto_reload?: boolean;
     strict_variables?: boolean;
-    autoescape?: string | false | TwingEscapingStrategyResolver;
+    autoescape?: string | false | EscapingStrategyResolver;
     source_map?: boolean;
     sandbox_policy?: SandboxSecurityPolicyInterface;
     sandboxed?: boolean

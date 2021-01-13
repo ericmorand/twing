@@ -2,7 +2,7 @@ import {Template} from "../template";
 import {isMap} from "./is-map";
 import {RuntimeError} from "../error/runtime";
 import {examineObject} from "./examine-object";
-import {TwingEnvironment} from "../environment";
+import {Environment} from "../environment";
 import {isPlainObject} from "./is-plain-object";
 import {get} from "./get";
 import {ANY_CALL, ARRAY_CALL, METHOD_CALL} from "../node/expression/get-attribute";
@@ -14,7 +14,7 @@ const isObject = require('isobject');
 /**
  * Returns the attribute value for a given array/object.
  *
- * @param {TwingEnvironment} env
+ * @param {Environment} env
  * @param {*} object The object or array from where to get the item
  * @param {*} item The item to get from the array or object
  * @param {Map<any, any>} _arguments A map of arguments to pass if the item is an object method
@@ -27,7 +27,7 @@ const isObject = require('isobject');
  *
  * @throw {TwingErrorRuntime} if the attribute does not exist and Twing is running in strict mode and isDefinedTest is false
  */
-export const getAttribute = (env: TwingEnvironment, object: any, item: any, _arguments: Map<any, any> = new Map(), type: string = ANY_CALL, isDefinedTest: boolean = false, ignoreStrictCheck: boolean = false, sandboxed: boolean = false): Promise<any> => {
+export const getAttribute = (env: Environment, object: any, item: any, _arguments: Map<any, any> = new Map(), type: string = ANY_CALL, isDefinedTest: boolean = false, ignoreStrictCheck: boolean = false, sandboxed: boolean = false): Promise<any> => {
     let _do = (): any => {
         let message: string;
 

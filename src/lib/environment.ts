@@ -1,11 +1,11 @@
 import {TokenParserInterface} from "./token-parser-interface";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
-import {TwingExtensionSet} from "./extension-set";
-import {TwingExtensionCore} from "./extension/core";
-import {TwingExtensionInterface} from "./extension-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
+import {ExtensionSet} from "./extension-set";
+import {CoreExtension} from "./extension/core";
+import {ExtensionInterface} from "./extension-interface";
 import {Filter} from "./filter";
-import {TwingLexer} from "./lexer";
-import {TwingParser} from "./parser";
+import {Lexer} from "./lexer";
+import {Parser} from "./parser";
 import {TokenStream} from "./token-stream";
 import {Source} from "./source";
 import {LoaderInterface} from "./loader-interface";
@@ -22,12 +22,12 @@ import {NullCache} from "./cache/null";
 import {RuntimeError} from "./error/runtime";
 import {EventEmitter} from 'events';
 import {OutputBuffer} from "./output-buffer";
-import {TwingSourceMapNode} from "./source-map/node";
+import {SourceMapNode} from "./source-map/node";
 import {Operator} from "./operator";
 import {SandboxSecurityPolicy} from "./sandbox/security-policy";
 import {SandboxSecurityPolicyInterface} from "./sandbox/security-policy-interface";
-import {TwingEnvironmentOptions} from "./environment-options";
-import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
+import {EnvironmentOptions} from "./environment-options";
+import {SourceMapNodeFactory} from "./source-map/node-factory";
 import {NativeError} from "./native-error";
 import {NativeFunction} from "./native-function";
 import {UnaryOperator} from "./operator/unary";
@@ -38,33 +38,33 @@ const path = require('path');
 const sha256 = require('crypto-js/sha256');
 const hex = require('crypto-js/enc-hex');
 
-export type TwingTemplateConstructor = new(e: TwingEnvironment) => Template;
-export type TwingTemplatesModule = (T: typeof Template) => Map<number, TwingTemplateConstructor>;
-export type TwingEscapingStrategyResolver = (name: string) => string | false;
+export type TemplateConstructor = new(e: Environment) => Template;
+export type TemplatesModule = (T: typeof Template) => Map<number, TemplateConstructor>;
+export type EscapingStrategyResolver = (name: string) => string | false;
 
 export const VERSION: string = '__VERSION__';
 
 /**
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-export abstract class TwingEnvironment extends EventEmitter {
+export abstract class Environment extends EventEmitter {
     private charset: string;
     private loader: LoaderInterface = null;
     private debug: boolean;
     private autoReload: boolean;
     private cache: CacheInterface;
-    private lexer: TwingLexer;
-    private parser: TwingParser;
+    private lexer: Lexer;
+    private parser: Parser;
     private globals: Map<any, any> = new Map();
     private loadedTemplates: Map<string, Template> = new Map();
     private strictVariables: boolean;
     private originalCache: CacheInterface | string | false;
-    private extensionSet: TwingExtensionSet = null;
+    private extensionSet: ExtensionSet = null;
     private optionsHash: string;
-    private sourceMapNode: TwingSourceMapNode;
+    private sourceMapNode: SourceMapNode;
     private sourceMap: boolean;
-    private autoescape: string | false | TwingEscapingStrategyResolver;
-    private coreExtension: TwingExtensionCore;
+    private autoescape: string | false | EscapingStrategyResolver;
+    private coreExtension: CoreExtension;
     private sandboxed: boolean;
     private sandboxPolicy: SandboxSecurityPolicyInterface;
 
@@ -72,9 +72,9 @@ export abstract class TwingEnvironment extends EventEmitter {
      * Constructor.
      *
      * @param {LoaderInterface} loader
-     * @param {TwingEnvironmentOptions} options
+     * @param {EnvironmentOptions} options
      */
-    constructor(loader: LoaderInterface, options: TwingEnvironmentOptions = null) {
+    constructor(loader: LoaderInterface, options: EnvironmentOptions = null) {
         super();
 
         this.setLoader(loader);
@@ -96,20 +96,20 @@ export abstract class TwingEnvironment extends EventEmitter {
         this.autoReload = options.auto_reload === null ? this.debug : options.auto_reload;
         this.strictVariables = options.strict_variables;
         this.setCache(options.cache);
-        this.extensionSet = new TwingExtensionSet();
+        this.extensionSet = new ExtensionSet();
         this.sourceMap = options.source_map;
         this.autoescape = options.autoescape;
         this.sandboxed = options.sandboxed;
         this.sandboxPolicy = options.sandbox_policy;
 
-        this.setCoreExtension(new TwingExtensionCore(options.autoescape));
+        this.setCoreExtension(new CoreExtension(options.autoescape));
     }
 
-    getCoreExtension(): TwingExtensionCore {
+    getCoreExtension(): CoreExtension {
         return this.coreExtension;
     }
 
-    setCoreExtension(extension: TwingExtensionCore) {
+    setCoreExtension(extension: CoreExtension) {
         // todo: remove any
         this.addExtension(extension as any, 'TwingExtensionCore');
 
@@ -314,10 +314,10 @@ export abstract class TwingEnvironment extends EventEmitter {
     /**
      * Register a templates module under an arbitrary name.
      *
-     * @param {TwingTemplatesModule} module
+     * @param {TemplatesModule} module
      * @param {string} name
      */
-    registerTemplatesModule(module: TwingTemplatesModule, name: string) {
+    registerTemplatesModule(module: TemplatesModule, name: string) {
         let templates = module(this.templateConstructor);
 
         for (let [index, constructor] of templates) {
@@ -363,7 +363,7 @@ export abstract class TwingEnvironment extends EventEmitter {
                     return cache.getTimestamp(cacheKey).then((timestamp) => {
                         let templateConstructor = this.templateConstructor;
 
-                        let resolveTemplateConstructorsFromCache = (): Promise<Map<number, TwingTemplateConstructor>> => {
+                        let resolveTemplateConstructorsFromCache = (): Promise<Map<number, TemplateConstructor>> => {
                             let loadFromCache = () => cache.load(cacheKey).then((templatesModule) => templatesModule(templateConstructor));
 
                             if (!this.isAutoReload()) {
@@ -379,7 +379,7 @@ export abstract class TwingEnvironment extends EventEmitter {
                             }
                         };
 
-                        let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TwingTemplateConstructor>): Promise<Template> => {
+                        let resolveMainTemplateFromTemplateConstructors = (templates: Map<number, TemplateConstructor>): Promise<Template> => {
                             let mainTemplate: Template;
 
                             let promises: Array<Promise<void>> = [];
@@ -510,7 +510,7 @@ export abstract class TwingEnvironment extends EventEmitter {
         return loadTemplateAtIndex(0);
     }
 
-    setLexer(lexer: TwingLexer) {
+    setLexer(lexer: Lexer) {
         this.lexer = lexer;
     }
 
@@ -524,7 +524,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      */
     tokenize(source: Source): TokenStream {
         if (!this.lexer) {
-            this.lexer = new TwingLexer(this);
+            this.lexer = new Lexer(this);
         }
 
         let stream = this.lexer.tokenizeSource(source);
@@ -532,7 +532,7 @@ export abstract class TwingEnvironment extends EventEmitter {
         return new TokenStream(stream.toAst(), stream.source);
     }
 
-    setParser(parser: TwingParser) {
+    setParser(parser: Parser) {
         this.parser = parser;
     }
 
@@ -546,7 +546,7 @@ export abstract class TwingEnvironment extends EventEmitter {
      */
     parse(stream: TokenStream): Node {
         if (!this.parser) {
-            this.parser = new TwingParser(this);
+            this.parser = new Parser(this);
         }
 
         return this.parser.parse(stream);
@@ -586,9 +586,9 @@ export abstract class TwingEnvironment extends EventEmitter {
     }
 
     /**
-     * @return {TwingTemplatesModule}
+     * @return {TemplatesModule}
      */
-    private getTemplatesModule(content: string): TwingTemplatesModule {
+    private getTemplatesModule(content: string): TemplatesModule {
         let resolver = new NativeFunction(`let module = {
     exports: undefined
 };
@@ -647,7 +647,7 @@ return module.exports;
      * Gets an extension by name.
      *
      * @param {string} name
-     * @return {TwingExtensionInterface}
+     * @return {ExtensionInterface}
      */
     getExtension(name: string) {
         return this.extensionSet.getExtension(name);
@@ -655,10 +655,10 @@ return module.exports;
 
     /**
      *
-     * @param {TwingExtensionInterface} extension
+     * @param {ExtensionInterface} extension
      * @param {string} name A name the extension will be registered as
      */
-    addExtension(extension: TwingExtensionInterface, name: string) {
+    addExtension(extension: ExtensionInterface, name: string) {
         this.extensionSet.addExtension(extension, name);
         this.updateOptionsHash();
     }
@@ -666,9 +666,9 @@ return module.exports;
     /**
      * Registers some extensions.
      *
-     * @param {Map<string, TwingExtensionInterface>} extensions
+     * @param {Map<string, ExtensionInterface>} extensions
      */
-    addExtensions(extensions: Map<string, TwingExtensionInterface>) {
+    addExtensions(extensions: Map<string, ExtensionInterface>) {
         this.extensionSet.addExtensions(extensions);
         this.updateOptionsHash();
     }
@@ -689,12 +689,10 @@ return module.exports;
     /**
      * Gets the registered Token Parsers.
      *
-     * @return {Array<TokenParserInterface>}
-     *
      * @internal
      */
-    getTokenParsers() {
-        return this.extensionSet.getTokenParsers();
+    get tokenParsers() {
+        return this.extensionSet.tokenParsers;
     }
 
     /**
@@ -707,21 +705,21 @@ return module.exports;
     getTags(): Map<string, TokenParserInterface> {
         let tags = new Map();
 
-        this.getTokenParsers().forEach(function (parser) {
-            tags.set(parser.getTag(), parser);
+        this.tokenParsers.forEach(function (parser) {
+            tags.set(parser.tag, parser);
         });
 
         return tags;
     }
 
-    addNodeVisitor(visitor: TwingNodeVisitorInterface) {
+    addNodeVisitor(visitor: NodeVisitorInterface) {
         this.extensionSet.addNodeVisitor(visitor);
     }
 
     /**
      * Gets the registered Node Visitors.
      *
-     * @return {Array<TwingNodeVisitorInterface>}
+     * @return {Array<NodeVisitorInterface>}
      *
      * @internal
      */
@@ -825,7 +823,7 @@ return module.exports;
     /**
      * @param nodeType
      *
-     * @return TwingSourceMapNodeFactory
+     * @return SourceMapNodeFactory
      */
     getSourceMapNodeFactory(nodeType: string) {
         return this.extensionSet.getSourceMapNodeFactory(nodeType);
@@ -834,7 +832,7 @@ return module.exports;
     /**
      * @return Map<string, TwingSourceMapNodeFactory>
      */
-    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory> {
+    getSourceMapNodeFactories(): Map<string, SourceMapNodeFactory> {
         return this.extensionSet.getSourceMapNodeFactories();
     }
 
@@ -881,24 +879,16 @@ return module.exports;
 
     /**
      * Gets the registered unary Operators.
-     *
-     * @return Map<string, TwingOperator> A map of unary operators
-     *
-     * @internal
      */
-    getUnaryOperators(): Map<string, UnaryOperator> {
-        return this.extensionSet.getUnaryOperators();
+    get unaryOperators(): Map<string, UnaryOperator> {
+        return this.extensionSet.unaryOperators;
     }
 
     /**
      * Gets the registered binary Operators.
-     *
-     * @return Map<string, TwingOperator> An array of binary operators
-     *
-     * @internal
      */
-    getBinaryOperators(): Map<string, BinaryOperator> {
-        return this.extensionSet.getBinaryOperators();
+    get binaryOperators(): Map<string, BinaryOperator> {
+        return this.extensionSet.binaryOperators;
     }
 
     updateOptionsHash() {
@@ -933,7 +923,7 @@ return module.exports;
         let factory = this.getSourceMapNodeFactory(nodeTag);
 
         if (!factory) {
-            factory = new TwingSourceMapNodeFactory();
+            factory = new SourceMapNodeFactory();
         }
 
         let node = factory.create(line, column - 1, source, nodeTag);

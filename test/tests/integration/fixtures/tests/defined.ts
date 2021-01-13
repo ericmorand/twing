@@ -1,5 +1,5 @@
 import TestBase from "../../TestBase";
-import {TwingEnvironmentOptions} from "../../../../../src/lib/environment-options";
+import {EnvironmentOptions} from "../../../../../src/lib/environment-options";
 import Foo from "../../../../Foo";
 
 export class Test extends TestBase {
@@ -100,7 +100,7 @@ export class StrictVariablesSetToFalse extends Test {
         return super.getDescription() + ' (strict_variables set to false)';
     }
 
-    getEnvironmentOptions(): TwingEnvironmentOptions {
+    getEnvironmentOptions(): EnvironmentOptions {
         return {
             strict_variables: false
         }

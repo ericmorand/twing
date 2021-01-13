@@ -1,8 +1,8 @@
 import TestBase from "../../TestBase";
-import {TwingEnvironment} from "../../../../../src/lib/environment";
+import {Environment} from "../../../../../src/lib/environment";
 
 export default class extends TestBase {
-    setEnvironment(env: TwingEnvironment) {
+    setEnvironment(env: Environment) {
         Reflect.set(env.constructor, 'E_NOTICE', 8);
         Reflect.set(env.constructor, 'TwigTestFoo::BAR_NAME', 'bar');
 

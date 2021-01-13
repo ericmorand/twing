@@ -1,5 +1,5 @@
 import {CallExpressionNode} from "./call";
-import {TwingEnvironment} from "../../environment";
+import {Environment} from "../../environment";
 
 import type {Location} from "../../node";
 import type {CallableWrapper} from "../../callable-wrapper";
@@ -17,7 +17,7 @@ export class FunctionExpressionNode extends CallExpressionNode {
         }, edges, location);
     }
 
-    protected getCallableWrapper(environment: TwingEnvironment, name: string): CallableWrapper<any> {
+    protected getCallableWrapper(environment: Environment, name: string): CallableWrapper<any> {
         return environment.getFunction(name);
     }
 }

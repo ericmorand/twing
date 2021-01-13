@@ -1,14 +1,14 @@
 import * as tape from 'tape';
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../src/lib/loader/array";
-import {TwingNodeVisitorSandbox} from "../../../../../../src/lib/node-visitor/sandbox";
+import {SandboxNodeVisitor} from "../../../../../../src/lib/node-visitor/sandbox";
 import {ConstantExpressionNode} from "../../../../../../src/lib/node/expression/constant";
 
 tape('node-visitor/sandbox', (test) => {
     test.test('doEnterNode', (test) => {
         test.test('with not "module" node', function(test) {
-            let env = new TwingEnvironmentNode(new ArrayLoader({}));
-            let visitor = new TwingNodeVisitorSandbox();
+            let env = new NodeEnvironment(new ArrayLoader({}));
+            let visitor = new SandboxNodeVisitor();
             let node = new ConstantExpressionNode('foo', 1, 1);
 
             test.equals(visitor.enterNode(node, env), node, 'returns the node untouched');

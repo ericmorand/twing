@@ -1,27 +1,28 @@
 import {TokenParserInterface} from "./token-parser-interface";
 import {Filter} from "./filter";
 import {Function} from "./function";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
-import {TwingExtensionInterface} from "./extension-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
+import {ExtensionInterface} from "./extension-interface";
 import {Test} from "./test";
 import {Operator} from "./operator";
-import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
+import {SourceMapNodeFactory} from "./source-map/node-factory";
 import {BinaryOperator} from "./operator/binary";
 import {UnaryOperator} from "./operator/unary";
 
-export class TwingExtensionSet {
+export class ExtensionSet {
     private initialized: boolean = false;
     private runtimeInitialized: boolean = false;
-    private visitors: TwingNodeVisitorInterface[] = [];
+    private visitors: NodeVisitorInterface[] = [];
     private filters: Map<string, Filter> = new Map();
     private tests: Map<string, Test> = new Map();
     private functions: Map<string, Function> = new Map();
-    private unaryOperators: Map<string, UnaryOperator> = new Map();
-    private binaryOperators: Map<string, BinaryOperator> = new Map();
-    private tokenParsers: Map<string, TokenParserInterface> = new Map();
-    private sourceMapNodeFactories: Map<string, TwingSourceMapNodeFactory> = new Map();
+    private _unaryOperators: Map<string, UnaryOperator> = new Map();
+    private _binaryOperators: Map<string, BinaryOperator> = new Map();
+    private sourceMapNodeFactories: Map<string, SourceMapNodeFactory> = new Map();
 
-    readonly extensions: Map<string, TwingExtensionInterface>;
+    private _tokenParsers: Map<string, TokenParserInterface> = new Map();
+
+    readonly extensions: Map<string, ExtensionInterface>;
 
     constructor() {
         this.extensions = new Map();
@@ -38,9 +39,9 @@ export class TwingExtensionSet {
     /**
      * Registers somes extensions.
      *
-     * @param {Map<string, TwingExtensionInterface>} extensions
+     * @param {Map<string, ExtensionInterface>} extensions
      */
-    addExtensions(extensions: Map<string, TwingExtensionInterface>) {
+    addExtensions(extensions: Map<string, ExtensionInterface>) {
         for (let [name, extension] of extensions) {
             this.addExtension(extension, name);
         }
@@ -63,7 +64,7 @@ export class TwingExtensionSet {
         return this.initialized || this.runtimeInitialized;
     }
 
-    getNodeVisitors(): TwingNodeVisitorInterface[] {
+    getNodeVisitors(): NodeVisitorInterface[] {
         if (!this.initialized) {
             this.initExtensions();
         }
@@ -71,21 +72,21 @@ export class TwingExtensionSet {
         return this.visitors;
     }
 
-    getTokenParsers(): TokenParserInterface[] {
+    get tokenParsers(): Array<TokenParserInterface> {
         if (!this.initialized) {
             this.initExtensions();
         }
 
-        return [...this.tokenParsers.values()];
+        return [...this._tokenParsers.values()];
     }
 
     /**
      * Registers an extension.
      *
-     * @param {TwingExtensionInterface} extension A TwingExtensionInterface instance
+     * @param {ExtensionInterface} extension A TwingExtensionInterface instance
      * @param {string} name A name the extension will be registered as
      */
-    addExtension(extension: TwingExtensionInterface, name: string) {
+    addExtension(extension: ExtensionInterface, name: string) {
         if (this.initialized) {
             throw new Error(`Unable to register extension "${name}" as extensions have already been initialized.`);
         }
@@ -99,14 +100,14 @@ export class TwingExtensionSet {
 
     addTokenParser(parser: TokenParserInterface) {
         if (this.initialized) {
-            throw new Error(`Unable to add token parser "${parser.getTag()}" as extensions have already been initialized.`);
+            throw new Error(`Unable to add token parser "${parser.tag}" as extensions have already been initialized.`);
         }
 
-        if (this.tokenParsers.has(parser.getTag())) {
-            throw new Error(`Tag "${parser.getTag()}" is already registered.`);
+        if (this._tokenParsers.has(parser.tag)) {
+            throw new Error(`Tag "${parser.tag}" is already registered.`);
         }
 
-        this.tokenParsers.set(parser.getTag(), parser);
+        this._tokenParsers.set(parser.tag, parser);
     }
 
     /**
@@ -114,25 +115,23 @@ export class TwingExtensionSet {
      *
      * @return Map<string, TwingOperator> A map of unary operator definitions
      */
-    getUnaryOperators(): Map<string, UnaryOperator> {
+    get unaryOperators(): Map<string, UnaryOperator> {
         if (!this.initialized) {
             this.initExtensions();
         }
 
-        return this.unaryOperators;
+        return this._unaryOperators;
     }
 
     /**
      * Gets the registered binary Operators.
-     *
-     * @return Map<string, TwingOperator> A map of binary operators
      */
-    getBinaryOperators(): Map<string, BinaryOperator> {
+    get binaryOperators(): Map<string, BinaryOperator> {
         if (!this.initialized) {
             this.initExtensions();
         }
 
-        return this.binaryOperators;
+        return this._binaryOperators;
     }
 
     addFunction(twingFunction: Function) {
@@ -267,7 +266,7 @@ export class TwingExtensionSet {
         return null;
     }
 
-    addNodeVisitor(visitor: TwingNodeVisitorInterface) {
+    addNodeVisitor(visitor: NodeVisitorInterface) {
         if (this.initialized) {
             throw new Error('Unable to add a node visitor as extensions have already been initialized.');
         }
@@ -347,27 +346,26 @@ export class TwingExtensionSet {
     }
 
     addOperator(operator: Operator<any>) {
-        // todo: restore
-        // if (this.initialized) {
-        //     throw new Error(`Unable to add operator "${operator.getName()}" as extensions have already been initialized.`);
-        // }
-        //
-        // let bucket: Map<string, Operator>;
-        //
-        // if (operator.getType() === TwingOperatorType.UNARY) {
-        //     bucket = this.unaryOperators;
-        // } else {
-        //     bucket = this.binaryOperators;
-        // }
-        //
-        // if (bucket.has(operator.getName())) {
-        //     throw new Error(`Operator "${operator.getName()}" is already registered.`);
-        // }
-        //
-        // bucket.set(operator.getName(), operator);
+        if (this.initialized) {
+            throw new Error(`Unable to add operator "${operator.name}" as extensions have already been initialized.`);
+        }
+
+        let bucket: Map<string, Operator<any>>;
+
+        if (operator instanceof UnaryOperator) {
+            bucket = this._unaryOperators;
+        } else {
+            bucket = this._binaryOperators;
+        }
+
+        if (bucket.has(operator.name)) {
+            throw new Error(`Operator "${operator.name}" is already registered.`);
+        }
+
+        bucket.set(operator.name, operator);
     }
 
-    addSourceMapNodeFactory(factory: TwingSourceMapNodeFactory, name: string) {
+    addSourceMapNodeFactory(factory: SourceMapNodeFactory, name: string) {
         if (this.initialized) {
             throw new Error(`Unable to add source-map node factory "${name}" as extensions have already been initialized.`);
         }
@@ -382,7 +380,7 @@ export class TwingExtensionSet {
     /**
      * @return Map<TwingNodeType, TwingSourceMapNodeFactory>
      */
-    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory> {
+    getSourceMapNodeFactories(): Map<string, SourceMapNodeFactory> {
         if (!this.initialized) {
             this.initExtensions();
         }
@@ -393,7 +391,7 @@ export class TwingExtensionSet {
     /**
      * @param nodeType
      *
-     * @return TwingSourceMapNodeFactory | null
+     * @return SourceMapNodeFactory | null
      */
     getSourceMapNodeFactory(nodeType: string) {
         return this.sourceMapNodeFactories.has(nodeType) ? this.sourceMapNodeFactories.get(nodeType) : null;
@@ -407,7 +405,7 @@ export class TwingExtensionSet {
         this.initialized = true;
     }
 
-    protected initExtension(extension: TwingExtensionInterface) {
+    protected initExtension(extension: ExtensionInterface) {
         // filters
         for (let filter of extension.getFilters()) {
             this.addFilter(filter);

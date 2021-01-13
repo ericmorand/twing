@@ -1,8 +1,8 @@
 import {ExpressionNode} from "../expression";
 import {Compiler} from "../../compiler";
+import {ArrayExpressionNode} from "./array";
 
 import type {ExpressionNodeAttributes} from "../expression";
-import {ArrayExpressionNode} from "./array";
 
 export const ANY_CALL = 'any';
 export const ARRAY_CALL = 'array';
@@ -10,17 +10,17 @@ export const METHOD_CALL = 'method';
 
 export type CallType = typeof ANY_CALL | typeof ARRAY_CALL | typeof METHOD_CALL;
 
-export type TwingNodeExpressionGetAttributeAttributes = ExpressionNodeAttributes<{
+export type GetAttributeExpressionNodeAttributes = ExpressionNodeAttributes<{
     type: CallType
 }>;
 
-export type TwingNodeExpressionGetAttributeNodes = {
+export type GetAttributeExpressionNodeEdges = {
     object: ExpressionNode<any>,
     attribute: ExpressionNode<any>,
     arguments?: ArrayExpressionNode
 };
 
-export class GetAttributeExpressionNode extends ExpressionNode<TwingNodeExpressionGetAttributeAttributes, TwingNodeExpressionGetAttributeNodes> {
+export class GetAttributeExpressionNode extends ExpressionNode<GetAttributeExpressionNodeAttributes, GetAttributeExpressionNodeEdges> {
     // constructor(node: TwingNodeExpression, attribute: TwingNodeExpression, methodArguments: TwingNodeExpression, type: string, line: number, column: number) {
     //     super({
     //         node,
@@ -46,7 +46,7 @@ export class GetAttributeExpressionNode extends ExpressionNode<TwingNodeExpressi
         let env = compiler.getEnvironment();
 
         // optimize array, hash and Map calls
-        if (this.attributes.optimizable
+        if (this.attributes.isOptimizable
             && (!env.isStrictVariables() || this.attributes.ignoreStrictCheck)
             && !this.attributes.isDefinedTest
             && this.attributes.type === ARRAY_CALL) {

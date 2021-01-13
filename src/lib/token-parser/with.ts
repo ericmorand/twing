@@ -22,14 +22,14 @@ export class WithTokenParser extends TokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new WithNode({only}, {variables, body}, token, this.getTag());
+        return new WithNode({only}, {variables, body}, token, this.tag);
     }
 
     decideWithEnd(token: Token) {
         return token.test(TokenType.NAME, 'endwith');
     }
 
-    getTag() {
+    get tag(): string {
         return 'with';
     }
 }

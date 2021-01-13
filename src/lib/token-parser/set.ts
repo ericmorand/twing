@@ -34,14 +34,14 @@ export class SetTokenParser extends TokenParser {
             stream.expect(TokenType.TAG_END);
         }
 
-        return new SetNode({capture}, {names, values}, {line, column}, this.getTag());
+        return new SetNode({capture}, {names, values}, {line, column}, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endset');
     }
 
-    getTag() {
+    get tag(): string {
         return 'set';
     }
 }

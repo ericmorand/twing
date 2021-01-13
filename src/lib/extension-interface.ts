@@ -6,14 +6,14 @@
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 import {TokenParserInterface} from "./token-parser-interface";
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
 import {Filter} from "./filter";
 import {Function} from "./function";
 import {Test} from "./test";
 import {Operator} from "./operator";
-import {TwingSourceMapNodeFactory} from "./source-map/node-factory";
+import {SourceMapNodeFactory} from "./source-map/node-factory";
 
-export interface TwingExtensionInterface {
+export interface ExtensionInterface {
     /**
      * Returns the token parser instances to add to the existing list.
      *
@@ -24,9 +24,9 @@ export interface TwingExtensionInterface {
     /**
      * Returns the node visitor instances to add to the existing list.
      *
-     * @return Array<TwingNodeVisitorInterface>
+     * @return Array<NodeVisitorInterface>
      */
-    getNodeVisitors(): Array<TwingNodeVisitorInterface>;
+    getNodeVisitors(): Array<NodeVisitorInterface>;
 
     /**
      * Returns a list of filters to add to the existing list.
@@ -59,5 +59,5 @@ export interface TwingExtensionInterface {
     /**
      * Returns a list of factories that will be used to construct the source-map nodes.
      */
-    getSourceMapNodeFactories(): Map<string, TwingSourceMapNodeFactory>;
+    getSourceMapNodeFactories(): Map<string, SourceMapNodeFactory>;
 }

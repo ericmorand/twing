@@ -3,7 +3,7 @@ import {NameExpressionNode} from "../../../../../../../src/lib/node/expression/n
 import {MockLoader} from "../../../../../../mock/loader";
 import {MockCompiler} from "../../../../../../mock/compiler";
 import {MockEnvironment} from "../../../../../../mock/environment";
-import {TwingEnvironmentNode} from "../../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../../src/lib/loader/array";
 
 tape('node/expression/name', (test) => {
@@ -37,7 +37,7 @@ tape('node/expression/name', (test) => {
 
                 node.setAttribute('is_defined_test', true);
 
-                let compiler = new MockCompiler(new TwingEnvironmentNode(new ArrayLoader({})));
+                let compiler = new MockCompiler(new NodeEnvironment(new ArrayLoader({})));
 
                 test.same(compiler.compile(node).getSource(), `true`);
 

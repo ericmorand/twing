@@ -3,7 +3,6 @@ import {EmbedNode} from "../node/embed";
 import {Token, TokenType} from "twig-lexer";
 import {ConstantExpressionNode} from "../node/expression/constant";
 import {NameExpressionNode} from "../node/expression/name";
-import {clone} from "../node";
 
 export class EmbedTokenParser extends IncludeTokenParser {
     parse(token: Token) {
@@ -54,14 +53,14 @@ export class EmbedTokenParser extends IncludeTokenParser {
         }, {
             variables,
             template: null
-        }, token, this.getTag());
+        }, token, this.tag);
     }
 
     decideBlockEnd(token: Token): boolean {
         return token.test(TokenType.NAME, 'endembed');
     }
 
-    getTag() {
+    get tag(): string {
         return 'embed';
     }
 }

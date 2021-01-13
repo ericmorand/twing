@@ -5,7 +5,7 @@ import {ConstantExpressionNode} from "./constant";
 import {ArrayExpressionNode} from "./array";
 import {Compiler} from "../../compiler";
 import {CallableWrapper} from "../../callable-wrapper";
-import {TwingEnvironment} from "../../environment";
+import {Environment} from "../../environment";
 
 import type {ExpressionNodeAttributes} from "../expression";
 import type {HashExpressionNodeEdge} from "./hash";
@@ -36,7 +36,7 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
     //     }, line, column);
     // }
 
-    protected abstract getCallableWrapper(environment: TwingEnvironment, name: string): CallableWrapper<any>;
+    protected abstract getCallableWrapper(environment: Environment, name: string): CallableWrapper<any>;
 
     public compile(compiler: Compiler) {
         const callableWrapper = this.getCallableWrapper(compiler.getEnvironment(), this.attributes.name);

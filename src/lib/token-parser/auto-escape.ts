@@ -37,14 +37,14 @@ export class AutoEscapeTokenParser extends TokenParser {
 
         stream.expect(TokenType.TAG_END);
 
-        return new AutoEscapeNode({strategy}, {body}, {line, column}, this.getTag());
+        return new AutoEscapeNode({strategy}, {body}, {line, column}, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endautoescape');
     }
 
-    getTag() {
+    get tag(): string {
         return 'autoescape';
     }
 }

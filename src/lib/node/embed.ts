@@ -1,14 +1,14 @@
 import {IncludeNode} from "./include";
 import {Compiler} from "../compiler";
 
-import type {TwingNodeIncludeAttributes} from "./include";
+import type {IncludeNodeAttributes} from "./include";
 
-export type TwingNodeEmbedAttributes = TwingNodeIncludeAttributes & {
+export type EmbedNodeAttributes = IncludeNodeAttributes & {
     name: string,
     index: number
 };
 
-export class EmbedNode extends IncludeNode<TwingNodeEmbedAttributes> {
+export class EmbedNode extends IncludeNode<EmbedNodeAttributes> {
     protected addGetTemplate(compiler: Compiler) {
         compiler
             .raw('await this.loadTemplate(')

@@ -2,12 +2,12 @@ import {ExpressionNode} from "../expression";
 import {Node} from "../../node";
 import {Compiler} from "../../compiler";
 
-export type TwingNodeExpressionBlockReferenceNodes = {
+export type BlockReferenceExpressionNodeEdges = {
     name: Node,
     template?: Node
 };
 
-export class BlockReferenceExpressionNode extends ExpressionNode<{}, TwingNodeExpressionBlockReferenceNodes> {
+export class BlockReferenceExpressionNode extends ExpressionNode<{}, BlockReferenceExpressionNodeEdges> {
     compile(compiler: Compiler) {
         if (this.attributes.isDefinedTest) {
             this.compileTemplateCall(compiler, 'traceableHasBlock', false);

@@ -2,18 +2,18 @@ import * as tape from 'tape';
 import * as sinon from 'sinon';
 
 import {Token, TokenType} from "twig-lexer";
-import {TwingEnvironment} from "../../../src/lib/environment";
+import {Environment} from "../../../src/lib/environment";
 import {TokenParser} from "../../../src/lib/token-parser";
 import {PrintNode} from "../../../src/lib/node/print";
 import {ConstantExpressionNode} from "../../../src/lib/node/expression/constant";
-import {TwingExtension} from "../../../src/lib/extension";
+import {Extension} from "../../../src/lib/extension";
 import {Filter} from "../../../src/lib/filter";
 import {Function} from "../../../src/lib/function";
 import {Test} from "../../../src/lib/test";
 import {SandboxSecurityPolicy} from "../../../src/lib/sandbox/security-policy";
 import {ArrayLoader} from "../../../src/lib/loader/array";
 import {escape} from "../../../src/lib/extension/core/filters/escape";
-import {TwingEnvironmentOptions} from "../../../src/lib/environment-options";
+import {EnvironmentOptions} from "../../../src/lib/environment-options";
 import {LoaderInterface} from "../../../src/lib/loader-interface";
 import {Template} from "../../../src/lib/template";
 import {OutputBuffer} from "../../../src/lib/output-buffer";
@@ -22,15 +22,19 @@ class TwingTestTokenParserSection extends TokenParser {
     parse(token: Token) {
         this.parser.getStream().expect(TokenType.TAG_END);
 
-        return new PrintNode(new ConstantExpressionNode('§', -1, -1), -1, -1);
+        return new PrintNode(null, {
+            content: new ConstantExpressionNode({
+                value: '§'
+            }, null, {line: -1, column: -1})
+        }, {line: -1, column: -1});
     }
 
-    getTag() {
+    tag() {
         return '§';
     }
 }
 
-class TwingTestExtension extends TwingExtension {
+class TwingTestExtension extends Extension {
     static staticCall(value: string) {
         return Promise.resolve(`*${value}*`);
     }
@@ -136,10 +140,10 @@ class TwingTestExtension extends TwingExtension {
     }
 }
 
-type EnvironmentConstructor = new (l: LoaderInterface, o: TwingEnvironmentOptions) => TwingEnvironment;
+type EnvironmentConstructor = new (l: LoaderInterface, o: EnvironmentOptions) => Environment;
 
 export default abstract class {
-    private _env: TwingEnvironment;
+    private _env: Environment;
     private readonly _environmentConstructor: EnvironmentConstructor;
     private readonly _name: string;
 
@@ -152,7 +156,7 @@ export default abstract class {
         return this._env;
     }
 
-    setEnvironment(env: TwingEnvironment) {
+    setEnvironment(env: Environment) {
         this._env = env;
     }
 
@@ -188,7 +192,7 @@ export default abstract class {
         return {};
     }
 
-    getEnvironmentOptions(): TwingEnvironmentOptions {
+    getEnvironmentOptions(): EnvironmentOptions {
         return {};
     }
 
@@ -212,7 +216,7 @@ export default abstract class {
                 debug: false,
                 sandbox_policy: new SandboxSecurityPolicy(this.getSandboxSecurityPolicyTags(), this.getSandboxSecurityPolicyFilters(), new Map(), new Map(), this.getSandboxSecurityPolicyFunctions()),
                 strict_variables: true
-            } as TwingEnvironmentOptions, this.getEnvironmentOptions()));
+            } as EnvironmentOptions, this.getEnvironmentOptions()));
 
             environment.addExtension(new TwingTestExtension(), 'TwingTestExtension');
 

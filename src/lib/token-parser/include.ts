@@ -15,10 +15,10 @@ export class IncludeTokenParser extends TokenParser {
         }, {
             template: expr,
             variables: parsedArguments.variables
-        }, token, this.getTag());
+        }, token, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'include';
     }
 

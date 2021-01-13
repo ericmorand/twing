@@ -1,31 +1,25 @@
-import {TwingNodeVisitorInterface} from "./node-visitor-interface";
+import {NodeVisitorInterface} from "./node-visitor-interface";
 import {Node} from "./node";
-import {TwingEnvironment} from "./environment";
+import {Environment} from "./environment";
 
-export abstract class TwingBaseNodeVisitor implements TwingNodeVisitorInterface {
-    TwingNodeVisitorInterfaceImpl: TwingNodeVisitorInterface;
-
-    constructor() {
-        this.TwingNodeVisitorInterfaceImpl = this;
-    }
-
-    abstract getPriority(): number;
+export abstract class BaseNodeVisitor implements NodeVisitorInterface {
+    abstract get priority(): number;
 
     /**
      * Called before child nodes are visited.
      *
      * @returns {Node} The modified node
      */
-    enterNode(node: Node, env: TwingEnvironment): Node {
+    enterNode(node: Node, env: Environment): Node {
         return this.doEnterNode(node, env);
     }
 
     /**
      * Called after child nodes are visited.
      *
-     * @returns {Node|false} The modified node or null if the node must be removed
+     * @returns {Node | null} The modified node or null if the node must be removed
      */
-    leaveNode(node: Node, env: TwingEnvironment): Node {
+    leaveNode(node: Node, env: Environment): Node {
         return this.doLeaveNode(node, env);
     }
 
@@ -34,12 +28,12 @@ export abstract class TwingBaseNodeVisitor implements TwingNodeVisitorInterface 
      *
      * @returns {Node} The modified node
      */
-    protected abstract doEnterNode(node: Node, env: TwingEnvironment): Node;
+    protected abstract doEnterNode(node: Node, env: Environment): Node;
 
     /**
      * Called after child nodes are visited.
      *
-     * @returns {Node|false} The modified node or null if the node must be removed
+     * @returns {Node | null} The modified node or null if the node must be removed
      */
-    protected abstract doLeaveNode(node: Node, env: TwingEnvironment): Node;
+    protected abstract doLeaveNode(node: Node, env: Environment): Node;
 }

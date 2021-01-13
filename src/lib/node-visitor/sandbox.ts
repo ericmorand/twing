@@ -1,123 +1,134 @@
-// import {TwingBaseNodeVisitor} from "../base-node-visitor";
-// import {TwingEnvironment} from "../environment";
-// import {Node} from "../node";
-// import {CheckSecurityNode} from "../node/check-security";
-// import {TwingNodeCheckToString} from "../node/check-to-string";
-//
-// export class TwingNodeVisitorSandbox extends TwingBaseNodeVisitor {
-//     private tags: Map<string, Node>;
-//     private filters: Map<string, Node>;
-//     private functions: Map<string, Node>;
-//     private needsToStringWrap: boolean;
-//
-//     constructor() {
-//         super();
-//
-//         this.TwingNodeVisitorInterfaceImpl = this;
-//     }
-//
-//     protected doEnterNode(node: Node, env: TwingEnvironment): Node {
-//         if (!env.isSandboxed()) {
-//             return node;
-//         }
-//
-//         if (node.is(moduleType)) {
-//             this.tags = new Map();
-//             this.filters = new Map();
-//             this.functions = new Map();
-//
-//             return node;
-//         } else {
-//             // look for tags
-//             if (node.getTag() && !(this.tags.has(node.getTag()))) {
-//                 this.tags.set(node.getTag(), node);
-//             }
-//
-//             // look for filters
-//             if (node.is(filterType) && !this.filters.has(node.getNode('filter').getAttribute('value'))) {
-//                 this.filters.set(node.getNode('filter').getAttribute('value'), node);
-//             }
-//
-//             // look for functions
-//             if (node.is(functionType) && !this.functions.has(node.getAttribute('name'))) {
-//                 this.functions.set(node.getAttribute('name'), node);
-//             }
-//
-//             // the .. operator is equivalent to the range() function
-//             if (node.is(rangeType) && !(this.functions.has('range'))) {
-//                 this.functions.set('range', node);
-//             }
-//
-//             // wrap print to check toString() calls
-//             if (node.is(printType)) {
-//                 this.needsToStringWrap = true;
-//                 this.wrapNode(node, 'expr');
-//             }
-//
-//             if (node.is(setType) && !node.getAttribute('capture')) {
-//                 this.needsToStringWrap = true;
-//             }
-//
-//             // wrap outer nodes that can implicitly call toString()
-//             if (this.needsToStringWrap) {
-//                 if (node.is(concatType)) {
-//                     this.wrapNode(node, 'left');
-//                     this.wrapNode(node, 'right');
-//                 }
-//
-//                 if (node.is(filterType)) {
-//                     this.wrapNode(node, 'node');
-//                     this.wrapArrayNode(node, 'arguments');
-//                 }
-//
-//                 if (node.is(functionType)) {
-//                     this.wrapArrayNode(node, 'arguments');
-//                 }
-//             }
-//         }
-//
-//         return node;
-//     }
-//
-//     protected doLeaveNode(node: Node, env: TwingEnvironment): Node {
-//         if (!env.isSandboxed()) {
-//             return node;
-//         }
-//
-//         if (node.is(moduleType)) {
-//             let nodes = new Map();
-//             let i: number = 0;
-//
-//             nodes.set(i++, new CheckSecurityNode(this.filters, this.tags, this.functions));
-//             nodes.set(i++, node.getNode('display_start'));
-//
-//             node.getNode('constructor_end').setNode('_security_check', new Node(nodes));
-//         } else {
-//             if (node.is(printType) || node.is(setType)) {
-//                 this.needsToStringWrap = false;
-//             }
-//         }
-//
-//         return node;
-//     }
-//
-//     private wrapNode(node: Node, name: string) {
-//         let expr = node.getNode(name);
-//
-//         if (expr.is(nameType) || expr.is(getAttrType)) {
-//             node.setNode(name, new TwingNodeCheckToString(expr));
-//         }
-//     }
-//
-//     private wrapArrayNode(node: Node, name: string) {
-//         let args = node.getNode(name);
-//
-//         for (let [name] of args.getNodes()) {
-//             this.wrapNode(args, name as string);
-//         }
-//     }
-//
-//     getPriority(): number {
-//         return 0;
-//     }
-// }
+import {BaseNodeVisitor} from "../base-node-visitor";
+import {Environment} from "../environment";
+import {Edges, Node, NodeEdges, toNodeEdges} from "../node";
+import {CheckSecurityNode} from "../node/check-security";
+import {CheckToStringNode} from "../node/check-to-string";
+import {TemplateNode} from "../node/template";
+import {FilterExpressionNode} from "../node/expression/filter";
+import {FunctionExpressionNode} from "../node/expression/function";
+import {RangeBinaryExpressionNode} from "../node/expression/binary/range";
+import {PrintNode} from "../node/print";
+import {SetNode} from "../node/set";
+import {ConcatBinaryExpressionNode} from "../node/expression/binary/concat";
+import {NameExpressionNode} from "../node/expression/name";
+import {GetAttributeExpressionNode} from "../node/expression/get-attribute";
+
+export class SandboxNodeVisitor extends BaseNodeVisitor {
+    private tags: Map<string, Node>;
+    private filters: Map<string, Node>;
+    private functions: Map<string, Node>;
+    private needsToStringWrap: boolean;
+
+    protected doEnterNode(node: Node, env: Environment): Node {
+        if (!env.isSandboxed()) {
+            return node;
+        }
+
+        if (node instanceof TemplateNode) {
+            this.tags = new Map();
+            this.filters = new Map();
+            this.functions = new Map();
+
+            return node;
+        } else {
+            // look for tags
+            if (node.tag && !(this.tags.has(node.tag))) {
+                this.tags.set(node.tag, node);
+            }
+
+            // look for filters
+            if ((node instanceof FilterExpressionNode) && !this.filters.has(node.attributes.name)) {
+                this.filters.set(node.attributes.name, node);
+            }
+
+            // look for functions
+            if ((node instanceof FunctionExpressionNode) && !this.functions.has(node.attributes.name)) {
+                this.functions.set(node.attributes.name, node);
+            }
+
+            // the .. operator is equivalent to the range() function
+            if ((node instanceof RangeBinaryExpressionNode) && !(this.functions.has('range'))) {
+                this.functions.set('range', node);
+            }
+
+            // wrap print to check toString() calls
+            if (node instanceof PrintNode) {
+                this.needsToStringWrap = true;
+                this.wrapNode(node, 'content');
+            }
+
+            if ((node instanceof SetNode) && !node.attributes.capture) {
+                this.needsToStringWrap = true;
+            }
+
+            // wrap outer nodes that can implicitly call toString()
+            if (this.needsToStringWrap) {
+                if (node instanceof ConcatBinaryExpressionNode) {
+                    this.wrapNode(node, 'left');
+                    this.wrapNode(node, 'right');
+                }
+
+                if (node instanceof FilterExpressionNode) {
+                    this.wrapNode(node, 'node');
+                    this.wrapArrayNode(node, 'arguments');
+                }
+
+                if (node instanceof FunctionExpressionNode) {
+                    this.wrapArrayNode(node, 'arguments');
+                }
+            }
+        }
+
+        return node;
+    }
+
+    protected doLeaveNode(node: Node, env: Environment): Node {
+        if (!env.isSandboxed()) {
+            return node;
+        }
+
+        if (node instanceof TemplateNode) {
+            let nodes: Map<string, Node> = new Map();
+            let i: number = 0;
+
+            nodes.set(`${i++}`, new CheckSecurityNode({
+                usedFilters: this.filters,
+                usedTags: this.tags,
+                usedFunctions: this.functions
+            }, null, node.location));
+
+            nodes.set(`${i++}`, node.edges.displayStart);
+
+            node.edges.constructorEnd = new Node(null, {
+                constructorEnd: node.edges.constructorEnd,
+                securityCheck: new Node(null, toNodeEdges(nodes), node.location)
+            }, node.location);
+        } else {
+            if (node instanceof PrintNode || node instanceof SetNode) {
+                this.needsToStringWrap = false;
+            }
+        }
+
+        return node;
+    }
+
+    private wrapNode<T extends Node<any, NodeEdges>>(node: T, name: keyof Edges<T> & string) {
+        let expr = node.edges[name];
+
+        if (expr instanceof NameExpressionNode || expr instanceof GetAttributeExpressionNode) {
+            node.edges[name] = new CheckToStringNode(null, {expression: expr}, node.location);
+        }
+    }
+
+    private wrapArrayNode<T extends Node>(node: T, name: keyof Edges<T>) {
+        let args: Node = node.edges[name];
+
+        for (let [name] of args) {
+            this.wrapNode(args, name);
+        }
+    }
+
+    get priority(): number {
+        return 0;
+    }
+}

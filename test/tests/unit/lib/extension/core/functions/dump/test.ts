@@ -1,7 +1,7 @@
 import * as tape from 'tape';
 import {dump} from "../../../../../../../../src/lib/extension/core/functions/dump";
 import {Template} from "../../../../../../../../src/lib/template";
-import {TwingEnvironmentNode} from "../../../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../../../src/lib/environment/node";
 import {ArrayLoader} from "../../../../../../../../src/lib/loader/array";
 import {OutputBuffer} from "../../../../../../../../src/lib/output-buffer";
 
@@ -62,7 +62,7 @@ string(3) "bar"
         }
     }
 
-    test.same(await dump({foo: new FooTemplate(new TwingEnvironmentNode(new ArrayLoader({})))}), `array(0) {
+    test.same(await dump({foo: new FooTemplate(new NodeEnvironment(new ArrayLoader({})))}), `array(0) {
 }
 `);
 

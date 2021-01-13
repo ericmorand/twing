@@ -1,4 +1,4 @@
-import {TwingEnvironment} from "../../src/lib/environment";
+import {Environment} from "../../src/lib/environment";
 import {MockEnvironment} from "./environment";
 import {Template} from "../../src/lib/template";
 import {MockLoader} from "./loader";
@@ -8,7 +8,7 @@ import {Source} from "../../src/lib/source";
 export class MockTemplate extends Template {
     protected _mySource: Source;
 
-    constructor(env?: TwingEnvironment, source?: Source) {
+    constructor(env?: Environment, source?: Source) {
         if (!env) {
             env = new MockEnvironment(new MockLoader());
         }

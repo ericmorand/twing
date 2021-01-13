@@ -5,7 +5,7 @@ import {include} from "../../../../../../../../src/lib/extension/core/functions/
 import {RelativeFilesystemLoader} from "../../../../../../../../src/lib/loader/relative-filesystem";
 import {resolve} from "path";
 import {MockTemplate} from "../../../../../../../mock/template";
-import {TwingContext} from "../../../../../../../../src/lib/context";
+import {Context} from "../../../../../../../../src/lib/context";
 import {MockEnvironment} from "../../../../../../../mock/environment";
 import {OutputBuffer} from "../../../../../../../../src/lib/output-buffer";
 
@@ -16,7 +16,7 @@ tape('include', async (test) => {
     );
 
     try {
-        await include(template, new TwingContext<any, any>(), null, 'foo', {}, true, false, true);
+        await include(template, new Context<any, any>(), null, 'foo', {}, true, false, true);
 
         test.fail();
     } catch (e) {
@@ -25,7 +25,7 @@ tape('include', async (test) => {
     }
 
     try {
-        await include(template, new TwingContext(), null, 'foo', 'bar', true, false, true);
+        await include(template, new Context(), null, 'foo', 'bar', true, false, true);
 
         test.fail();
     } catch (e) {
@@ -37,7 +37,7 @@ tape('include', async (test) => {
     );
     template.environment.enableSandbox();
 
-    test.same(await include(template, new TwingContext(), new OutputBuffer(), 'foo', {}, true, false, true), 'bar');
+    test.same(await include(template, new Context(), new OutputBuffer(), 'foo', {}, true, false, true), 'bar');
 
     test.test('supports relative filesystem loader', async (test) => {
         template = new MockTemplate(
@@ -45,7 +45,7 @@ tape('include', async (test) => {
             new Source('code', resolve('test/tests/unit/lib/extension/core/index.twig'))
         );
 
-        test.same(await include(template, new TwingContext(), new OutputBuffer(), 'templates/foo.twig', {}), 'foo');
+        test.same(await include(template, new Context(), new OutputBuffer(), 'templates/foo.twig', {}), 'foo');
 
         test.end();
     });

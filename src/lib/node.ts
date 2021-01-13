@@ -1,4 +1,6 @@
 import {Compiler} from "./compiler";
+import {ConstantExpressionNode} from "./node/expression/constant";
+import {PrintNode} from "./node/print";
 
 const var_export = require('locutus/php/var/var_export');
 
@@ -20,19 +22,10 @@ export const toNodeEdges = <T extends Node>(map: Map<string, T>): NodeEdges<T> =
     return nodes;
 };
 
-export type TwingNodeNodesNode<T> = T extends NodeEdges<infer N> ? N : never;
+export type Edges<T> = T extends Node<any, infer E> ? E : never;
+export type EdgesNode<T> = T extends NodeEdges<infer N> ? N : never;
 
-type Attributes<T> = T extends Node<infer A> ? A : never;
-type Edges<T> = T extends Node<any, infer E> ? E : never;
-
-export const clone = <T extends Node>(node: T, attributes: Partial<Attributes<T>>, edges: Partial<Edges<T>>): T => {
-    return Reflect.construct(node.constructor, [
-        Object.assign({}, node.attributes, attributes),
-        Object.assign({}, node.edges, edges),
-        node.location,
-        node.tag
-    ]);
-};
+export type TT = keyof Edges<PrintNode>;
 
 export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
     private readonly _attributes: A;
@@ -62,7 +55,7 @@ export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
         this._edgesCount = this._edgesMap.size;
     }
 
-    [Symbol.iterator](): IterableIterator<[string, TwingNodeNodesNode<E>]> {
+    [Symbol.iterator](): IterableIterator<[string, EdgesNode<E>]> {
         return this._edgesMap.entries();
     }
 

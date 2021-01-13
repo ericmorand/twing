@@ -1,11 +1,11 @@
 import {RuntimeError} from "./error/runtime";
 import {Source} from "./source";
 import {Error} from "./error";
-import {TwingEnvironment} from "./environment";
+import {Environment} from "./environment";
 import {OutputBuffer} from './output-buffer';
 import {iteratorToMap} from "./helpers/iterator-to-map";
 import {merge} from "./helpers/merge";
-import {TwingContext} from "./context";
+import {Context} from "./context";
 import {isMap} from "./helpers/is-map";
 import {Markup} from "./markup";
 import {SandboxSecurityError} from "./sandbox/security-error";
@@ -30,7 +30,7 @@ import {isNullOrUndefined} from "util";
 import {Location} from "./node";
 
 type TemplateMacrosMap = Map<string, TemplateMacroHandler>;
-type TemplateAliasesMap = TwingContext<string, Template>;
+type TemplateAliasesMap = Context<string, Template>;
 type TemplateTraceableMethod<T> = (...args: Array<any>) => Promise<T>;
 
 export type TemplateBlocksMap = Map<string, [Template, string]>;
@@ -43,7 +43,7 @@ export type TemplateMacroHandler = (outputBuffer: OutputBuffer, ...args: Array<a
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export abstract class Template {
-    private readonly _environment: TwingEnvironment;
+    private readonly _environment: Environment;
     private _source: Source;
 
     protected parent: Template | false;
@@ -55,16 +55,16 @@ export abstract class Template {
     protected macros: TemplateMacrosMap;
     protected aliases: TemplateAliasesMap;
 
-    constructor(environment: TwingEnvironment) {
+    constructor(environment: Environment) {
         this._environment = environment;
 
         this.parents = new Map();
-        this.aliases = new TwingContext();
+        this.aliases = new Context();
         this.blockHandlers = new Map();
         this.macroHandlers = new Map();
     }
 
-    get environment(): TwingEnvironment {
+    get environment(): Environment {
         return this._environment;
     }
 
@@ -357,7 +357,7 @@ export abstract class Template {
             context = iteratorToMap(context);
         }
 
-        context = new TwingContext(this.environment.mergeGlobals(context));
+        context = new Context(this.environment.mergeGlobals(context));
 
         return this.getBlocks().then((ownBlocks) => this.displayWithErrorHandling(context, outputBuffer, merge(ownBlocks, blocks)));
     }
@@ -412,7 +412,7 @@ export abstract class Template {
         return Promise.resolve(false);
     }
 
-    protected callMacro(template: Template, name: string, outputBuffer: OutputBuffer, args: any[], location: Location, context: TwingContext<any, any>, source: Source): Promise<string> {
+    protected callMacro(template: Template, name: string, outputBuffer: OutputBuffer, args: any[], location: Location, context: Context<any, any>, source: Source): Promise<string> {
         let getHandler = (template: Template): Promise<TemplateMacroHandler> => {
             if (template.macroHandlers.has(name)) {
                 return Promise.resolve(template.macroHandlers.get(name));
@@ -516,7 +516,7 @@ export abstract class Template {
         };
     }
 
-    protected get getAttribute(): (env: TwingEnvironment, object: any, item: any, _arguments: Map<any, any>, type: string, isDefinedTest: boolean, ignoreStrictCheck: boolean, sandboxed: boolean) => any {
+    protected get getAttribute(): (env: Environment, object: any, item: any, _arguments: Map<any, any>, type: string, isDefinedTest: boolean, ignoreStrictCheck: boolean, sandboxed: boolean) => any {
         return getAttribute;
     }
 
@@ -553,8 +553,8 @@ export abstract class Template {
         return parseRegex;
     }
 
-    protected get Context(): typeof TwingContext {
-        return TwingContext;
+    protected get Context(): typeof Context {
+        return Context;
     }
 
     protected get Markup(): typeof Markup {

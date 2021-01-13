@@ -35,7 +35,7 @@ export class ExtendsTokenParser extends TokenParser {
         return null;
     }
 
-    getTag() {
+    get tag(): string {
         return 'extends';
     }
 }

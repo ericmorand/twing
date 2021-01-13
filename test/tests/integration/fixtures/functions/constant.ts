@@ -1,5 +1,5 @@
 import TestBase from "../../TestBase";
-import {TwingEnvironment} from "../../../../../src/lib/environment";
+import {Environment} from "../../../../../src/lib/environment";
 
 const DATE_W3C = 'DATE_W3C';
 
@@ -10,7 +10,7 @@ const Obj = class {
 const object = new Obj();
 
 export default class extends TestBase {
-    setEnvironment(env: TwingEnvironment) {
+    setEnvironment(env: Environment) {
         Reflect.set(env.constructor, 'DATE_W3C', 'DATE_W3C');
         Reflect.set(env.constructor, 'ARRAY_AS_PROPS', object);
 

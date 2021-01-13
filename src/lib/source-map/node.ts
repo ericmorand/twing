@@ -1,13 +1,13 @@
 import {SourceNode} from "source-map";
 import {Source} from "../source";
 
-export class TwingSourceMapNode {
+export class SourceMapNode {
     protected _name: string;
     protected _source: Source;
     protected _line: number;
     protected _column: number;
-    protected _parent: TwingSourceMapNode;
-    protected _children: TwingSourceMapNode[];
+    protected _parent: SourceMapNode;
+    protected _children: SourceMapNode[];
     protected _content: string;
 
     /**
@@ -60,7 +60,7 @@ export class TwingSourceMapNode {
         this._content = content;
     }
 
-    addChild(child: TwingSourceMapNode) {
+    addChild(child: SourceMapNode) {
         child._parent = this;
 
         this._children.push(child);

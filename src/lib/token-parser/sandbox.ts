@@ -28,14 +28,14 @@ export class SandboxTokenParser extends TokenParser {
             }
         }
 
-        return new SandboxNode(null, {body}, {line, column}, this.getTag());
+        return new SandboxNode(null, {body}, {line, column}, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endsandbox');
     }
 
-    getTag() {
+    get tag(): string {
         return 'sandbox';
     }
 }

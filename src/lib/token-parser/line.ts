@@ -11,10 +11,10 @@ export class LineTokenParser extends TokenParser {
 
         return new LineNode({
             quantity: Number(numberToken.value)
-        }, null, {line, column}, this.getTag());
+        }, null, {line, column}, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'line';
     }
 }

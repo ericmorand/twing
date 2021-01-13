@@ -33,7 +33,7 @@ export class BlockTokenParser extends TokenParser {
             name
         }, {
             body: new Node(null, null, token)
-        }, token, this.getTag());
+        }, token, this.tag);
 
         this.parser.setBlock(name, block);
         this.parser.pushLocalScope();
@@ -67,20 +67,20 @@ export class BlockTokenParser extends TokenParser {
             name
         }, {
             body: body
-        }, token, this.getTag());
+        }, token, this.tag);
 
         this.parser.setBlock(name, block);
         this.parser.popBlockStack();
         this.parser.popLocalScope();
 
-        return new BlockReferenceNode({name}, null, {line, column}, this.getTag());
+        return new BlockReferenceNode({name}, null, {line, column}, this.tag);
     }
 
     decideBlockEnd(token: Token) {
         return token.test(TokenType.NAME, 'endblock');
     }
 
-    getTag() {
+    get tag(): string {
         return 'block';
     }
 }

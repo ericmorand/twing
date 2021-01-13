@@ -1,7 +1,7 @@
 import {Compiler} from "../compiler";
 import {PrintNode} from "./print";
 
-export class TwingNodeInlinePrint extends PrintNode {
+export class InlinePrintNode extends PrintNode {
     compile(compiler: Compiler) {
         compiler
             .raw('outputBuffer.echo(')

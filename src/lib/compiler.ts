@@ -1,23 +1,21 @@
 import {Node} from "./node";
-import {TwingEnvironment} from "./environment";
+import {Environment} from "./environment";
 import {isNullOrUndefined} from "util";
 import {addcslashes} from "locutus/php/strings";
 
 export class Compiler {
-    private readonly environment: TwingEnvironment;
+    private readonly environment: Environment;
     private lastLine: number;
     private source: string;
     private indentation: number;
     private varNameSalt = 0;
 
-    constructor(environment: TwingEnvironment) {
+    constructor(environment: Environment) {
         this.environment = environment;
     }
 
     /**
      * Returns the environment instance related to this compiler.
-     *
-     * @returns TwingEnvironment
      */
     getEnvironment() {
         return this.environment;
@@ -49,9 +47,7 @@ export class Compiler {
     }
 
     /**
-     *
      * @param string
-     * @returns
      */
     raw(string: any): Compiler {
         this.source += string;
@@ -147,8 +143,6 @@ export class Compiler {
 
     /**
      * Adds source-map enter call.
-     *
-     * @returns TwingCompiler
      */
     addSourceMapEnter(node: Node) {
         if (this.getEnvironment().isSourceMap()) {
@@ -170,8 +164,6 @@ export class Compiler {
 
     /**
      * Adds source-map leave call.
-     *
-     * @returns TwingCompiler
      */
     addSourceMapLeave() {
         if (this.getEnvironment().isSourceMap()) {
@@ -187,8 +179,6 @@ export class Compiler {
      * Indents the generated code.
      *
      * @param {number} step The number of indentation to add
-     *
-     * @returns TwingCompiler
      */
     indent(step: number = 1) {
         this.indentation += step;
@@ -200,8 +190,6 @@ export class Compiler {
      * Outdents the generated code.
      *
      * @param {number} step The number of indentation to remove
-     *
-     * @return TwingCompiler
      *
      * @throws Error When trying to outdent too much so the indentation would become negative
      */

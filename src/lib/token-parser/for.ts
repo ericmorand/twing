@@ -88,7 +88,7 @@ export class ForTokenParser extends TokenParser {
             else: elseNode,
             sequence,
             condition
-        }, {line, column}, this.getTag());
+        }, {line, column}, this.tag);
     }
 
     decideForFork(token: Token) {
@@ -112,7 +112,7 @@ export class ForTokenParser extends TokenParser {
 
     // check usage of non-defined loop-items
 
-    getTag() {
+    get tag(): string {
         return 'for';
     }
 

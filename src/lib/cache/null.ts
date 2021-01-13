@@ -1,5 +1,5 @@
 import {CacheInterface} from "../cache-interface";
-import {TwingTemplatesModule} from "../environment";
+import {TemplatesModule} from "../environment";
 
 /**
  * Implements a no-cache strategy.
@@ -15,7 +15,7 @@ export class NullCache implements CacheInterface {
         return Promise.resolve();
     }
 
-    load(key: string): Promise<TwingTemplatesModule> {
+    load(key: string): Promise<TemplatesModule> {
         return Promise.resolve(() => {
             return new Map();
         });

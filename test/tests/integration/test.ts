@@ -1,4 +1,4 @@
-import {TwingEnvironmentNode} from "../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../src/lib/environment/node";
 import TestBase from "./TestBase";
 
 const {resolve, relative} = require('path');
@@ -18,7 +18,7 @@ for (let file of files) {
     for (let key in module) {
         let Test = module[key];
 
-        new Test(TwingEnvironmentNode, relative(directory, file)).run();
+        new Test(NodeEnvironment, relative(directory, file)).run();
     }
 }
 

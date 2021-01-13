@@ -1,13 +1,13 @@
 import * as tape from 'tape';
 import {TokenStream} from "../../../../../../src/lib/token-stream";
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
-import {TwingParser} from "../../../../../../src/lib/parser";
-import {TwingLexer} from "../../../../../../src/lib/lexer";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
+import {Parser} from "../../../../../../src/lib/parser";
+import {Lexer} from "../../../../../../src/lib/lexer";
 import {PrintNode} from "../../../../../../src/lib/node/print";
 import {MethodCallExpressionNode} from "../../../../../../src/lib/node/expression/method-call";
 
 tape('Parser::parseSubscriptExpression', (test) => {
-    const environment = new TwingEnvironmentNode(null, {
+    const environment = new NodeEnvironment(null, {
         autoescape: false
     });
 
@@ -23,9 +23,9 @@ tape('Parser::parseSubscriptExpression', (test) => {
 
         for (let template of templates) {
             test.test(template, (test) => {
-                const tokens = new TwingLexer(environment).tokenize(template);
+                const tokens = new Lexer(environment).tokenize(template);
                 const stream = new TokenStream(tokens);
-                const parser = new TwingParser(environment);
+                const parser = new Parser(environment);
 
                 const moduleNode = parser.parse(new TokenStream(stream.toAst()));
                 const bodyContent = moduleNode.edges.template.edges.body.edges.content;

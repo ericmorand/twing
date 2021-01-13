@@ -1,5 +1,5 @@
 import * as tape from 'tape';
-import {TwingContext} from "../../../../../src/lib/context";
+import {Context} from "../../../../../src/lib/context";
 
 tape('context', (test) => {
     test.test('clone', (test) => {
@@ -8,7 +8,7 @@ tape('context', (test) => {
             ['b', 2]
         ]);
 
-        let context = new TwingContext(map);
+        let context = new Context(map);
         let clone = context.clone();
 
         clone.set('c', 3);
@@ -23,7 +23,7 @@ tape('context', (test) => {
 
     test.test('set trap', (test) => {
         let map = new Map();
-        let context = new TwingContext(map);
+        let context = new Context(map);
 
         context.proxy['a'] = 1;
 

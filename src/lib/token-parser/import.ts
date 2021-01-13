@@ -20,10 +20,10 @@ export class ImportTokenParser extends TokenParser {
         }, {
             templateName,
             variable
-        }, token, this.getTag());
+        }, token, this.tag);
     }
 
-    getTag() {
+    get tag(): string {
         return 'import';
     }
 }

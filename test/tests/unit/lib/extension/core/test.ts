@@ -1,7 +1,7 @@
 import * as tape from 'tape';
-import {TwingExtensionCore} from "../../../../../../src/lib/extension/core";
+import {CoreExtension} from "../../../../../../src/lib/extension/core";
 import {NullLoader} from "../../../../../../src/lib/loader/null";
-import {TwingEnvironmentNode} from "../../../../../../src/lib/environment/node";
+import {NodeEnvironment} from "../../../../../../src/lib/environment/node";
 import {Function} from "../../../../../../src/lib/function";
 import {CallableArgument} from "../../../../../../src/lib/callable-wrapper";
 import {Filter} from "../../../../../../src/lib/filter";
@@ -37,11 +37,11 @@ export class CoreTestIterator {
 
 tape('TwingExtensionCore', (test) => {
     test.test('constructor', (test) => {
-        let extension = new TwingExtensionCore();
+        let extension = new CoreExtension();
 
         test.same(extension.getDefaultStrategy('foo'), 'html');
 
-        extension = new TwingExtensionCore('name');
+        extension = new CoreExtension('name');
 
         test.same(extension.getDefaultStrategy('index.css'), 'css');
         test.same(extension.getDefaultStrategy('index.css.twig'), 'css');
@@ -56,7 +56,7 @@ tape('TwingExtensionCore', (test) => {
     });
 
     test.test('setTimezone', (test) => {
-        let extension = new TwingExtensionCore();
+        let extension = new CoreExtension();
 
         extension.setTimezone('UTC+1');
 
@@ -66,7 +66,7 @@ tape('TwingExtensionCore', (test) => {
     });
 
     test.test('functions', (test) => {
-        const env = new TwingEnvironmentNode(new NullLoader(), {});
+        const env = new NodeEnvironment(new NullLoader(), {});
 
         /**
          * @param test
@@ -159,7 +159,7 @@ tape('TwingExtensionCore', (test) => {
     });
 
     test.test('filters', (test) => {
-        const env = new TwingEnvironmentNode(new NullLoader(), {});
+        const env = new NodeEnvironment(new NullLoader(), {});
 
         /**
          * @param test
