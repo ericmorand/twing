@@ -25,15 +25,13 @@ export const toNodeEdges = <T extends Node>(map: Map<string, T>): NodeEdges<T> =
 export type Edges<T> = T extends Node<any, infer E> ? E : never;
 export type EdgesNode<T> = T extends NodeEdges<infer N> ? N : never;
 
-export type TT = keyof Edges<PrintNode>;
-
 export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
     private readonly _attributes: A;
-    private readonly _edges: E;
+    private _edges: E;
     private readonly _location: Location;
     private readonly _tag: string;
-    private readonly _edgesCount: number;
-    private readonly _edgesMap: Map<string, any>;
+    private _edgesCount: number;
+    private _edgesMap: Map<string, any>;
 
     /**
      * @param edges
@@ -42,17 +40,11 @@ export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
      * @param tag
      */
     constructor(attributes: A, edges: E, location: Location, tag: string = null) {
+        this._edgesMap = new Map();
         this._attributes = attributes;
-        this._edges = edges;
+        this.edges = edges;
         this._location = location;
         this._tag = tag;
-        this._edgesMap = new Map();
-
-        for (const key in edges) {
-            this._edgesMap.set(key, edges[key]);
-        }
-
-        this._edgesCount = this._edgesMap.size;
     }
 
     [Symbol.iterator](): IterableIterator<[string, EdgesNode<E>]> {
@@ -65,6 +57,22 @@ export class Node<A extends NodeAttributes = any, E extends NodeEdges = any> {
 
     get attributes(): A {
         return this._attributes;
+    }
+
+    setEdge(name: keyof E & string, value: Node) {
+        this._edges[name];
+    }
+
+    set edges(edges) {
+        const edgesMap = new Map();
+
+        for (const key in edges) {
+            edgesMap.set(key, edges[key]);
+        }
+
+        this._edges = edges;
+        this._edgesMap = edgesMap;
+        this._edgesCount = edgesMap.size;
     }
 
     get edges(): E {

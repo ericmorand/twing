@@ -1,7 +1,8 @@
 import {ExpressionNode} from "../expression";
-import {ArrayExpressionNode} from "./array";
 import {Compiler} from "../../compiler";
-import {NameExpressionNode} from "./name";
+
+import type {NameExpressionNode} from "./name";
+import type {ArgumentsExpressionNode} from "./arguments";
 
 export type MethodCallExpressionNodeAttributes = {
     method: string
@@ -9,7 +10,7 @@ export type MethodCallExpressionNodeAttributes = {
 
 export type MethodCallExpressionNodeEdges = {
     template: NameExpressionNode,
-    arguments: ArrayExpressionNode
+    arguments: ArgumentsExpressionNode
 };
 
 export class MethodCallExpressionNode extends ExpressionNode<MethodCallExpressionNodeAttributes, MethodCallExpressionNodeEdges> {
@@ -28,27 +29,12 @@ export class MethodCallExpressionNode extends ExpressionNode<MethodCallExpressio
                 .repr(this.edges.template.attributes.value)
                 .raw('], ')
                 .repr(this.attributes.method)
-                .raw(', outputBuffer')
-                .raw(', [')
-            ;
-            let first = true;
-
-            let argumentsNode = this.edges.arguments;
-
-            for (let pair of argumentsNode.keyValuePairs) {
-                if (!first) {
-                    compiler.raw(', ');
-                }
-
-                first = false;
-
-                compiler.subCompile(pair.value);
-            }
-
-            compiler
-                .raw('], ')
+                .raw(', outputBuffer, ')
                 .repr(this.location)
-                .raw(', context, this.source)');
+                .raw(', context, this.source, ')
+                .subCompile(this.edges.arguments)
+                .raw(')')
+            ;
         }
     }
 }

@@ -14,7 +14,8 @@ import {TemplateNode} from "../node/template";
 import {BlockNode} from "../node/block";
 import {ImportNode} from "../node/import";
 import {BlockReferenceNode} from "../node/block-reference";
-import {HashExpressionNode} from "../node/expression/hash";
+import {ArgumentsExpressionNode} from "../node/expression/arguments";
+import {ArgumentExpressionNode} from "../node/expression/argument";
 
 export class EscaperNodeVisitor extends BaseNodeVisitor {
     private statusStack: Array<Node | string | false> = [];
@@ -61,7 +62,6 @@ export class EscaperNodeVisitor extends BaseNodeVisitor {
                 let expression = node.edges.content;
 
                 if ((expression instanceof ConditionalExpressionNode) && this.shouldUnwrapConditional(expression, env, type)) {
-                    //return new DoNode(this.unwrapConditional(expression, env, type), expression.getLine(), expression.getColumn());
                     return new DoNode(null, {
                         expression: this.unwrapConditional(expression, env, type)
                     }, expression.location);
@@ -186,13 +186,11 @@ export class EscaperNodeVisitor extends BaseNodeVisitor {
         // todo: useful for what?
         //nodes.set('2', new ConstantExpressionNode({value: true}, null, location));
 
-        let filterArguments = new HashExpressionNode({}, {
-            '0': new Node(null, {
-                key: new ConstantExpressionNode({value: 'strategy'}, null, location),
+        let filterArguments = new ArgumentsExpressionNode({}, {
+            '0': new ArgumentExpressionNode(null, {
                 value: new ConstantExpressionNode({value: type}, null, location),
             }, location),
-            '1': new Node(null, {
-                key: new ConstantExpressionNode({value: 'charset'}, null, location),
+            '1': new ArgumentExpressionNode(null, {
                 value: new ConstantExpressionNode({value: null}, null, location),
             }, location)
         }, location);

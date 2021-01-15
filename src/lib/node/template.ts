@@ -60,7 +60,7 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
             .raw(', ')
             .string(this.attributes.source.resolvedName)
             .raw(");\n\n")
-            .write('let aliases = new this.Context();\n');
+            .write('let aliases = new this.Context();\n\n');
 
         // _self
         const selfImportNode = new ImportNode({global: true}, {
@@ -73,58 +73,54 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
         // block handlers
         let count: number = this.edges.blocks.edgesCount;
 
-        if (count > 0) {
-            compiler
-                .write('\n')
-                .write('this.blockHandlers = new Map([\n')
-                .indent();
+        compiler
+            .write('\n')
+            .write('this._blockHandlers = new Map([\n')
+            .indent();
 
-            for (let [name, block] of this.edges.blocks) {
-                count--;
+        for (let [name, block] of this.edges.blocks) {
+            count--;
 
-                compiler.write(`['${name}', `)
-                    .subCompile(block)
-                    .raw(']');
+            compiler.write(`['${name}', `)
+                .subCompile(block)
+                .raw(']');
 
-                if (count > 0) {
-                    compiler.raw(',')
-                }
-
-                compiler.raw('\n');
+            if (count > 0) {
+                compiler.raw(',')
             }
 
-            compiler
-                .outdent()
-                .write(']);\n');
+            compiler.raw('\n');
         }
+
+        compiler
+            .outdent()
+            .write(']);\n');
 
         // macro handlers
         count = this.edges.macros.edgesCount;
 
-        if (count > 0) {
-            compiler
-                .write('\n')
-                .write('this.macroHandlers = new Map([\n')
-                .indent();
+        compiler
+            .write('\n')
+            .write('this._macroHandlers = new Map([\n')
+            .indent();
 
-            for (let [name, macro] of this.edges.macros) {
-                count--;
+        for (let [name, macro] of this.edges.macros) {
+            count--;
 
-                compiler.write(`['${name}', `)
-                    .subCompile(macro)
-                    .raw(']');
+            compiler.write(`['${name}', `)
+                .subCompile(macro)
+                .raw(']');
 
-                if (count > 0) {
-                    compiler.raw(',')
-                }
-
-                compiler.raw('\n');
+            if (count > 0) {
+                compiler.raw(',')
             }
 
-            compiler
-                .outdent()
-                .write(']);\n');
+            compiler.raw('\n');
         }
+
+        compiler
+            .outdent()
+            .write(']);\n');
 
         if (this.edges.constructorEnd) {
             compiler.subCompile(this.edges.constructorEnd);
@@ -136,75 +132,26 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
     }
 
     protected compileDoGetTraits(compiler: Compiler) {
-        let count = this.edges.traits.edgesCount;
+        compiler
+            .write("async doGetTraits() {\n")
+            .indent()
+            .write('let traits = new Map();\n\n');
 
-        if (count > 0) {
+        for (let [, trait] of this.edges.traits) {
             compiler
-                .write("async doGetTraits() {\n")
+                .write(`traits = this.merge(traits, await (async () => {`)
+                .raw('\n')
                 .indent()
-                .write('let traits = new Map();\n\n');
-
-            for (let [i, trait] of this.edges.traits) {
-                let node = trait.edges.template;
-
-                compiler
-                    .write(`let trait_${i} = await this.loadTemplate(`)
-                    .subCompile(node)
-                    .raw(', ')
-                    .repr(node.location)
-                    .raw(");\n\n")
-                ;
-
-                compiler
-                    .write(`if (!trait_${i}.isTraitable) {\n`)
-                    .indent()
-                    .write('throw new this.RuntimeError(\'Template ')
-                    .subCompile(trait.edges.template)
-                    .raw(' cannot be used as a trait.\', ')
-                    .repr(node.location)
-                    .raw(", this.source);\n")
-                    .outdent()
-                    .write('}\n\n')
-                    .write(`let traits_${i} = this.cloneMap(await trait_${i}.getBlocks());\n\n`)
-                ;
-
-                for (let [key, value] of trait.edges.targets) {
-                    compiler
-                        .write(`if (!traits_${i}.has(`)
-                        .string(key as string)
-                        .raw(")) {\n")
-                        .indent()
-                        .write('throw new this.RuntimeError(\'Block ')
-                        .string(key as string)
-                        .raw(' is not defined in trait ')
-                        .subCompile(trait.edges.template)
-                        .raw('.\', ')
-                        .repr(value.location)
-                        .raw(', this.source);\n')
-                        .outdent()
-                        .write('}\n\n')
-                        .write(`traits_${i}.set(`)
-                        .subCompile(value)
-                        .raw(`, traits_${i}.get(`)
-                        .string(key)
-                        .raw(`)); traits_${i}.delete(`)
-                        .string(key)
-                        .raw(');\n\n')
-                    ;
-                }
-            }
-
-            for (let i = 0; i < count; ++i) {
-                compiler.write(`traits = this.merge(traits, traits_${i});\n`);
-            }
-
-            compiler.write('\n');
-
-            compiler
-                .write('return Promise.resolve(traits);\n')
+                .subCompile(trait)
                 .outdent()
-                .write('}\n\n');
+                .raw('\n')
+                .write(`})());\n\n`);
         }
+
+        compiler
+            .write('return Promise.resolve(traits);\n')
+            .outdent()
+            .write('}\n\n');
     }
 
     protected compileDoGetParent(compiler: Compiler) {
@@ -226,7 +173,7 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
                 compiler
                     .raw('.then((parent) => {\n')
                     .indent()
-                    .write('this.parent = parent;\n\n')
+                    .write('this._parent = parent;\n\n')
                     .write('return parent;\n')
                     .outdent()
                     .write('})')
@@ -254,8 +201,6 @@ export class TemplateNode extends Node<TemplateNodeAttributes, TemplateNodeEdges
         compiler.subCompile(this.edges.body);
 
         if (this.edges.parent) {
-            console.log(this.toString());
-
             compiler.write('await (await this.getParent(context)).display(context, this.merge(await this.getBlocks(), blocks), outputBuffer);\n');
         }
 

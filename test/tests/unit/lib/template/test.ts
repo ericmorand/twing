@@ -320,7 +320,7 @@ tape('template', function (test) {
             constructor() {
                 super(new MockEnvironment());
 
-                this.macroHandlers = new Map([
+                this._macroHandlers = new Map([
                     ['foo', fooHandler]
                 ])
             }

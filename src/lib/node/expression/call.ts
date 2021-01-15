@@ -10,6 +10,7 @@ import {HashExpressionNode} from "./hash";
 
 import type {ExpressionNodeAttributes} from "../expression";
 import type {HashExpressionNodeEdge} from "./hash";
+import {ArgumentsExpressionNode} from "./arguments";
 
 const array_merge = require('locutus/php/array/array_merge');
 const snakeCase = require('snake-case');
@@ -22,7 +23,7 @@ export type CallExpressionNodeAttributes = ExpressionNodeAttributes<{
 
 export type CallExpressionNodeEdges = {
     node?: Node,
-    arguments?: HashExpressionNode
+    arguments?: ArgumentsExpressionNode
 };
 
 export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNodeAttributes, CallExpressionNodeEdges> {
@@ -111,20 +112,30 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
         }
 
         if (this.edges.arguments) {
-            let arguments_ = this.getArguments(this.edges.arguments, callableWrapper);
-
-            for (let node of arguments_) {
-                if (!first) {
-                    compiler.raw(', ');
-                }
-
-                compiler.subCompile(node.edges.value);
-
-                first = false;
+            if (!first) {
+                compiler.raw(', ');
             }
+
+            //let arguments_ = this.getArguments(this.edges.arguments, callableWrapper);
+
+            console.log(this.edges.arguments.toString());
+
+            compiler.subCompile(this.edges.arguments);
+
+
+            // for (let node of arguments_) {
+            //     if (!first) {
+            //         compiler.raw(', ');
+            //     }
+            //
+            //     compiler.subCompile(node.edges.value);
+            //
+            //     first = false;
+            // }
         }
     }
 
+    // todo: this should be done at the parser level: checking the nnumber of argument,s reordering them based on name for named arguments, checking that named arguments precede positioned one...
     protected getArguments(argumentsNode: HashExpressionNode, callableWrapper: CallableWrapper<any, any>): Array<Node<null, {
         key: Node,
         value: Node
@@ -135,13 +146,16 @@ export abstract class CallExpressionNode extends ExpressionNode<CallExpressionNo
         let parameters: Map<string, Node> = new Map();
         let named = false;
 
-        for (let [, node] of argumentsNode) {
-            let key = node.edges.key.attributes.value;
+        // todo: should be at the parser level
+
+        for (let [key, node] of argumentsNode) {
+            //let key = node.edges.key.attributes.value;
 
             if (typeof key !== 'number') {
                 named = true;
                 key = this.normalizeName(key);
             } else if (named) {
+                // todo: should be at the parser level
                 throw new SyntaxError(`Positional arguments cannot be used after named arguments for ${callType} "${callName}".`, null, this.location);
             }
 

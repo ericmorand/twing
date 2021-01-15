@@ -44,28 +44,30 @@ export type TemplateMacroHandler = (outputBuffer: OutputBuffer, ...args: Array<a
  */
 export abstract class Template {
     private readonly _environment: Environment;
-    private _source: Source;
 
-    protected parent: Template | false;
-    protected parents: Map<Template | string, Template>;
-    protected blocks: TemplateBlocksMap;
-    protected blockHandlers: Map<string, TemplateBlockHandler>;
-    protected macroHandlers: Map<string, TemplateMacroHandler>;
-    protected traits: TemplateBlocksMap;
-    protected macros: TemplateMacrosMap;
-    protected aliases: TemplateAliasesMap;
+    protected _source: Source;
+    protected _parent: Template | false;
+    protected _parents: Map<Template | string, Template>;
+    protected _blocks: TemplateBlocksMap;
+    protected _blockHandlers: Map<string, TemplateBlockHandler>;
+    protected _macroHandlers: Map<string, TemplateMacroHandler>;
+    protected _traits: TemplateBlocksMap;
+    protected _macros: TemplateMacrosMap;
+    protected _aliases: TemplateAliasesMap;
 
     constructor(environment: Environment) {
         this._environment = environment;
 
-        this.parents = new Map();
-        this.aliases = new Context();
-        this.blockHandlers = new Map();
-        this.macroHandlers = new Map();
+        this._parents = new Map();
+        this._aliases = new Context();
     }
 
     get environment(): Environment {
         return this._environment;
+    }
+
+    protected get aliases() {
+        return this._aliases;
     }
 
     /**
@@ -96,30 +98,30 @@ export abstract class Template {
      * @returns {Promise<TwingTemplate|false>} The parent template or false if there is no parent
      */
     public getParent(context: any = {}): Promise<Template | false> {
-        if (this.parent) {
-            return Promise.resolve(this.parent);
+        if (this._parent) {
+            return Promise.resolve(this._parent);
         }
 
         return this.doGetParent(context)
             .then((parent) => {
                 if (parent === false || parent instanceof Template) {
                     if (parent instanceof Template) {
-                        this.parents.set(parent.source.name, parent);
+                        this._parents.set(parent.source.name, parent);
                     }
 
                     return parent;
                 }
 
                 // parent is a string
-                if (!this.parents.has(parent)) {
+                if (!this._parents.has(parent)) {
                     return this.loadTemplate(parent)
                         .then((template: Template) => {
-                            this.parents.set(parent, template);
+                            this._parents.set(parent, template);
 
                             return template;
                         });
                 } else {
-                    return this.parents.get(parent);
+                    return this._parents.get(parent);
                 }
             });
     }
@@ -130,13 +132,13 @@ export abstract class Template {
      * @returns {Promise<TemplateBlocksMap>} A map of blocks
      */
     public getBlocks(): Promise<TemplateBlocksMap> {
-        if (this.blocks) {
-            return Promise.resolve(this.blocks);
+        if (this._blocks) {
+            return Promise.resolve(this._blocks);
         } else {
             return this.getTraits().then((traits) => {
-                this.blocks = merge(traits, new Map([...this.blockHandlers.keys()].map((key) => [key, [this, key]])));
+                this._blocks = merge(traits, new Map([...this._blockHandlers.keys()].map((key) => [key, [this, key]])));
 
-                return this.blocks;
+                return this._blocks;
             });
         }
     }
@@ -157,9 +159,9 @@ export abstract class Template {
             let blockHandler: TemplateBlockHandler;
 
             if (useBlocks && blocks.has(name)) {
-                blockHandler = blocks.get(name)[0].blockHandlers.get(blocks.get(name)[1]);
+                blockHandler = blocks.get(name)[0]._blockHandlers.get(blocks.get(name)[1]);
             } else if (ownBlocks.has(name)) {
-                blockHandler = ownBlocks.get(name)[0].blockHandlers.get(ownBlocks.get(name)[1]);
+                blockHandler = ownBlocks.get(name)[0]._blockHandlers.get(ownBlocks.get(name)[1]);
             }
 
             if (blockHandler) {
@@ -282,7 +284,7 @@ export abstract class Template {
      */
     public hasMacro(name: string): Promise<boolean> {
         // @see https://github.com/twigphp/Twig/issues/3174 as to why we don't check macro existence in parents
-        return Promise.resolve(this.macroHandlers.has(name));
+        return Promise.resolve(this._macroHandlers.has(name));
     }
 
     /**
@@ -291,7 +293,7 @@ export abstract class Template {
     public getMacro(name: string): Promise<TemplateMacroHandler> {
         return this.hasMacro(name).then((hasMacro) => {
             if (hasMacro) {
-                return this.macroHandlers.get(name);
+                return this._macroHandlers.get(name);
             } else {
                 return null;
             }
@@ -329,11 +331,11 @@ export abstract class Template {
      * @returns {Promise<TemplateBlocksMap>} A map of traits
      */
     public getTraits(): Promise<TemplateBlocksMap> {
-        if (this.traits) {
-            return Promise.resolve(this.traits);
+        if (this._traits) {
+            return Promise.resolve(this._traits);
         } else {
             return this.doGetTraits().then((traits) => {
-                this.traits = traits;
+                this._traits = traits;
 
                 return traits;
             });
@@ -412,10 +414,10 @@ export abstract class Template {
         return Promise.resolve(false);
     }
 
-    protected callMacro(template: Template, name: string, outputBuffer: OutputBuffer, args: any[], location: Location, context: Context<any, any>, source: Source): Promise<string> {
+    protected callMacro(template: Template, name: string, outputBuffer: OutputBuffer, location: Location, context: Context<any, any>, source: Source, ...args: any[]): Promise<string> {
         let getHandler = (template: Template): Promise<TemplateMacroHandler> => {
-            if (template.macroHandlers.has(name)) {
-                return Promise.resolve(template.macroHandlers.get(name));
+            if (template._macroHandlers.has(name)) {
+                return Promise.resolve(template._macroHandlers.get(name));
             } else {
                 return template.getParent(context).then((parent) => {
                     if (parent) {
@@ -429,7 +431,7 @@ export abstract class Template {
 
         return getHandler(template).then((handler) => {
             if (handler) {
-                return handler(outputBuffer, ...args);
+                return handler(outputBuffer, args);
             } else {
                 throw new RuntimeError(`Macro "${name}" is not defined in template "${template.templateName}".`, location, source);
             }

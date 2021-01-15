@@ -7,10 +7,12 @@ import {TraitNode} from "../node/trait";
 
 export class UseTokenParser extends TokenParser {
     parse(token: Token) {
+        const {line, column} = token;
+
         let template = this.parser.parseExpression();
         let stream = this.parser.getStream();
 
-        if (template instanceof ConstantExpressionNode) {
+        if (!(template instanceof ConstantExpressionNode)) {
             throw new SyntaxError('The template references in a "use" statement must be a string.', null, stream.getCurrent(), stream.source);
         }
 
@@ -25,7 +27,7 @@ export class UseTokenParser extends TokenParser {
                     alias = stream.expect(TokenType.NAME).value;
                 }
 
-                targets.set(name, new ConstantExpressionNode({value: alias}, null, token));
+                targets.set(name, new ConstantExpressionNode({value: alias}, null, {line, column}));
 
                 if (!stream.nextIf(TokenType.PUNCTUATION, ',')) {
                     break;
@@ -37,10 +39,10 @@ export class UseTokenParser extends TokenParser {
 
         this.parser.addTrait(new TraitNode(null, {
             template,
-            targets: new Node<null>(null, toNodeEdges(targets), token)
-        }, token));
+            targets: new Node<null>(null, toNodeEdges(targets), {line, column})
+        }, {line, column}));
 
-        return new Node<null, null>(null, null, token);
+        return new Node<null, null>(null, null, {line, column});
     }
 
     get tag(): string {

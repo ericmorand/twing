@@ -5,6 +5,7 @@ import {ExpressionNode} from "./node/expression";
 
 import type {Location} from "./node";
 import {HashExpressionNode} from "./node/expression/hash";
+import {ArgumentsExpressionNode} from "./node/expression/arguments";
 
 export type Callable<T> = (...args: any[]) => Promise<T>;
 
@@ -13,7 +14,7 @@ export type CallableArgument = {
     defaultValue?: any
 };
 
-export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: HashExpressionNode, location: Location) => ExpressionNode<any>;
+export type CallableWrapperExpressionFactory = (node: Node, name: string, callableArguments: ArgumentsExpressionNode, location: Location) => ExpressionNode<any>;
 
 export type CallableWrapperOptions = {
     needsTemplate?: boolean;

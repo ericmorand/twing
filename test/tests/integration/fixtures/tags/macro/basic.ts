@@ -1,4 +1,5 @@
 import TestBase from "../../../TestBase";
+import {EnvironmentOptions} from "../../../../../../src/lib/environment-options";
 
 export default class extends TestBase {
     getDescription() {
@@ -25,5 +26,11 @@ export default class extends TestBase {
 
   <input type="password" name="password" value="" size="1">
 `;
+    }
+
+    getEnvironmentOptions(): EnvironmentOptions {
+        return {
+            cache: 'tmp/test/tags/macro/basic'
+        };
     }
 }

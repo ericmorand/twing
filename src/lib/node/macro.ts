@@ -3,10 +3,12 @@
  *
  * @author Eric MORAND <eric.morand@gmail.com>
  */
-import {Location, Node} from "../node";
+import {Location, Node, NodeEdges} from "../node";
 import {SyntaxError} from "../error/syntax";
 import {Compiler} from "../compiler";
 import {BodyNode} from "./body";
+
+import type {ArgumentsExpressionNode} from "./expression/arguments";
 
 export type MacroNodeAttributes = {
     name: string
@@ -14,7 +16,7 @@ export type MacroNodeAttributes = {
 
 export type MacroNodeEdges = {
     body: BodyNode,
-    arguments: Node
+    arguments: ArgumentsExpressionNode
 };
 
 export class MacroNode extends Node<MacroNodeAttributes, MacroNodeEdges> {

@@ -45,9 +45,11 @@ import {EmbeddedTemplateNode} from "./node/embeddedTemplate";
 import {TemplateNode} from "./node/template";
 import {UnaryOperator} from "./operator/unary";
 import {BinaryOperator} from "./operator/binary";
+import {ArgumentExpressionNode} from "./node/expression/argument";
 
 import type {NodeEdges} from "./node";
 import type {CallType} from "./node/expression/get-attribute";
+import {ArgumentsExpressionNode} from "./node/expression/arguments";
 
 const sha256 = require('crypto-js/sha256');
 const hex = require('crypto-js/enc-hex');
@@ -578,7 +580,8 @@ export class Parser {
                     return value;
                 });
 
-                const functionArguments = elements.length > 2 ? (elements[2].edges.value as ArrayExpressionNode) : null;
+                // todo: to fix
+                const functionArguments = elements.length > 2 ? (elements[2].edges.value as ArgumentsExpressionNode) : null;
 
                 return this.resolveMethodCall(elements[0].edges.value, elements[1].edges.value, functionArguments, ANY_CALL);
             }
@@ -586,25 +589,12 @@ export class Parser {
                 let alias = this.getImportedSymbol('function', name);
 
                 if (alias) {
-                    const elements: Map<string, ArrayExpressionNodeEdge> = new Map();
-
-                    let i: number = 0;
-
-                    for (const [, node] of this.parseArguments()) {
-                        //methodArguments.addElement(node);
-                        elements.set(`${i}`, node);
-
-                        i++;
-                    }
-
-                    const methodArguments = new ArrayExpressionNode({}, toNodeEdges(elements), location);
-
                     return new MethodCallExpressionNode({
                         method: alias.name,
                         isSafe: true
                     }, {
                         template: alias.node,
-                        arguments: methodArguments
+                        arguments: this.parseArguments()
                     }, location);
                 }
 
@@ -616,7 +606,7 @@ export class Parser {
         }
     }
 
-    protected resolveMethodCall(variable: ExpressionNode<any>, attribute: ExpressionNode<any>, methodArguments: ArrayExpressionNode, type: CallType): MethodCallExpressionNode | GetAttributeExpressionNode {
+    protected resolveMethodCall(variable: ExpressionNode<any>, attribute: ExpressionNode<any>, methodArguments: ArgumentsExpressionNode, type: CallType): MethodCallExpressionNode | GetAttributeExpressionNode {
         if ((variable instanceof NameExpressionNode) && (attribute instanceof ConstantExpressionNode) && (
             this.getImportedSymbol('template', variable.attributes.value) || (variable.attributes.value === '_self')
         )) {
@@ -996,10 +986,10 @@ export class Parser {
 
         let token = stream.next();
 
-        const elements: Map<string, ArrayExpressionNodeEdge> = new Map();
+        const elements: Map<string, ArgumentExpressionNode> = new Map();
 
         let attribute: ExpressionNode<any>;
-        let methodArguments: ArrayExpressionNode;
+        let methodArguments: ArgumentsExpressionNode;
         let type: CallType = ANY_CALL;
 
         if (token.value === '.') {
@@ -1018,7 +1008,7 @@ export class Parser {
 
                     for (let [key, methodArgument] of argumentsNode) {
                         elements.set(key, new Node(null, {
-                            key: new ConstantExpressionNode({value: i}, null, methodArgument.location),
+                            //key: new ConstantExpressionNode({value: i}, null, methodArgument.location),
                             value: methodArgument.edges.value
                         }, methodArgument.location));
 
@@ -1057,13 +1047,13 @@ export class Parser {
                 const {line, column} = token;
 
                 let factory = this.getFilterExpressionFactory('slice', token);
-                let filterArguments = new ArrayExpressionNode({}, {
-                    0: new Node(null, {
-                        key: new ConstantExpressionNode({value: 0}, null, {line, column}),
+                let filterArguments = new ArgumentsExpressionNode({}, {
+                    0: new ArgumentExpressionNode(null, {
+                        //key: new ConstantExpressionNode({value: 0}, null, {line, column}),
                         value: attribute
                     }, {line, column}),
-                    1: new Node(null, {
-                        key: new ConstantExpressionNode({value: 1}, null, {line, column}),
+                    1: new ArgumentExpressionNode(null, {
+                        //key: new ConstantExpressionNode({value: 1}, null, {line, column}),
                         value: length
                     }, {line, column})
                 }, {line, column});
@@ -1079,7 +1069,7 @@ export class Parser {
             stream.expect(TokenType.PUNCTUATION, ']');
         }
 
-        methodArguments = new ArrayExpressionNode({}, toNodeEdges(elements), node.location);
+        methodArguments = new ArgumentsExpressionNode({}, toNodeEdges(elements), node.location);
 
         return this.resolveMethodCall(node, attribute, methodArguments, type);
     }
@@ -1126,7 +1116,7 @@ export class Parser {
                     isSafe: true
                 }, {
                     template: alias.node,
-                    arguments: new ArrayExpressionNode({}, {}, node.location)
+                    arguments: new ArgumentsExpressionNode({}, {}, node.location)
                 }, node.location);
             }
         }
@@ -1178,10 +1168,10 @@ export class Parser {
             const {line, column} = token;
 
             let name = new ConstantExpressionNode<string>({value: token.value}, {}, {line, column});
-            let methodArguments: HashExpressionNode;
+            let methodArguments: ArgumentsExpressionNode;
 
             if (!this.getStream().test(TokenType.PUNCTUATION, '(')) {
-                methodArguments = new HashExpressionNode(null, null, {line, column});
+                methodArguments = new ArgumentsExpressionNode(null, null, {line, column});
             } else {
                 methodArguments = this.parseArguments(true, false, true);
             }
@@ -1211,7 +1201,7 @@ export class Parser {
      *
      * @throws SyntaxError
      */
-    parseArguments(namedArguments: boolean = false, definition: boolean = false, allowArrow: boolean = false): HashExpressionNode {
+    parseArguments(namedArguments: boolean = false, definition: boolean = false, allowArrow: boolean = false): ArgumentsExpressionNode {
         let parsedArguments: Map<string, ExpressionNode<any>> = new Map();
         let stream = this.getStream();
         let value: ExpressionNode<any>;
@@ -1275,16 +1265,16 @@ export class Parser {
 
         stream.expect(TokenType.PUNCTUATION, ')', 'A list of arguments must be closed by a parenthesis');
 
-        const elements: Map<string, HashExpressionNodeEdge> = new Map();
+        const elements: Map<string, ArgumentExpressionNode> = new Map();
 
         for (let [key, value] of parsedArguments) {
             elements.set(key, new Node(null, {
-                key: new ConstantExpressionNode<string>({value: key}, null, value.location),
+                //key: new ConstantExpressionNode<string>({value: key}, null, value.location),
                 value
             }, value.location));
         }
 
-        return new HashExpressionNode({}, toNodeEdges(elements), {line, column});
+        return new Node(null, toNodeEdges(elements), {line, column});
     }
 
     parseAssignmentExpression(): Node<null, NodeEdges<AssignNameExpressionNode>> {

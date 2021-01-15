@@ -2,7 +2,7 @@ import TestBase from "../../../TestBase";
 
 export default class extends TestBase {
     getDescription() {
-        return '"use" tag';
+        return '"use" tag with alias';
     }
 
     getTemplates() {
@@ -11,15 +11,17 @@ export default class extends TestBase {
 {% block content 'foo' %}`,
             'index.twig': `
 {% use "blocks.twig" with content as foo %}
+{% use "blocks.twig" with content as bar %}
 
-{{ block('foo') }}`
+{{ block('foo') }}
+{{ block('bar') }}`
         };
     }
 
     getExpected() {
         return `
 foo
+foo
 `;
     }
-
 }

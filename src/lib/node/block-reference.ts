@@ -11,6 +11,10 @@ export type BlockReferenceNodeAttributes = {
  * @author Eric MORAND <eric.morand@gmail.com>
  */
 export class BlockReferenceNode extends Node<BlockReferenceNodeAttributes, null> {
+    get outputs(): boolean {
+        return true;
+    }
+
     compile(compiler: Compiler) {
         compiler
             .write(`outputBuffer.echo(await this.traceableRenderBlock(`)

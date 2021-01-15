@@ -63,14 +63,18 @@ export class NodeTraverser {
 
         if (node) {
             for (let [key, subNode] of node) {
-                let visitedNode = this.visit(subNode, visitor);
+                if (subNode) {
+                    let visitedNode = this.visit(subNode, visitor);
 
-                if (visitedNode) {
-                    if (visitedNode !== subNode) {
-                        node.edges[key] = visitedNode;
+                    const edges = node.edges;
+
+                    if (visitedNode) {
+                        edges[key] = visitedNode;
+                    } else {
+                        delete edges[key];
                     }
-                } else {
-                    delete node.edges[key];
+
+                    node.edges = edges;
                 }
             }
         }

@@ -3,6 +3,7 @@ import {Compiler} from "../../compiler";
 import {ArrayExpressionNode} from "./array";
 
 import type {ExpressionNodeAttributes} from "../expression";
+import {ArgumentsExpressionNode} from "./arguments";
 
 export const ANY_CALL = 'any';
 export const ARRAY_CALL = 'array';
@@ -17,7 +18,7 @@ export type GetAttributeExpressionNodeAttributes = ExpressionNodeAttributes<{
 export type GetAttributeExpressionNodeEdges = {
     object: ExpressionNode<any>,
     attribute: ExpressionNode<any>,
-    arguments?: ArrayExpressionNode
+    arguments?: ArgumentsExpressionNode
 };
 
 export class GetAttributeExpressionNode extends ExpressionNode<GetAttributeExpressionNodeAttributes, GetAttributeExpressionNodeEdges> {
